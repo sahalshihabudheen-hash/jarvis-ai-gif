@@ -20,26 +20,27 @@
       position: absolute;
       width: 100%;
       height: 100%;
-      z-index: 0;
+      z-index: 1;
     }
 
     .container {
-      position: relative;
-      z-index: 1;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
       padding: 20px;
       box-sizing: border-box;
-      height: 100%;
-      width: 100%;
     }
 
     .title {
       color: #00ffaa;
       text-align: center;
       margin-bottom: 5px;
-      text-shadow: 0 0 10px #00ffaa, 0 0 20px #00ffaa;
     }
 
     .sub {
@@ -50,10 +51,8 @@
 
     .sub span {
       color: #00eaff;
-      font-weight: bold;
     }
 
-    /* Chat Box */
     .chat-box {
       flex: 1;
       width: 100%;
@@ -62,13 +61,11 @@
       flex-direction: column;
       gap: 12px;
       padding: 10px;
-      background: rgba(0, 0, 0, 0.35);
+      background: rgba(0,0,0,0.5);
       border-radius: 12px;
       margin-bottom: 10px;
-      box-shadow: 0 0 15px #00ffaa50;
     }
 
-    /* Chat bubbles */
     .message {
       max-width: 90%;
       padding: 10px 14px;
@@ -78,109 +75,58 @@
       opacity: 0;
       transform: translateY(20px);
       animation: fadeIn 0.3s forwards;
-      backdrop-filter: blur(2px);
     }
 
     .message.user {
       align-self: flex-end;
       background: rgba(0, 234, 255, 0.8);
       color: #000;
-      border-bottom-right-radius: 0;
-      box-shadow: 0 0 10px #00eaff, 0 0 15px #00ffaa;
     }
 
     .message.ai {
       align-self: flex-start;
       background: rgba(0, 255, 170, 0.2);
       color: #fff;
-      border: 1px solid #00ffaa;
-      border-bottom-left-radius: 0;
-      box-shadow: 0 0 15px #00ffaa, 0 0 25px #00ffaa;
-      animation: glowPulse 1.5s infinite alternate;
     }
 
-    /* GIFs */
     .message img {
       display: block;
       margin-top: 8px;
       max-width: 100%;
       border-radius: 12px;
-      box-shadow: 0 0 15px #00ffaa;
-      animation: pulseImg 2s infinite alternate;
     }
 
-    /* Input Area */
     .input-area {
       display: flex;
       gap: 10px;
     }
 
-    #userInput {
+    .input-area input {
       flex: 1;
-      padding: 12px;
+      padding: 10px 12px;
       border-radius: 12px;
       border: none;
       outline: none;
       font-size: 16px;
-      background: rgba(20, 20, 20, 0.6);
-      color: #fff;
-      backdrop-filter: blur(4px);
-      transition: box-shadow 0.3s, transform 0.2s;
     }
 
-    #userInput::placeholder {
-      color: rgba(255,255,255,0.6);
-    }
-
-    #userInput:focus {
-      animation: inputGlow 1.2s infinite alternate;
-      transform: scale(1.02);
-    }
-
-    #sendBtn {
-      padding: 12px 18px;
+    .input-area button {
+      padding: 10px 16px;
       border-radius: 12px;
       border: none;
       background: #00ffaa;
       color: #000;
       font-weight: bold;
       cursor: pointer;
-      box-shadow: 0 0 10px #00ffaa;
-      animation: buttonPulse 2s infinite alternate;
       transition: 0.2s;
     }
 
-    #sendBtn:hover {
+    .input-area button:hover {
       background: #00eaff;
-      box-shadow: 0 0 25px #00eaff;
     }
 
     @keyframes fadeIn {
       to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes glowPulse {
-      0% { box-shadow: 0 0 15px #00ffaa, 0 0 20px #00ffaa; }
-      50% { box-shadow: 0 0 25px #00ffaa, 0 0 30px #00ffaa; }
-      100% { box-shadow: 0 0 15px #00ffaa, 0 0 20px #00ffaa; }
-    }
-
-    @keyframes pulseImg {
-      0% { transform: scale(1); box-shadow: 0 0 15px #00ffaa; }
-      50% { transform: scale(1.03); box-shadow: 0 0 25px #00ffaa; }
-      100% { transform: scale(1); box-shadow: 0 0 15px #00ffaa; }
-    }
-
-    @keyframes inputGlow {
-      0% { box-shadow: 0 0 8px #00ffaa; }
-      50% { box-shadow: 0 0 18px #00ffaa; }
-      100% { box-shadow: 0 0 8px #00ffaa; }
-    }
-
-    @keyframes buttonPulse {
-      0% { box-shadow: 0 0 10px #00ffaa; }
-      50% { box-shadow: 0 0 20px #00ffaa; }
-      100% { box-shadow: 0 0 10px #00ffaa; }
     }
   </style>
 </head>
@@ -202,7 +148,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/tsparticles@2/tsparticles.bundle.min.js"></script>
 <script>
-  // Particle Background
   document.addEventListener("DOMContentLoaded", () => {
     tsParticles.load("particles", {
       background: { color: "#000" },
@@ -227,7 +172,7 @@
     });
   });
 
-  // Chat functionality
+  // Chat JS
   const chatBox = document.getElementById("chat-box");
   const input = document.getElementById("userInput");
   const sendBtn = document.getElementById("sendBtn");
@@ -259,18 +204,16 @@
     addMessage("You", message);
     input.value="";
 
-    // CUSTOM REPLIES
+    // Custom replies first
     let customReply = null;
-    if(/who is your creator/i.test(message)) customReply="My creator is SAHAL_PRO 🤯";
+    if(/who is your creator/i.test(message)) customReply="My creator is SAHAL_PRO ðŸ¤–";
     else if(/which api/i.test(message)) customReply="Fully trained by SAHAL_PRO";
-    else if(/who is your developer/i.test(message)) customReply="No API, fully trained by me";
 
     if(customReply){
       addMessage("JARVIS", customReply);
-      return; // stop and do not call server
+      return;
     }
 
-    // SERVER CALL
     try{
       const res = await fetch("/ask", {
         method:"POST",
@@ -280,7 +223,7 @@
       const data = await res.json();
       addMessage("JARVIS", data.reply, data.gif);
     } catch(err){
-      addMessage("JARVIS","⚠️ Error sending request.");
+      addMessage("JARVIS","âš ï¸ Error sending request.");
     }
   }
 </script>
