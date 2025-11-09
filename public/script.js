@@ -57,7 +57,7 @@ async function sendMessage() {
   const apiPatterns = [/which api/i, /which ai/i, /what api/i];
 
   if (creatorPatterns.some(p => p.test(message))) {
-    customReply = "My creator is SAHAL_PRO 🤖";
+    customReply = "My creator is SAHAL_PRO ðŸ¤–";
   } else if (apiPatterns.some(p => p.test(message))) {
     customReply = "Fully trained by SAHAL_PRO";
   }
@@ -78,6 +78,6 @@ async function sendMessage() {
     const data = await res.json();
     addMessage("JARVIS", data.reply, data.gif);
   } catch (err) {
-    addMessage("JARVIS", "⚠️ Error sending request.", null);
+    addMessage("JARVIS", "âš ï¸ Error sending request.", null);
   }
 }
