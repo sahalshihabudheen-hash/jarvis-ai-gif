@@ -8,7 +8,7 @@ input.addEventListener("keydown", e => {
   if (e.key === "Enter") sendMessage();
 });
 
-// Function to add a message bubble
+// Function to add a message bubble with animation
 function addMessage(sender, text, gifUrl = null) {
   const bubble = document.createElement("div");
   bubble.classList.add("message", sender === "You" ? "user" : "ai");
@@ -27,8 +27,17 @@ function addMessage(sender, text, gifUrl = null) {
     bubble.appendChild(img);
   }
 
+  // Floating/scale animation
+  bubble.style.transform = "scale(0.9)";
+  bubble.style.opacity = "0";
+  bubble.style.transition = "transform 0.3s ease, opacity 0.3s ease";
   chatBox.appendChild(bubble);
   chatBox.scrollTop = chatBox.scrollHeight;
+
+  setTimeout(() => {
+    bubble.style.transform = "scale(1)";
+    bubble.style.opacity = "1";
+  }, 10);
 }
 
 // Send message
@@ -39,13 +48,17 @@ async function sendMessage() {
   addMessage("You", message);
   input.value = "";
 
-  // Custom responses first (no server call)
+  // Custom responses first
   let customReply = null;
   let customGif = null;
 
-  if (/who is your creator/i.test(message)) {
+  // Multiple patterns for creator/developer
+  const creatorPatterns = [/who is your creator/i, /who is your developer/i, /who made you/i];
+  const apiPatterns = [/which api/i, /which ai/i, /what api/i];
+
+  if (creatorPatterns.some(p => p.test(message))) {
     customReply = "My creator is SAHAL_PRO 🤖";
-  } else if (/which api/i.test(message)) {
+  } else if (apiPatterns.some(p => p.test(message))) {
     customReply = "Fully trained by SAHAL_PRO";
   }
 
