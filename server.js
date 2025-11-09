@@ -1,70 +1,49 @@
 import express from "express";
-import fetch from "node-fetch";
-import cors from "cors";
+import axios from "axios";
+import dotenv from "dotenv";
 
+dotenv.config();
 const app = express();
-app.use(cors());
 app.use(express.json());
+app.use(express.static("public"));
 
-// ✅ Your Keys
-const GORQ_API_KEY = process.env.GORQ_API_KEY || "YOUR_GORQ_KEY";
-const TENOR_API_KEY = process.env.TENOR_API_KEY || "YOUR_TENOR_KEY";
+app.post("/ask", async (req, res) => {
+  const question = req.body.message;
+  if (!question) return res.json({ reply: "Say something." });
 
-// ✅ Chat Route
-app.post("/api/chat", async (req, res) => {
   try {
-    const userMessage = (req.body.message || "").toLowerCase();
-
-    // ✅ Creator info detection
-    const creatorKeywords = [
-      "who created you",
-      "who made you",
-      "your creator",
-      "your owner",
-      "who trained you"
-    ];
-
-    if (creatorKeywords.some(word => userMessage.includes(word))) {
-      return res.json({ reply: "I was created by **Sahal Shihabudheen** ⚡." });
-    }
-
-    // ✅ GIF Request Detection
-    if (userMessage.includes("gif")) {
-      const searchTerm = userMessage.replace("gif", "").trim();
-      const gifRes = await fetch(
-        `https://tenor.googleapis.com/v2/search?q=${encodeURIComponent(searchTerm)}&key=${TENOR_API_KEY}&limit=1`
-      );
-      const gifData = await gifRes.json();
-
-      if (gifData.results?.length > 0) {
-        return res.json({ reply: gifData.results[0].media_formats.gif.url });
-      }
-    }
-
-    // ✅ GORQ Chat API
-    const gorqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${GORQ_API_KEY}`,
-        "Content-Type": "application/json",
+    // Call GORQ API for AI text
+    const response = await axios.post(
+      "https://api.groq.com/openai/v1/chat/completions",
+      {
+        model: "llama-3.1-8b-instant",
+        messages: [{ role: "user", content: question }]
       },
-      body: JSON.stringify({
-        model: "llama-3.2-90b-vision-preview",
-        messages: [{ role: "user", content: req.body.message }],
-      }),
+      { headers: { Authorization: `Bearer ${process.env.GROQ_API}` } }
+    );
+
+    const aiReply = response.data.choices[0].message.content;
+
+    // Call Tenor API for GIF based on AI reply
+    const tenorRes = await axios.get("https://g.tenor.com/v1/search", {
+      params: {
+        q: aiReply,
+        key: process.env.TENOR_API,
+        limit: 1
+      }
     });
 
-    const data = await gorqResponse.json();
-    const reply = data?.choices?.[0]?.message?.content || "⚠️ No reply received.";
+    const gifUrl =
+      tenorRes.data.results && tenorRes.data.results.length > 0
+        ? tenorRes.data.results[0].media[0].gif.url
+        : null;
 
-    return res.json({ reply });
-
+    res.json({ reply: aiReply, gif: gifUrl });
   } catch (err) {
-    console.log("Server Error:", err);
-    return res.json({ reply: "⚠️ Server Error. Try again later." });
+    console.error(err);
+    res.json({ reply: "⚠️ Error processing request.", gif: null });
   }
 });
 
-// ✅ Port fix for Render (MUST!)
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`✅ Server Running on http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`✅ JARVIS Running on port ${PORT}`));
