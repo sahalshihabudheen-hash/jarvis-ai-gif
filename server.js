@@ -12,26 +12,35 @@ app.post("/ask", async (req, res) => {
   if (!question) return res.json({ reply: "Say something.", gif: null });
 
   try {
-    // Call GORQ API for AI text
-    const response = await axios.post(
-      "https://api.groq.com/openai/v1/chat/completions",
-      {
-        model: "llama-3.1-8b-instant",
-        messages: [{ role: "user", content: question }]
-      },
-      { headers: { Authorization: `Bearer ${process.env.GROQ_API}` } }
-    );
+    // Hardcoded custom responses
+    let aiReply;
+    if (/who created you/i.test(question)) {
+      aiReply = "I was fully trained by Sahal Shihabudheen 🤖";
+    } else if (/hello|hi/i.test(question)) {
+      aiReply = "Hello! How can I assist you today?";
+    } else {
+      // Call GORQ API for general AI text
+      const response = await axios.post(
+        "https://api.groq.com/openai/v1/chat/completions",
+        {
+          model: "llama-3.1-8b-instant",
+          messages: [{ role: "user", content: question }]
+        },
+        { headers: { Authorization: `Bearer ${process.env.GROQ_API}` } }
+      );
+      aiReply = response.data.choices[0].message.content;
+    }
 
-    const aiReply = response.data.choices[0].message.content;
-
-    // Optional: only fetch GIF if user message has "emotion" keywords
-    const emotionKeywords = ["happy","funny","sad","angry","excited"];
+    // Tenor GIF search based on question or AI reply
+    const searchQuery = question; // you can also use aiReply for variety
     let gifUrl = null;
-    if (emotionKeywords.some(k => question.toLowerCase().includes(k))) {
+    try {
       const tenorRes = await axios.get("https://g.tenor.com/v1/search", {
-        params: { q: question, key: process.env.TENOR_API, limit: 1 }
+        params: { q: searchQuery, key: process.env.TENOR_API, limit: 1 }
       });
       gifUrl = tenorRes.data.results?.[0]?.media?.[0]?.gif?.url || null;
+    } catch (gifErr) {
+      gifUrl = null;
     }
 
     res.json({ reply: aiReply, gif: gifUrl });
