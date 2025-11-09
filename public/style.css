@@ -1,56 +1,46 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
+  color: #00eaff;
   background: #000;
   overflow: hidden;
 }
 
 .container {
   position: absolute;
-  top: 50%; left: 50%;
+  top: 50%;
+  left: 50%;
   transform: translate(-50%, -50%);
-  width: 60%;
-  color: cyan;
   text-align: center;
+  width: 450px;
 }
 
 .title {
   font-size: 48px;
-  text-shadow: 0 0 25px #00eaff;
+  font-weight: bold;
+  margin-bottom: 5px;
+  letter-spacing: 8px;
+  color: #00eaff;
 }
 
 .sub span {
-  color: #00eaff;
-  text-shadow: 0 0 10px #00eaff;
+  color: #00ffaa;
 }
 
 .chat-box {
-  height: 350px;
-  width: 100%;
-  overflow-y: auto;
+  height: 300px;
+  background: rgba(255, 255, 255, 0.05);
   border: 1px solid #00eaff;
-  padding: 15px;
-  margin: 20px 0;
   border-radius: 10px;
-  background: rgba(0, 50, 70, 0.25);
-  backdrop-filter: blur(10px);
-}
-
-.message {
-  margin: 10px 0;
+  margin-top: 15px;
+  padding: 10px;
+  overflow-y: auto;
   text-align: left;
-}
-
-.bot {
-  color: #00eaff;
-  font-weight: bold;
-}
-
-.user {
-  color: #fff;
+  font-size: 15px;
 }
 
 .input-area {
+  margin-top: 15px;
   display: flex;
   gap: 10px;
 }
@@ -61,18 +51,16 @@ body {
   border-radius: 8px;
   border: none;
   outline: none;
-  background: #00171f;
-  color: cyan;
-  box-shadow: 0 0 10px #00eaff;
+  background: #111;
+  color: white;
 }
 
-button {
-  padding: 10px 20px;
+#sendBtn {
+  padding: 10px 15px;
   background: #00eaff;
   border: none;
-  cursor: pointer;
-  box-shadow: 0 0 15px #00eaff;
   border-radius: 8px;
+  cursor: pointer;
   font-weight: bold;
+  color: #000;
 }
-
