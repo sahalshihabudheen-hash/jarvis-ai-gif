@@ -1,57 +1,35 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>JARVIS AI + GIF</title>
-  <style>
-    body{margin:0; font-family:sans-serif; overflow:hidden; background:#000;}
-    .chat-container{position:absolute; bottom:20px; left:50%; transform:translateX(-50%);
-    background:rgba(0,0,0,0.6); padding:20px; border-radius:15px; width:400px;
-    box-shadow:0 0 20px #0ff;}
-    input, button{padding:10px; margin:5px; border:none; border-radius:10px;}
-    button{background:#0ff;color:#000; cursor:pointer;}
-    #chat div{margin:10px 0; background:#111; padding:10px; border-radius:10px;}
-    img{max-width:200px;border-radius:10px;}
-  </style>
+  <meta charset="UTF-8" />
+  <title>JARVIS AI</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <canvas id="bg"></canvas>
-  <div class="chat-container">
-    <input id="message" placeholder="Ask JARVIS something..." size="40">
-    <button id="send">Send</button>
-    <div id="chat"></div>
+
+<div id="particles"></div>
+
+<div class="container">
+  <h1 class="title">J A R V I S</h1>
+  <p class="sub">Fully Trained by <span>Sahal Shihabudheen</span></p>
+
+  <div class="chat-box" id="chat-box"></div>
+
+  <div class="input-area">
+    <input type="text" id="userInput" placeholder="Type your message..." autocomplete="off">
+    <button id="sendBtn">Send</button>
   </div>
+</div>
 
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js"></script>
+<script src="script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tsparticles@2/tsparticles.bundle.min.js"></script>
+
 <script>
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-  const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('bg'), alpha:true });
-  renderer.setSize(window.innerWidth, window.innerHeight);
-
-  const geometry = new THREE.TorusKnotGeometry(10,3,100,16);
-  const material = new THREE.MeshStandardMaterial({ color:0x00ffff, emissive:0x00ffff, metalness:0.7 });
-  const knot = new THREE.Mesh(geometry, material);
-  scene.add(knot);
-  const light = new THREE.PointLight(0x00ffff,2);
-  light.position.set(50,50,50);
-  scene.add(light);
-  camera.position.z = 50;
-  function animate(){requestAnimationFrame(animate);knot.rotation.x+=0.01;knot.rotation.y+=0.01;renderer.render(scene,camera);}
-  animate();
-
-  document.getElementById("send").onclick = async ()=>{
-    const msg = document.getElementById("message").value;
-    if(!msg) return;
-    const res = await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:msg})});
-    const data = await res.json();
-    const chatDiv = document.getElementById("chat");
-    const div = document.createElement("div");
-    div.innerHTML = `<b>You:</b> ${msg}<br/><b>JARVIS:</b> ${data.reply}<br/>${data.gif? `<img src="${data.gif}" />`:""}`;
-    chatDiv.prepend(div);
-    gsap.from(div,{opacity:0, y:-30, duration:0.5, ease:"power3.out"});
-    document.getElementById("message").value = "";
-  };
+tsParticles.load("particles", {
+  background: { color: "#000" },
+  particles: { number: { value: 80 }, color: { value: "#00eaff" }, shape: { type: "circle" }, opacity: { value: 0.4 }, size: { value: 3 }, move: { speed: 1 }}
+});
 </script>
+
 </body>
 </html>
