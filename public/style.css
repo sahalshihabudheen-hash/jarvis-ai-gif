@@ -114,15 +114,25 @@ body {
   border-radius: 20px;
   border: none;
   outline: none;
-  background: rgba(20, 20, 20, 0.6);
-  color: #fff;
+  background: rgba(0, 0, 0, 0.8) !important; /* dark background */
+  color: #00eaff !important; /* text color */
   font-size: 16px;
-  box-shadow: 0 0 5px #00eaff, 0 0 10px #00eaff, 0 0 20px #00eaff, 0 0 40px #00eaff;
+  box-shadow: 0 0 10px #00eaff, 0 0 20px #00eaff, 0 0 30px #00eaff, 0 0 50px #00eaff;
   transition: 0.3s;
+  animation: pulse 2s infinite alternate;
 }
 
 #userInput:focus {
-  box-shadow: 0 0 10px #00ffaa, 0 0 20px #00ffaa, 0 0 40px #00ffaa, 0 0 60px #00ffaa;
+  box-shadow: 0 0 15px #00ffaa, 0 0 30px #00ffaa, 0 0 50px #00ffaa, 0 0 80px #00ffaa;
+  color: #00ffaa !important;
+  background: rgba(0, 0, 0, 0.9) !important;
+}
+
+/* Pulse Animation for Neon Glow */
+@keyframes pulse {
+  0% { box-shadow: 0 0 10px #00eaff, 0 0 20px #00eaff, 0 0 30px #00eaff, 0 0 50px #00eaff; }
+  50% { box-shadow: 0 0 15px #00eaff, 0 0 30px #00eaff, 0 0 45px #00eaff, 0 0 70px #00eaff; }
+  100% { box-shadow: 0 0 10px #00eaff, 0 0 20px #00eaff, 0 0 30px #00eaff, 0 0 50px #00eaff; }
 }
 
 #sendBtn {
