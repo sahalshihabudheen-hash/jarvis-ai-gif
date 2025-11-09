@@ -9,7 +9,7 @@ app.use(express.static("public"));
 
 app.post("/ask", async (req, res) => {
   const question = req.body.message;
-  if (!question) return res.json({ reply: "Say something." });
+  if (!question) return res.json({ reply: "Say something.", gif: null });
 
   try {
     // Call GORQ API for AI text
@@ -24,19 +24,15 @@ app.post("/ask", async (req, res) => {
 
     const aiReply = response.data.choices[0].message.content;
 
-    // Call Tenor API for GIF based on AI reply
-    const tenorRes = await axios.get("https://g.tenor.com/v1/search", {
-      params: {
-        q: aiReply,
-        key: process.env.TENOR_API,
-        limit: 1
-      }
-    });
-
-    const gifUrl =
-      tenorRes.data.results && tenorRes.data.results.length > 0
-        ? tenorRes.data.results[0].media[0].gif.url
-        : null;
+    // Optional: only fetch GIF if user message has "emotion" keywords
+    const emotionKeywords = ["happy","funny","sad","angry","excited"];
+    let gifUrl = null;
+    if (emotionKeywords.some(k => question.toLowerCase().includes(k))) {
+      const tenorRes = await axios.get("https://g.tenor.com/v1/search", {
+        params: { q: question, key: process.env.TENOR_API, limit: 1 }
+      });
+      gifUrl = tenorRes.data.results?.[0]?.media?.[0]?.gif?.url || null;
+    }
 
     res.json({ reply: aiReply, gif: gifUrl });
   } catch (err) {
