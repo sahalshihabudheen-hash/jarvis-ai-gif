@@ -16,7 +16,7 @@ app.post("/ask", async (req, res) => {
 
     // Custom replies
     if (/who created you/i.test(question)) {
-      aiReply = "My creator is SAHAL_PRO 🤖";
+      aiReply = "My creator is SAHAL_PRO ðŸ¤–";
     } else if (/which api/i.test(question)) {
       aiReply = "Fully trained by SAHAL_PRO";
     } else {
@@ -30,7 +30,7 @@ app.post("/ask", async (req, res) => {
         { headers: { Authorization: `Bearer ${process.env.GROQ_API}` } }
       );
 
-      aiReply = response.data.choices[0]?.message?.content || "Hmm, I don't know 🤔";
+      aiReply = response.data.choices[0]?.message?.content || "Hmm, I don't know ðŸ¤”";
     }
 
     // Tenor GIF for every message
@@ -51,9 +51,9 @@ app.post("/ask", async (req, res) => {
     res.json({ reply: aiReply, gif: gifUrl });
   } catch (err) {
     console.error(err);
-    res.json({ reply: "⚠️ Error processing request.", gif: null });
+    res.json({ reply: "âš ï¸ Error processing request.", gif: null });
   }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`✅ JARVIS Running on port ${PORT}`));
+app.listen(PORT, () => console.log(`âœ… JARVIS Running on port ${PORT}`));
