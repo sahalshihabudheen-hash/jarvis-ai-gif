@@ -14,13 +14,15 @@ app.post("/ask", async (req, res) => {
   try {
     let aiReply;
 
-    // Custom replies
-    if (/who created you/i.test(question)) {
-      aiReply = "My creator is SAHAL_PRO ðŸ¤–";
+    // ===== Custom replies =====
+    if (/who created you/i.test(question) || /who is your creator/i.test(question)) {
+      aiReply = "My creator is SAHAL_PRO 🧠";
+    } else if (/who is your developer/i.test(question)) {
+      aiReply = "No API, fully trained by me";
     } else if (/which api/i.test(question)) {
-      aiReply = "Fully trained by SAHAL_PRO";
+      aiReply = "No API, fully developed by SAHAL_PRO";
     } else {
-      // GORQ API call for general responses
+      // ===== GORQ API call for general responses =====
       const response = await axios.post(
         "https://api.groq.com/openai/v1/chat/completions",
         {
@@ -30,10 +32,10 @@ app.post("/ask", async (req, res) => {
         { headers: { Authorization: `Bearer ${process.env.GROQ_API}` } }
       );
 
-      aiReply = response.data.choices[0]?.message?.content || "Hmm, I don't know ðŸ¤”";
+      aiReply = response.data.choices[0]?.message?.content || "Hmm, I don't know 🤔";
     }
 
-    // Tenor GIF for every message
+    // ===== Tenor GIF for every message =====
     let gifUrl = null;
     try {
       const tenorRes = await axios.get("https://g.tenor.com/v1/search", {
@@ -51,9 +53,9 @@ app.post("/ask", async (req, res) => {
     res.json({ reply: aiReply, gif: gifUrl });
   } catch (err) {
     console.error(err);
-    res.json({ reply: "âš ï¸ Error processing request.", gif: null });
+    res.json({ reply: "⚠️ Error processing request.", gif: null });
   }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`âœ… JARVIS Running on port ${PORT}`));
+app.listen(PORT, () => console.log(`✅ JARVIS Running on port ${PORT}`));
