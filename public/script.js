@@ -1,6 +1,16 @@
-const chatBox = document.getElementById("chatBox");
-const input = document.getElementById("messageInput");
+const chatBox = document.getElementById("chat-box");
+const input = document.getElementById("userInput");
 const sendBtn = document.getElementById("sendBtn");
+
+sendBtn.onclick = sendMessage;
+input.addEventListener("keydown", e => {
+  if (e.key === "Enter") sendMessage();
+});
+
+function addMessage(sender, text) {
+  chatBox.innerHTML += `<p><strong>${sender}:</strong> ${text}</p>`;
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
 
 async function sendMessage() {
   const message = input.value.trim();
@@ -9,28 +19,12 @@ async function sendMessage() {
   addMessage("You", message);
   input.value = "";
 
-  try {
-    const res = await fetch("/ask", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message })
-    });
+  const res = await fetch("/ask", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message })
+  });
 
-    const data = await res.json();
-    addMessage("JARVIS", data.reply || "⚠️ No response.");
-  } catch (err) {
-    addMessage("JARVIS", "⚠️ Server error.");
-  }
+  const data = await res.json();
+  addMessage("JARVIS", data.reply);
 }
-
-function addMessage(sender, text) {
-  const p = document.createElement("p");
-  p.innerHTML = `<strong>${sender}:</strong> ${text}`;
-  chatBox.appendChild(p);
-  chatBox.scrollTop = chatBox.scrollHeight;
-}
-
-sendBtn.onclick = sendMessage;
-input.addEventListener("keydown", e => {
-  if (e.key === "Enter") sendMessage();
-});
