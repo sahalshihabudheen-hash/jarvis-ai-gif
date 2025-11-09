@@ -4,130 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JARVIS AI</title>
-<style>
-  body, html {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    width: 100%;
-    font-family: 'Segoe UI', sans-serif;
-    background: #000;
-    overflow: hidden;
-  }
-
-  #particles {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    z-index: 1;
-  }
-
-  .container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 2;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    padding: 20px;
-    box-sizing: border-box;
-  }
-
-  .title {
-    color: #00ffaa;
-    text-align: center;
-    margin-bottom: 5px;
-  }
-
-  .sub {
-    color: #fff;
-    text-align: center;
-    margin-bottom: 10px;
-  }
-
-  .sub span {
-    color: #00eaff;
-  }
-
-  .chat-box {
-    flex: 1;
-    width: 100%;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    padding: 10px;
-    background: rgba(0,0,0,0.5);
-    border-radius: 12px;
-    margin-bottom: 20px; /* lifted input above bottom */
-  }
-
-  .message {
-    max-width: 90%;
-    padding: 10px 14px;
-    border-radius: 12px;
-    word-wrap: break-word;
-    display: inline-block;
-    opacity: 0;
-    transform: translateY(20px);
-    animation: fadeIn 0.3s forwards;
-  }
-
-  .message.user {
-    align-self: flex-end;
-    background: rgba(0, 234, 255, 0.8);
-    color: #000;
-  }
-
-  .message.ai {
-    align-self: flex-start;
-    background: rgba(0, 255, 170, 0.2);
-    color: #fff;
-  }
-
-  .message img {
-    display: block;
-    margin-top: 8px;
-    max-width: 100%;
-    border-radius: 12px;
-  }
-
-  .input-area {
-    display: flex;
-    gap: 10px;
-  }
-
-  .input-area input {
-    flex: 1;
-    padding: 10px 12px;
-    border-radius: 12px;
-    border: none;
-    outline: none;
-    font-size: 16px;
-  }
-
-  .input-area button {
-    padding: 10px 16px;
-    border-radius: 12px;
-    border: none;
-    background: #00ffaa;
-    color: #000;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.2s;
-  }
-
-  .input-area button:hover {
-    background: #00eaff;
-  }
-
-  @keyframes fadeIn {
-    to { opacity: 1; transform: translateY(0); }
-  }
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -202,20 +79,13 @@ async function sendMessage(){
   addMessage("You", message);
   input.value="";
 
-  // Custom replies
-  let customReply=null;
-  let creatorPatterns=[/who is your creator/i,/who is your developer/i,/who made you/i];
-  let apiPatterns=[/which api/i,/which ai/i,/what api/i];
+  // Typing effect placeholder
+  const typingBubble = document.createElement("div");
+  typingBubble.classList.add("typing");
+  typingBubble.textContent = "JARVIS is typing";
+  chatBox.appendChild(typingBubble);
+  chatBox.scrollTop = chatBox.scrollHeight;
 
-  if(creatorPatterns.some(p=>p.test(message))) customReply="My creator is SAHAL_PRO 🤖";
-  else if(apiPatterns.some(p=>p.test(message))) customReply="Fully trained by SAHAL_PRO";
-
-  if(customReply){
-    addMessage("JARVIS", customReply);
-    return;
-  }
-
-  // Backend call
   try{
     const res = await fetch("/ask", {
       method:"POST",
@@ -223,8 +93,10 @@ async function sendMessage(){
       body: JSON.stringify({message})
     });
     const data = await res.json();
+    chatBox.removeChild(typingBubble);
     addMessage("JARVIS", data.reply, data.gif);
   }catch(err){
+    chatBox.removeChild(typingBubble);
     addMessage("JARVIS","⚠️ Error sending request.");
   }
 }
