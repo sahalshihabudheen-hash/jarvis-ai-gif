@@ -1,134 +1,133 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JARVIS AI</title>
-  <style>
-    /* Full-screen and particle background */
-    body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      width: 100%;
-      font-family: 'Segoe UI', sans-serif;
-      background: #000;
-      overflow: hidden;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS AI</title>
+<style>
+  body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    font-family: 'Segoe UI', sans-serif;
+    background: #000;
+    overflow: hidden;
+  }
 
-    #particles {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      z-index: 1;
-    }
+  #particles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+  }
 
-    .container {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 2;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      padding: 20px;
-      box-sizing: border-box;
-    }
+  .container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 20px;
+    box-sizing: border-box;
+  }
 
-    .title {
-      color: #00ffaa;
-      text-align: center;
-      margin-bottom: 5px;
-    }
+  .title {
+    color: #00ffaa;
+    text-align: center;
+    margin-bottom: 5px;
+  }
 
-    .sub {
-      color: #fff;
-      text-align: center;
-      margin-bottom: 10px;
-    }
+  .sub {
+    color: #fff;
+    text-align: center;
+    margin-bottom: 10px;
+  }
 
-    .sub span {
-      color: #00eaff;
-    }
+  .sub span {
+    color: #00eaff;
+  }
 
-    .chat-box {
-      flex: 1;
-      width: 100%;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      padding: 10px;
-      background: rgba(0,0,0,0.5);
-      border-radius: 12px;
-      margin-bottom: 10px;
-    }
+  .chat-box {
+    flex: 1;
+    width: 100%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 10px;
+    background: rgba(0,0,0,0.5);
+    border-radius: 12px;
+    margin-bottom: 20px; /* lifted input above bottom */
+  }
 
-    .message {
-      max-width: 90%;
-      padding: 10px 14px;
-      border-radius: 12px;
-      word-wrap: break-word;
-      display: inline-block;
-      opacity: 0;
-      transform: translateY(20px);
-      animation: fadeIn 0.3s forwards;
-    }
+  .message {
+    max-width: 90%;
+    padding: 10px 14px;
+    border-radius: 12px;
+    word-wrap: break-word;
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeIn 0.3s forwards;
+  }
 
-    .message.user {
-      align-self: flex-end;
-      background: rgba(0, 234, 255, 0.8);
-      color: #000;
-    }
+  .message.user {
+    align-self: flex-end;
+    background: rgba(0, 234, 255, 0.8);
+    color: #000;
+  }
 
-    .message.ai {
-      align-self: flex-start;
-      background: rgba(0, 255, 170, 0.2);
-      color: #fff;
-    }
+  .message.ai {
+    align-self: flex-start;
+    background: rgba(0, 255, 170, 0.2);
+    color: #fff;
+  }
 
-    .message img {
-      display: block;
-      margin-top: 8px;
-      max-width: 100%;
-      border-radius: 12px;
-    }
+  .message img {
+    display: block;
+    margin-top: 8px;
+    max-width: 100%;
+    border-radius: 12px;
+  }
 
-    .input-area {
-      display: flex;
-      gap: 10px;
-    }
+  .input-area {
+    display: flex;
+    gap: 10px;
+  }
 
-    .input-area input {
-      flex: 1;
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: none;
-      outline: none;
-      font-size: 16px;
-    }
+  .input-area input {
+    flex: 1;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: none;
+    outline: none;
+    font-size: 16px;
+  }
 
-    .input-area button {
-      padding: 10px 16px;
-      border-radius: 12px;
-      border: none;
-      background: #00ffaa;
-      color: #000;
-      font-weight: bold;
-      cursor: pointer;
-      transition: 0.2s;
-    }
+  .input-area button {
+    padding: 10px 16px;
+    border-radius: 12px;
+    border: none;
+    background: #00ffaa;
+    color: #000;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+  }
 
-    .input-area button:hover {
-      background: #00eaff;
-    }
+  .input-area button:hover {
+    background: #00eaff;
+  }
 
-    @keyframes fadeIn {
-      to { opacity: 1; transform: translateY(0); }
-    }
-  </style>
+  @keyframes fadeIn {
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
 </head>
 <body>
 
@@ -148,84 +147,87 @@
 
 <script src="https://cdn.jsdelivr.net/npm/tsparticles@2/tsparticles.bundle.min.js"></script>
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    tsParticles.load("particles", {
-      background: { color: "#000" },
-      fpsLimit: 60,
-      particles: {
-        number: { value: 120 },
-        color: { value: ["#00eaff","#00ffaa"] },
-        shape: { type: "circle" },
-        opacity: { value: 0.6 },
-        size: { value: { min: 2, max: 4 } },
-        move: { enable: true, speed: 1.5, direction: "none", outModes: "bounce" },
-        links: { enable: true, distance: 120, color: "#00ffaa", opacity: 0.4, width: 1 }
+document.addEventListener("DOMContentLoaded", () => {
+  tsParticles.load("particles", {
+    background: { color: "#000" },
+    fpsLimit: 60,
+    particles: {
+      number: { value: 120 },
+      color: { value: ["#00eaff","#00ffaa"] },
+      shape: { type: "circle" },
+      opacity: { value: 0.6 },
+      size: { value: { min: 2, max: 4 } },
+      move: { enable: true, speed: 1.5, direction: "none", outModes: "bounce" },
+      links: { enable: true, distance: 120, color: "#00ffaa", opacity: 0.4, width: 1 }
+    },
+    interactivity: {
+      events: { 
+        onHover: { enable: true, mode: "repulse" }, 
+        onClick: { enable: true, mode: "push" } 
       },
-      interactivity: {
-        events: { 
-          onHover: { enable: true, mode: "repulse" }, 
-          onClick: { enable: true, mode: "push" } 
-        },
-        modes: { repulse: { distance: 100 }, push: { quantity: 4 } }
-      },
-      detectRetina: true
-    });
+      modes: { repulse: { distance: 100 }, push: { quantity: 4 } }
+    },
+    detectRetina: true
   });
+});
 
-  // Chat JS
-  const chatBox = document.getElementById("chat-box");
-  const input = document.getElementById("userInput");
-  const sendBtn = document.getElementById("sendBtn");
+const chatBox = document.getElementById("chat-box");
+const input = document.getElementById("userInput");
+const sendBtn = document.getElementById("sendBtn");
 
-  sendBtn.onclick = sendMessage;
-  input.addEventListener("keydown", e => { if(e.key==="Enter") sendMessage(); });
+sendBtn.onclick = sendMessage;
+input.addEventListener("keydown", e => { if(e.key==="Enter") sendMessage(); });
 
-  function addMessage(sender, text, gifUrl=null){
-    const bubble = document.createElement("div");
-    bubble.classList.add("message", sender==="You"?"user":"ai");
+function addMessage(sender, text, gifUrl=null){
+  const bubble = document.createElement("div");
+  bubble.classList.add("message", sender==="You"?"user":"ai");
 
-    const textEl = document.createElement("div");
-    textEl.textContent = text;
-    bubble.appendChild(textEl);
+  const textEl = document.createElement("div");
+  textEl.textContent = text;
+  bubble.appendChild(textEl);
 
-    if(gifUrl){
-      const img = document.createElement("img");
-      img.src = gifUrl;
-      bubble.appendChild(img);
-    }
-
-    chatBox.appendChild(bubble);
-    chatBox.scrollTop = chatBox.scrollHeight;
+  if(gifUrl){
+    const img = document.createElement("img");
+    img.src = gifUrl;
+    bubble.appendChild(img);
   }
 
-  async function sendMessage(){
-    const message = input.value.trim();
-    if(!message) return;
-    addMessage("You", message);
-    input.value="";
+  chatBox.appendChild(bubble);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
 
-    // Custom replies first
-    let customReply = null;
-    if(/who is your creator/i.test(message)) customReply="My creator is SAHAL_PRO 🤖";
-    else if(/which api/i.test(message)) customReply="Fully trained by SAHAL_PRO";
+async function sendMessage(){
+  const message = input.value.trim();
+  if(!message) return;
+  addMessage("You", message);
+  input.value="";
 
-    if(customReply){
-      addMessage("JARVIS", customReply);
-      return;
-    }
+  // Custom replies
+  let customReply=null;
+  let creatorPatterns=[/who is your creator/i,/who is your developer/i,/who made you/i];
+  let apiPatterns=[/which api/i,/which ai/i,/what api/i];
 
-    try{
-      const res = await fetch("/ask", {
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({message})
-      });
-      const data = await res.json();
-      addMessage("JARVIS", data.reply, data.gif);
-    } catch(err){
-      addMessage("JARVIS","⚠️ Error sending request.");
-    }
+  if(creatorPatterns.some(p=>p.test(message))) customReply="My creator is SAHAL_PRO 🤖";
+  else if(apiPatterns.some(p=>p.test(message))) customReply="Fully trained by SAHAL_PRO";
+
+  if(customReply){
+    addMessage("JARVIS", customReply);
+    return;
   }
+
+  // Backend call
+  try{
+    const res = await fetch("/ask", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({message})
+    });
+    const data = await res.json();
+    addMessage("JARVIS", data.reply, data.gif);
+  }catch(err){
+    addMessage("JARVIS","⚠️ Error sending request.");
+  }
+}
 </script>
 
 </body>
