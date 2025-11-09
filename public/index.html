@@ -62,7 +62,7 @@
       flex-direction: column;
       gap: 12px;
       padding: 10px;
-      background: rgba(0, 0, 0, 0.35); /* semi-transparent so visible */
+      background: rgba(0, 0, 0, 0.35);
       border-radius: 12px;
       margin-bottom: 10px;
       box-shadow: 0 0 15px #00ffaa50;
@@ -202,6 +202,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/tsparticles@2/tsparticles.bundle.min.js"></script>
 <script>
+  // Particle Background
   document.addEventListener("DOMContentLoaded", () => {
     tsParticles.load("particles", {
       background: { color: "#000" },
@@ -226,7 +227,7 @@
     });
   });
 
-  // Chat JS
+  // Chat functionality
   const chatBox = document.getElementById("chat-box");
   const input = document.getElementById("userInput");
   const sendBtn = document.getElementById("sendBtn");
@@ -258,6 +259,18 @@
     addMessage("You", message);
     input.value="";
 
+    // CUSTOM REPLIES
+    let customReply = null;
+    if(/who is your creator/i.test(message)) customReply="My creator is SAHAL_PRO 🤯";
+    else if(/which api/i.test(message)) customReply="Fully trained by SAHAL_PRO";
+    else if(/who is your developer/i.test(message)) customReply="No API, fully trained by me";
+
+    if(customReply){
+      addMessage("JARVIS", customReply);
+      return; // stop and do not call server
+    }
+
+    // SERVER CALL
     try{
       const res = await fetch("/ask", {
         method:"POST",
