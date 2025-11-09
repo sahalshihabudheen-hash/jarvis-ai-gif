@@ -22,13 +22,14 @@ body {
   width: 90%;
   max-width: 1000px;
   height: 90%;
-  background: rgba(0, 0, 0, 0.4); /* semi-transparent */
+  background: rgba(0, 0, 0, 0.4);
   border: 2px solid #00eaff;
   border-radius: 20px;
   padding: 20px;
   display: flex;
   flex-direction: column;
   box-shadow: 0 0 30px #00eaff50;
+  z-index: 1;
 }
 
 /* Title */
@@ -77,13 +78,20 @@ body {
   word-wrap: break-word;
   line-height: 1.4;
   font-size: 0.95em;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeIn 0.3s forwards;
+  position: relative;
 }
 
+/* Glowing effect */
 .message.user {
   align-self: flex-end;
   background: linear-gradient(120deg, #00eaff, #00ffaa);
   color: #000;
   border-bottom-right-radius: 0;
+  box-shadow: 0 0 10px #00eaff, 0 0 20px #00ffaa;
+  animation: bubbleGlow 2s infinite alternate;
 }
 
 .message.ai {
@@ -92,6 +100,8 @@ body {
   border: 1px solid #00eaff;
   color: #00eaff;
   border-bottom-left-radius: 0;
+  box-shadow: 0 0 10px #00eaff, 0 0 20px #00ffaa;
+  animation: bubbleGlow 2s infinite alternate;
 }
 
 /* GIFs in chat */
@@ -144,8 +154,34 @@ body {
   z-index: 0;
 }
 
-/* Bring container above particles */
-.container {
+/* Animations */
+@keyframes fadeIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes bubbleGlow {
+  0% { box-shadow: 0 0 10px #00eaff, 0 0 20px #00ffaa; }
+  50% { box-shadow: 0 0 15px #00eaff, 0 0 30px #00ffaa; }
+  100% { box-shadow: 0 0 10px #00eaff, 0 0 20px #00ffaa; }
+}
+
+/* Typing effect for AI */
+.typing {
+  align-self: flex-start;
+  background: rgba(0,0,0,0.4);
+  color: #00eaff;
+  padding: 10px 14px;
+  border-radius: 20px;
+  font-style: italic;
   position: relative;
-  z-index: 1;
+}
+
+.typing::after {
+  content: '...';
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 50%, 100% { opacity: 0; }
+  25%, 75% { opacity: 1; }
 }
