@@ -13,10 +13,10 @@
   <h1 class="title">J A R V I S</h1>
   <p class="sub">Fully Trained by <span>Sahal Shihabudheen</span></p>
 
-  <div class="chat-box" id="chat-box"></div>
+  <div id="chat-box" class="chat-box"></div>
 
   <div class="input-area">
-    <input type="text" id="userInput" placeholder="Type your message..." autocomplete="off">
+    <input id="userInput" type="text" placeholder="Type your message..." autocomplete="off">
     <button id="sendBtn">Send</button>
   </div>
 </div>
@@ -27,7 +27,14 @@
 <script>
 tsParticles.load("particles", {
   background: { color: "#000" },
-  particles: { number: { value: 80 }, color: { value: "#00eaff" }, shape: { type: "circle" }, opacity: { value: 0.4 }, size: { value: 3 }, move: { speed: 1 }}
+  particles: {
+    number: { value: 100 },
+    color: { value: "#00eaff" },
+    shape: { type: "circle" },
+    opacity: { value: 0.6 },
+    size: { value: 3 },
+    move: { speed: 1.2 }
+  }
 });
 </script>
 
