@@ -2,7 +2,7 @@ const chatBox = document.getElementById("chat-box");
 const input = document.getElementById("userInput");
 const sendBtn = document.getElementById("sendBtn");
 
-// Send message on click or Enter
+// Send message
 sendBtn.onclick = sendMessage;
 input.addEventListener("keydown", e => { if (e.key === "Enter") sendMessage(); });
 
@@ -11,17 +11,15 @@ function addMessage(sender, text, gifUrl = null) {
   const bubble = document.createElement("div");
   bubble.classList.add("message", sender === "You" ? "user" : "ai");
 
-  // Text element
   const textEl = document.createElement("div");
   textEl.textContent = text;
   bubble.appendChild(textEl);
 
-  // GIF if exists
   if (gifUrl) {
     const img = document.createElement("img");
     img.src = gifUrl;
     img.style.marginTop = "10px";
-    img.style.borderRadius = "10px";
+    img.style.borderRadius = "12px";
     img.style.maxHeight = "250px";
     img.style.width = "auto";
     bubble.appendChild(img);
@@ -31,7 +29,7 @@ function addMessage(sender, text, gifUrl = null) {
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// Send message
+// Send message to server
 async function sendMessage() {
   const message = input.value.trim();
   if (!message) return;
