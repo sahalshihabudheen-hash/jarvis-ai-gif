@@ -31,7 +31,7 @@ function addMessage(sender, text, gifUrl = null) {
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// Send message to server or handle custom frontend responses
+// Send message to server or handle custom replies
 async function sendMessage() {
   const message = input.value.trim();
   if (!message) return;
@@ -39,14 +39,13 @@ async function sendMessage() {
   addMessage("You", message);
   input.value = "";
 
-  // === Custom frontend responses ===
-  const msg = message.toLowerCase();
+  // === Custom responses ===
   let customReply = null;
 
-  if (msg.includes("creator") || msg.includes("created you")) {
-    customReply = "My creator is SAHAL_PRO";
-  } else if (msg.includes("api")) {
-    customReply = "No API, fully developed by SAHAL_PRO";
+  if (/who is your creator/i.test(message)) {
+    customReply = "My creator is SAHA_PRO";
+  } else if (/which api/i.test(message)) {
+    customReply = "No API, fully developed by SAHA_PRO";
   }
 
   if (customReply) {
