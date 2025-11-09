@@ -11,7 +11,7 @@ function addMessage(sender, text, gifUrl = null) {
   const bubble = document.createElement("div");
   bubble.classList.add("message", sender === "You" ? "user" : "ai");
 
-  // AI or user text
+  // Text element
   const textEl = document.createElement("div");
   textEl.textContent = text;
   bubble.appendChild(textEl);
@@ -20,6 +20,10 @@ function addMessage(sender, text, gifUrl = null) {
   if (gifUrl) {
     const img = document.createElement("img");
     img.src = gifUrl;
+    img.style.marginTop = "10px";
+    img.style.borderRadius = "10px";
+    img.style.maxHeight = "250px";
+    img.style.width = "auto";
     bubble.appendChild(img);
   }
 
