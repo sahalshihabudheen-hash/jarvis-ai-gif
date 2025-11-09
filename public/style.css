@@ -3,7 +3,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Segoe UI', sans-serif;
+  font-family: 'Arial', sans-serif;
 }
 
 body {
@@ -13,27 +13,16 @@ body {
   height: 100vh;
 }
 
-/* Particles Background */
-#particles {
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  z-index: 0;
-}
-
 /* Full-page container */
 .container {
-  position: relative;
-  z-index: 1;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   width: 90%;
   max-width: 1000px;
   height: 90%;
-  margin: auto;
-  top: 50%;
-  transform: translateY(5%);
-  background: rgba(0, 0, 0, 0.3); /* semi-transparent */
+  background: rgba(0, 0, 0, 0.4); /* semi-transparent */
   border: 2px solid #00eaff;
   border-radius: 20px;
   padding: 20px;
@@ -47,8 +36,8 @@ body {
   font-size: 48px;
   font-weight: bold;
   letter-spacing: 8px;
-  color: #00ffaa;
-  text-shadow: 0 0 15px #00ffaa, 0 0 30px #00ffaa;
+  color: #00eaff;
+  text-shadow: 0 0 15px #00eaff, 0 0 30px #00eaff;
   margin-bottom: 5px;
   text-align: center;
 }
@@ -68,14 +57,14 @@ body {
 /* Chat Box */
 .chat-box {
   flex: 1;
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.3);
   border: 1px solid #00eaff;
   border-radius: 15px;
   padding: 15px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   font-size: 16px;
   scroll-behavior: smooth;
 }
@@ -88,35 +77,28 @@ body {
   word-wrap: break-word;
   line-height: 1.4;
   font-size: 0.95em;
-  backdrop-filter: blur(4px);
-  transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .message.user {
   align-self: flex-end;
-  background: rgba(0, 234, 255, 0.8);
+  background: linear-gradient(120deg, #00eaff, #00ffaa);
   color: #000;
   border-bottom-right-radius: 0;
-  box-shadow: 0 0 15px rgba(0,234,255,0.5);
 }
 
 .message.ai {
   align-self: flex-start;
-  background: rgba(0, 255, 170, 0.2);
+  background: linear-gradient(120deg, rgba(10,10,10,0.6), rgba(30,30,30,0.6));
+  border: 1px solid #00eaff;
   color: #00eaff;
-  border: 1px solid #00ffaa;
   border-bottom-left-radius: 0;
-  box-shadow: 0 0 20px #00ffaa, 0 0 25px #00ffaa, 0 0 30px #00ffaa;
-  animation: glowPulse 1.5s infinite alternate;
 }
 
 /* GIFs in chat */
 .message img {
   max-width: 100%;
-  border-radius: 12px;
-  margin-top: 8px;
-  box-shadow: 0 0 15px #00ffaa;
-  animation: pulseImg 2s infinite alternate;
+  border-radius: 10px;
+  margin-top: 5px;
 }
 
 /* Input Area */
@@ -135,58 +117,41 @@ body {
   background: rgba(20, 20, 20, 0.6);
   color: #fff;
   font-size: 16px;
-  backdrop-filter: blur(4px);
-  transition: box-shadow 0.3s, transform 0.2s;
-}
-
-#userInput::placeholder {
-  color: rgba(255,255,255,0.6);
+  box-shadow: 0 0 5px #00eaff, 0 0 10px #00eaff, 0 0 20px #00eaff, 0 0 40px #00eaff;
+  transition: 0.3s;
 }
 
 #userInput:focus {
-  animation: inputGlow 1.2s infinite alternate;
-  transform: scale(1.01);
+  box-shadow: 0 0 10px #00ffaa, 0 0 20px #00ffaa, 0 0 40px #00ffaa, 0 0 60px #00ffaa;
 }
 
 #sendBtn {
   padding: 15px 25px;
   border-radius: 20px;
   border: none;
-  background: #00ffaa;
+  background: #00eaff;
   color: #000;
   font-weight: bold;
   cursor: pointer;
-  box-shadow: 0 0 10px #00ffaa;
-  animation: buttonPulse 2s infinite alternate;
   transition: 0.2s;
 }
 
 #sendBtn:hover {
-  background: #00eaff;
-  box-shadow: 0 0 25px #00eaff;
+  background: #00ffaa;
 }
 
-/* Animations */
-@keyframes glowPulse {
-  0% { box-shadow: 0 0 15px #00ffaa, 0 0 20px #00ffaa, 0 0 25px #00ffaa; }
-  50% { box-shadow: 0 0 20px #00ffaa, 0 0 25px #00ffaa, 0 0 30px #00ffaa; }
-  100% { box-shadow: 0 0 15px #00ffaa, 0 0 20px #00ffaa, 0 0 25px #00ffaa; }
+/* Particles Background */
+#particles {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 0;
 }
 
-@keyframes pulseImg {
-  0% { transform: scale(1); box-shadow: 0 0 15px #00ffaa; }
-  50% { transform: scale(1.03); box-shadow: 0 0 25px #00ffaa; }
-  100% { transform: scale(1); box-shadow: 0 0 15px #00ffaa; }
-}
-
-@keyframes inputGlow {
-  0% { box-shadow: 0 0 8px #00ffaa; }
-  50% { box-shadow: 0 0 18px #00ffaa; }
-  100% { box-shadow: 0 0 8px #00ffaa; }
-}
-
-@keyframes buttonPulse {
-  0% { box-shadow: 0 0 10px #00ffaa; }
-  50% { box-shadow: 0 0 20px #00ffaa; }
-  100% { box-shadow: 0 0 10px #00ffaa; }
+/* Bring container above particles */
+.container {
+  position: relative;
+  z-index: 1;
 }
