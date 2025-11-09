@@ -7,12 +7,18 @@ const app = express();
 app.use(express.json());
 app.use(express.static("public"));
 
+// Keep conversation memory in server (for simplicity, per server session)
+let conversationMemory = [];
+
 app.post("/ask", async (req, res) => {
   const question = req.body.message;
   if (!question) return res.json({ reply: "Say something.", gif: null });
 
   try {
     let aiReply;
+
+    // Add user's question to memory
+    conversationMemory.push({ role: "user", content: question });
 
     // ===== Custom replies =====
     if (/who created you/i.test(question) || /who is your creator/i.test(question)) {
@@ -27,13 +33,16 @@ app.post("/ask", async (req, res) => {
         "https://api.groq.com/openai/v1/chat/completions",
         {
           model: "llama-3.1-8b-instant",
-          messages: [{ role: "user", content: question }]
+          messages: conversationMemory
         },
         { headers: { Authorization: `Bearer ${process.env.GROQ_API}` } }
       );
 
       aiReply = response.data.choices[0]?.message?.content || "Hmm, I don't know 🤔";
     }
+
+    // Add AI reply to memory
+    conversationMemory.push({ role: "assistant", content: aiReply });
 
     // ===== Tenor GIF for every message =====
     let gifUrl = null;
