@@ -1,30 +1,36 @@
-const chatBox = document.getElementById("chat-box");
-const input = document.getElementById("userInput");
+const chatBox = document.getElementById("chatBox");
+const input = document.getElementById("messageInput");
 const sendBtn = document.getElementById("sendBtn");
 
-sendBtn.onclick = sendMessage;
-input.addEventListener("keyup", e => { if (e.key === "Enter") sendMessage(); });
+async function sendMessage() {
+  const message = input.value.trim();
+  if (!message) return;
 
-function sendMessage() {
-  const msg = input.value.trim();
-  if (!msg) return;
-
-  addMessage("You", msg, "user");
+  addMessage("You", message);
   input.value = "";
 
-  fetch("/chat", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message: msg })
-  })
-  .then(res => res.json())
-  .then(data => addMessage("JARVIS", data.reply, "bot"));
+  try {
+    const res = await fetch("/ask", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message })
+    });
+
+    const data = await res.json();
+    addMessage("JARVIS", data.reply || "⚠️ No response.");
+  } catch (err) {
+    addMessage("JARVIS", "⚠️ Server error.");
+  }
 }
 
-function addMessage(sender, text, cls) {
-  const div = document.createElement("div");
-  div.className = `message ${cls}`;
-  div.innerHTML = `<strong>${sender}:</strong> ${text}`;
-  chatBox.appendChild(div);
+function addMessage(sender, text) {
+  const p = document.createElement("p");
+  p.innerHTML = `<strong>${sender}:</strong> ${text}`;
+  chatBox.appendChild(p);
   chatBox.scrollTop = chatBox.scrollHeight;
 }
+
+sendBtn.onclick = sendMessage;
+input.addEventListener("keydown", e => {
+  if (e.key === "Enter") sendMessage();
+});
