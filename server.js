@@ -1,31 +1,54 @@
 const express = require("express");
 const axios = require("axios");
+const cors = require("cors");
+require("dotenv").config();
+
 const app = express();
-
+app.use(cors());
 app.use(express.json());
-app.use(express.static("public"));
 
-app.post("/chat", async (req, res) => {
-  const userMsg = req.body.message;
+const TENOR_KEY = process.env.TENOR_API_KEY;
+const GORQ_KEY = process.env.GORQ_API_KEY;
+
+// ✅ JARVIS AI Respond Route
+app.post("/api/message", async (req, res) => {
   try {
-    const aiRes = await axios.post("https://api.groq.com/openai/v1/chat/completions", {
-      model: "llama3-8b-8192",
-      messages: [{ role: "user", content: userMsg }]
-    }, {
-      headers: { Authorization: `Bearer ${process.env.GORQ_API_KEY}` }
-    });
+    const userMessage = req.body.message;
 
-    const textReply = aiRes.data.choices[0].message.content;
+    // Request AI reply from GORQ
+    const aiResponse = await axios.post(
+      "https://api.groq.com/openai/v1/chat/completions",
+      {
+        model: "llama3-8b-8192",
+        messages: [
+          { role: "system", content: "You are JARVIS, a futuristic AI trained personally by Sahal." },
+          { role: "user", content: userMessage }
+        ]
+      },
+      {
+        headers: {
+          "Authorization": `Bearer ${GORQ_KEY}`,
+          "Content-Type": "application/json"
+        }
+      }
+    );
 
-    const gifRes = await axios.get(`https://tenor.googleapis.com/v2/search?q=${encodeURIComponent(userMsg)}&key=${process.env.TENOR_API_KEY}&limit=1`);
-    const gif = gifRes.data.results?.[0]?.media_formats?.gif?.url || "";
+    const replyText = aiResponse.data.choices[0].message.content;
 
-    res.json({ reply: `${textReply}<br><img src="${gif}" width="200">` });
+    // Request GIF from Tenor
+    const gifResponse = await axios.get(
+      `https://g.tenor.com/v2/search?q=${encodeURIComponent(userMessage)}&key=${TENOR_KEY}&limit=1`
+    );
+
+    const gifUrl = gifResponse.data.results[0]?.media_formats?.gif?.url || "";
+
+    res.json({ reply: replyText, gif: gifUrl });
 
   } catch (err) {
-    res.json({ reply: "⚠️ Error processing request." });
+    console.error("ERROR:", err.message);
+    res.json({ reply: "⚠️ JARVIS SYSTEM ERROR", gif: "" });
   }
 });
 
-const port = process.env.PORT || 3000;
-app.listen(port, () => console.log("✅ JARVIS WEB SERVER RUNNING"));
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => console.log(`✅ JARVIS Online on port ${PORT}`));
