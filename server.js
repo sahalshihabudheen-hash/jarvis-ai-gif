@@ -12,14 +12,12 @@ app.post("/ask", async (req, res) => {
   if (!question) return res.json({ reply: "Say something.", gif: null });
 
   try {
-    // Hardcoded custom responses
+    // Hardcoded custom replies first
     let aiReply;
     if (/who created you/i.test(question)) {
       aiReply = "I was fully trained by Sahal Shihabudheen 🤖";
-    } else if (/hello|hi/i.test(question)) {
-      aiReply = "Hello! How can I assist you today?";
     } else {
-      // Call GORQ API for general AI text
+      // GORQ API call for general responses
       const response = await axios.post(
         "https://api.groq.com/openai/v1/chat/completions",
         {
@@ -28,19 +26,22 @@ app.post("/ask", async (req, res) => {
         },
         { headers: { Authorization: `Bearer ${process.env.GROQ_API}` } }
       );
-      aiReply = response.data.choices[0].message.content;
+      aiReply = response.data.choices[0]?.message?.content || "Hmm, I don't know 🤔";
     }
 
-    // Tenor GIF search based on question or AI reply
-    const searchQuery = question; // you can also use aiReply for variety
+    // Tenor GIF search (optional)
     let gifUrl = null;
     try {
       const tenorRes = await axios.get("https://g.tenor.com/v1/search", {
-        params: { q: searchQuery, key: process.env.TENOR_API, limit: 1 }
+        params: {
+          q: question,           // searching using user message
+          key: process.env.TENOR_API,
+          limit: 1
+        }
       });
       gifUrl = tenorRes.data.results?.[0]?.media?.[0]?.gif?.url || null;
     } catch (gifErr) {
-      gifUrl = null;
+      gifUrl = null; // don't break if GIF fails
     }
 
     res.json({ reply: aiReply, gif: gifUrl });
