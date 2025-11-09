@@ -39,12 +39,13 @@ async function sendMessage() {
   addMessage("You", message);
   input.value = "";
 
-  // === Custom frontend responses for instant reply ===
+  // === Custom frontend responses ===
+  const msg = message.toLowerCase();
   let customReply = null;
 
-  if (/who is your creator/i.test(message)) {
+  if (msg.includes("creator") || msg.includes("created you")) {
     customReply = "My creator is SAHAL_PRO";
-  } else if (/which api/i.test(message)) {
+  } else if (msg.includes("api")) {
     customReply = "No API, fully developed by SAHAL_PRO";
   }
 
