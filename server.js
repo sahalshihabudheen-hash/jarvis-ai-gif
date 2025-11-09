@@ -1,6 +1,7 @@
 import express from "express";
 import fetch from "node-fetch";
 import dotenv from "dotenv";
+
 dotenv.config();
 
 const app = express();
@@ -16,11 +17,11 @@ app.post("/ask", async (req, res) => {
       headers: { "Authorization": `Bearer ${process.env.HF_TOKEN}` },
       body: JSON.stringify({ inputs: userMessage })
     });
-    
+
     const data = await response.json();
     const reply = data[0].generated_text;
-
     res.json({ reply });
+
   } catch (err) {
     res.json({ reply: "⚠️ Error processing request." });
   }
@@ -31,4 +32,4 @@ app.get("/", (req, res) => {
 });
 
 const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`✅ Server running on port ${port}`));
+app.listen(port, () => console.log(`✅ Running on port ${port}`));
