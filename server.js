@@ -11,16 +11,16 @@ app.post("/ask", (req, res) => {
   const question = req.body.message;
   if (!question) return res.json({ reply: "Say something.", gif: null });
 
+  const msg = question.toLowerCase(); // normalize for flexible matching
   let reply = "";
-  let gifUrl = null; // Optional: Add GIF logic later
+  let gifUrl = null; // optional GIF logic later
 
   // === Custom replies ===
-  if (/who is your creator/i.test(question) || /who created you/i.test(question)) {
+  if (msg.includes("creator") || msg.includes("created you")) {
     reply = "My creator is SAHAL_PRO";
-  } else if (/which api/i.test(question)) {
+  } else if (msg.includes("api")) {
     reply = "No API, fully developed by SAHAL_PRO";
   } else {
-    // Default generic response
     reply = "I am here to chat with you!";
   }
   // =====================
