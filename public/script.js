@@ -2,11 +2,13 @@ const chatBox = document.getElementById("chat-box");
 const input = document.getElementById("userInput");
 const sendBtn = document.getElementById("sendBtn");
 
-// Send message
+// Send message on button click or Enter key
 sendBtn.onclick = sendMessage;
-input.addEventListener("keydown", e => { if (e.key === "Enter") sendMessage(); });
+input.addEventListener("keydown", e => {
+  if (e.key === "Enter") sendMessage();
+});
 
-// Add message bubble
+// Function to add a message bubble
 function addMessage(sender, text, gifUrl = null) {
   const bubble = document.createElement("div");
   bubble.classList.add("message", sender === "You" ? "user" : "ai");
@@ -29,7 +31,7 @@ function addMessage(sender, text, gifUrl = null) {
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// Send message to server
+// Send message to server or handle custom replies
 async function sendMessage() {
   const message = input.value.trim();
   if (!message) return;
@@ -37,6 +39,22 @@ async function sendMessage() {
   addMessage("You", message);
   input.value = "";
 
+  // === Custom responses ===
+  let customReply = null;
+
+  if (/who is your creator/i.test(message)) {
+    customReply = "My creator is SAHA_PRO";
+  } else if (/which api/i.test(message)) {
+    customReply = "No API, fully developed by SAHA_PRO";
+  }
+
+  if (customReply) {
+    addMessage("JARVIS", customReply);
+    return; // Skip server call
+  }
+  // ========================
+
+  // Send to backend if no custom reply
   try {
     const res = await fetch("/ask", {
       method: "POST",
