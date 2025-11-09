@@ -31,7 +31,7 @@ function addMessage(sender, text, gifUrl = null) {
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// Send message to server
+// Send message
 async function sendMessage() {
   const message = input.value.trim();
   if (!message) return;
@@ -39,21 +39,19 @@ async function sendMessage() {
   addMessage("You", message);
   input.value = "";
 
-  // Custom responses with GIFs for consistency
+  // Custom responses first (no server call)
   let customReply = null;
   let customGif = null;
 
-  if (/who created you/i.test(message)) {
+  if (/who is your creator/i.test(message)) {
     customReply = "My creator is SAHAL_PRO 🤖";
-    customGif = "https://media.tenor.com/YOUR_FAVORITE_CREATOR_GIF.gif"; // Optional: replace with your favorite GIF
   } else if (/which api/i.test(message)) {
     customReply = "Fully trained by SAHAL_PRO";
-    customGif = "https://media.tenor.com/YOUR_FAVORITE_API_GIF.gif"; // Optional
   }
 
   if (customReply) {
     addMessage("JARVIS", customReply, customGif);
-    return; // Skip server call
+    return; // skip backend call
   }
 
   // Send to backend if no custom reply
