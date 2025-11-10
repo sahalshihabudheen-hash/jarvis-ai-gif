@@ -1,13 +1,35 @@
 import express from "express";
 import axios from "axios";
 import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
 
 dotenv.config();
+
 const app = express();
 app.use(express.json());
-app.use(express.static("public"));
 
-// Keep conversation memory in server (for simplicity, per server session)
+// ====== Path Fix for Serving HTML Files ======
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Serve everything inside "public"
+app.use(express.static(path.join(__dirname, "public")));
+
+// ====== PAGE ROUTES ======
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+app.get("/about", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "about.html"));
+});
+
+app.get("/music", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "music.html"));
+});
+
+// ====== CHAT AI + GIF ENDPOINT ======
 let conversationMemory = [];
 
 app.post("/ask", async (req, res) => {
@@ -17,18 +39,17 @@ app.post("/ask", async (req, res) => {
   try {
     let aiReply;
 
-    // Add user's question to memory
     conversationMemory.push({ role: "user", content: question });
 
-    // ===== Custom replies =====
+    // Custom replies
     if (/who created you/i.test(question) || /who is your creator/i.test(question)) {
       aiReply = "My creator is SAHAL_PRO 🧠";
     } else if (/who is your developer/i.test(question)) {
-      aiReply = "No API, fully trained by me";
+      aiReply = "Fully developed by SAHAL_PRO";
     } else if (/which api/i.test(question)) {
-      aiReply = "No API, fully developed by SAHAL_PRO";
+      aiReply = "No API, fully self trained by SAHAL_PRO";
     } else {
-      // ===== GORQ API call for general responses =====
+      // GORQ API normal chat
       const response = await axios.post(
         "https://api.groq.com/openai/v1/chat/completions",
         {
@@ -41,10 +62,9 @@ app.post("/ask", async (req, res) => {
       aiReply = response.data.choices[0]?.message?.content || "Hmm, I don't know 🤔";
     }
 
-    // Add AI reply to memory
     conversationMemory.push({ role: "assistant", content: aiReply });
 
-    // ===== Tenor GIF for every message =====
+    // Tenor GIF
     let gifUrl = null;
     try {
       const tenorRes = await axios.get("https://g.tenor.com/v1/search", {
@@ -66,5 +86,6 @@ app.post("/ask", async (req, res) => {
   }
 });
 
+// ====== START SERVER ======
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`✅ JARVIS Running on port ${PORT}`));
