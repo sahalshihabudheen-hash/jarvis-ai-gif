@@ -56,7 +56,7 @@
       left: 0;
       width: 100%;
       height: calc(100% - 60px);
-      z-index: 2;
+      z-index: 100; /* Raised above Nova Bar */
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
@@ -93,17 +93,30 @@
       margin-bottom: 10px;
     }
 
-    .message { max-width: 90%; padding: 10px 14px; border-radius: 12px; word-wrap: break-word; opacity: 0; transform: translateY(20px); animation: fadeIn 0.3s forwards; }
+    .message { 
+      max-width: 90%; 
+      padding: 10px 14px; 
+      border-radius: 12px; 
+      word-wrap: break-word; 
+      opacity: 0; 
+      transform: translateY(20px); 
+      animation: fadeIn 0.3s forwards; 
+    }
     .message.user { align-self: flex-end; background: rgba(0, 234, 255, 0.8); color: #000; }
     .message.ai { align-self: flex-start; background: rgba(0, 255, 170, 0.2); color: #fff; }
-
     .message img { display: block; margin-top: 8px; max-width: 100%; border-radius: 12px; }
 
-    .input-area { display: flex; gap: 10px; }
+    .input-area { display: flex; gap: 10px; position: relative; z-index: 101; }
 
     #userInput {
-      flex: 1; padding: 10px 12px; border-radius: 12px; border: none; outline: none; font-size: 16px;
-      background: rgba(0, 0, 0, 0.8); color: #00eaff;
+      flex: 1; 
+      padding: 10px 12px; 
+      border-radius: 12px; 
+      border: none; 
+      outline: none; 
+      font-size: 16px;
+      background: rgba(0, 0, 0, 0.8); 
+      color: #00eaff;
       box-shadow: 0 0 5px #00eaff, 0 0 10px #00eaff, 0 0 20px #00eaff, 0 0 40px #00eaff;
       animation: pulse 2s infinite alternate;
     }
@@ -113,10 +126,20 @@
       color: #00ffaa;
     }
 
-    @keyframes pulse { 0%{box-shadow:0 0 5px #00eaff;} 50%{box-shadow:0 0 20px #00eaff;} 100%{box-shadow:0 0 5px #00eaff;} }
+    @keyframes pulse { 
+      0%{box-shadow:0 0 5px #00eaff;} 
+      50%{box-shadow:0 0 20px #00eaff;} 
+      100%{box-shadow:0 0 5px #00eaff;} 
+    }
 
     .input-area button {
-      padding: 10px 16px; border-radius: 12px; border: none; background: #00ffaa; color: #000; font-weight: bold; cursor: pointer;
+      padding: 10px 16px; 
+      border-radius: 12px; 
+      border: none; 
+      background: #00ffaa; 
+      color: #000; 
+      font-weight: bold; 
+      cursor: pointer;
     }
     .input-area button:hover { background: #00eaff; }
 
@@ -147,10 +170,10 @@
   </div>
 </div>
 
+<!-- ✅ SCRIPTS -->
 <script src="https://cdn.jsdelivr.net/npm/tsparticles@2/tsparticles.bundle.min.js"></script>
-<script>
-  // (Original JS unchanged)
-</script>
+<script src="script.js" defer></script> <!-- defer ensures chat initializes after DOM -->
+<script src="nova-bar.js" defer></script> <!-- Nova Bar loaded after chat -->
 
 </body>
 </html>
