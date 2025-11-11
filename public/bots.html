@@ -12,44 +12,47 @@
       background: #0d0f17;
       font-family: "Poppins", sans-serif;
       color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
       min-height: 100vh;
       overflow-x: hidden;
+      text-align: center;
     }
 
     /* NAVBAR */
     .navbar {
+      width: 100%;
+      padding: 18px 0;
+      background: rgba(10, 12, 18, 0.85);
+      backdrop-filter: blur(8px);
       position: fixed;
       top: 0;
-      width: 100%;
-      background: rgba(0,0,0,0.85);
-      padding: 15px 20px;
+      left: 0;
       display: flex;
       justify-content: center;
-      gap: 40px;
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid #00ffaa44;
-      z-index: 9999;
+      gap: 50px;
+      font-size: 18px;
+      border-bottom: 1px solid rgba(0, 255, 255, 0.2);
     }
 
     .navbar a {
-      color: #00ffaa;
       text-decoration: none;
-      font-weight: bold;
-      font-size: 18px;
+      color: #a8b4c7;
       transition: 0.3s;
     }
 
-    .navbar a:hover {
+    .navbar a:hover,
+    .navbar .active {
       color: #00eaff;
-      text-shadow: 0 0 10px #00eaff;
+      text-shadow: 0 0 8px #00eaff;
     }
 
-    /* Wrapper shifts down so navbar doesn't overlap */
+    /* PUSH CONTENT BELOW NAV */
+    .content {
+      padding-top: 110px;
+      display: flex;
+      justify-content: center;
+    }
+
     .bots-wrapper {
-      margin-top: 120px;
       display: flex;
       gap: 40px;
       flex-wrap: wrap;
@@ -71,6 +74,7 @@
       position: relative;
     }
 
+    /* JARVIS BOSS */
     .boss {
       transform: scale(1.25);
       border: 2px solid #00d0ff;
@@ -131,42 +135,46 @@
 </head>
 <body>
 
-<!-- ✅ NAVBAR (same as JARVIS) -->
+<!-- NAVBAR -->
 <div class="navbar">
-  <a href="index.html">JARVIS AI</a>
-  <a href="bots.html">Discord Bots</a>
-  <a href="image.html">Image Generator</a>
+  <a href="/index.html">JARVIS AI</a>
+  <a href="/index.html">Chat</a>
+  <a href="/bots.html" class="active">Bots</a>
+  <a href="/image.html">Image Gen</a>
 </div>
 
-<div class="bots-wrapper">
+<div class="content">
 
-  <!-- NYRA MUSIC -->
-  <div class="bot-card">
-    <div class="status-dot"></div>
-    <img src="https://i.postimg.cc/j5qbRQVS/Screenshot-2025-11-11-at-19-50-32-2767-Discord-ALAN.png">
-    <h2>NYRA MUSIC</h2>
-    <p>Best music bot powered by Lavalink.</p>
-    <a class="join-btn" href="https://discord.gg/uqbSrkwEVN" target="_blank">Invite / Join Server</a>
+  <div class="bots-wrapper">
+
+    <!-- NYRA MUSIC -->
+    <div class="bot-card">
+      <div class="status-dot"></div>
+      <img src="https://i.postimg.cc/j5qbRQVS/Screenshot-2025-11-11-at-19-50-32-2767-Discord-ALAN.png">
+      <h2>NYRA MUSIC</h2>
+      <p>Best music bot powered by Lavalink.</p>
+      <a class="join-btn" href="https://discord.gg/uqbSrkwEVN" target="_blank">Invite / Join Server</a>
+    </div>
+
+    <!-- JARVIS (BOSS) -->
+    <div class="bot-card boss">
+      <div class="status-dot"></div>
+      <img src="https://i.postimg.cc/T3X2ZbPP/Screenshot-2025-10-22-at-11-55-52-Chat-GPT-Smart-Fast-Free-AI-Chat.png">
+      <h2>JARVIS</h2>
+      <p>Smart AI — Fast responses. Built to assist.</p>
+      <a class="join-btn" href="https://discord.gg/pPGV4FAnWz" target="_blank">Invite / Join Server</a>
+    </div>
+
+    <!-- BAZZOKA -->
+    <div class="bot-card">
+      <div class="status-dot"></div>
+      <img src="https://i.postimg.cc/dV0NQH39/Screenshot-2025-11-11-at-19-54-11-2767-Discord-BAZOOKA-AI.png">
+      <h2>BAZZOKA</h2>
+      <p>Fun and chaos — always joking.</p>
+      <a class="join-btn" href="https://discord.gg/gfd6jSPVvp" target="_blank">Invite / Join Server</a>
+    </div>
+
   </div>
-
-  <!-- JARVIS (BOSS) -->
-  <div class="bot-card boss">
-    <div class="status-dot"></div>
-    <img src="https://i.postimg.cc/T3X2ZbPP/Screenshot-2025-10-22-at-11-55-52-Chat-GPT-Smart-Fast-Free-AI-Chat.png">
-    <h2>JARVIS</h2>
-    <p>Smart AI — Fast responses. Built to assist.</p>
-    <a class="join-btn" href="https://discord.gg/pPGV4FAnWz" target="_blank">Invite / Join Server</a>
-  </div>
-
-  <!-- BAZZOKA -->
-  <div class="bot-card">
-    <div class="status-dot"></div>
-    <img src="https://i.postimg.cc/dV0NQH39/Screenshot-2025-11-11-at-19-54-11-2767-Discord-BAZOOKA-AI.png">
-    <h2>BAZZOKA</h2>
-    <p>Fun and chaos — always joking.</p>
-    <a class="join-btn" href="https://discord.gg/gfd6jSPVvp" target="_blank">Invite / Join Server</a>
-  </div>
-
 </div>
 
 </body>
