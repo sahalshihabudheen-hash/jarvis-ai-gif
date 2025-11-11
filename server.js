@@ -92,14 +92,19 @@ app.post("/generate-image", async (req, res) => {
   if (!prompt) return res.status(400).json({ error: "Prompt is required" });
 
   try {
-    const response = await axios.post(
-      "https://api.freepik.com/v1/images/generate",
-      { prompt: prompt, size: "512x512", n: 1 }, // adjust based on Freepik API docs
-      { headers: { Authorization: `Bearer ${process.env.FREEPIK_API}` } }
+    const response = await axios.get(
+      "https://api.freepik.com/v1/images/search",
+      {
+        headers: { Authorization: `Bearer ${process.env.FREEPIK_API}` },
+        params: {
+          query: prompt,
+          limit: 1
+        }
+      }
     );
 
-    // Adjust based on actual response structure from Freepik
-    const imageURL = response.data.data?.[0]?.url || null;
+    // Adjust according to Freepik's response structure
+    const imageURL = response.data?.data?.[0]?.attributes?.url || null;
 
     if (!imageURL) return res.status(500).json({ error: "Failed to generate image" });
 
