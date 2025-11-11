@@ -9,26 +9,57 @@
 body {
   background: #000;
   color: #00eaff;
-  overflow: hidden;
+  /* ✨ Allow scrolling so navbar works */
+  overflow-y: auto;
   height: 100vh;
+}
+
+/* NAVBAR (matches your index.html navbar) */
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background: rgba(0,0,0,0.85);
+  padding: 15px 20px;
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid #00ffaa44;
+  z-index: 10000;
+}
+
+.navbar a {
+  color: #00ffaa;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 18px;
+  transition: 0.3s;
+}
+
+.navbar a:hover {
+  color: #00eaff;
+  text-shadow: 0 0 10px #00eaff;
 }
 
 /* Full-page container */
 .container {
-  position: absolute;
-  top: 50%;
+  position: relative;
+  /* ✨ Push chat UI below navbar */
+  margin-top: 90px;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%);
   width: 90%;
   max-width: 1000px;
-  height: 90%;
-  background: rgba(0, 0, 0, 0.4); /* semi-transparent */
+  height: calc(100vh - 120px);
+  background: rgba(0, 0, 0, 0.4);
   border: 2px solid #00eaff;
   border-radius: 20px;
   padding: 20px;
   display: flex;
   flex-direction: column;
   box-shadow: 0 0 30px #00eaff50;
+  z-index: 1;
 }
 
 /* Title */
@@ -142,10 +173,4 @@ body {
   top: 0;
   left: 0;
   z-index: 0;
-}
-
-/* Bring container above particles */
-.container {
-  position: relative;
-  z-index: 1;
 }
