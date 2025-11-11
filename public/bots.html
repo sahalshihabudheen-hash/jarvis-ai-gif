@@ -19,7 +19,37 @@
       overflow-x: hidden;
     }
 
+    /* NAVBAR */
+    .navbar {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background: rgba(0,0,0,0.85);
+      padding: 15px 20px;
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid #00ffaa44;
+      z-index: 9999;
+    }
+
+    .navbar a {
+      color: #00ffaa;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 18px;
+      transition: 0.3s;
+    }
+
+    .navbar a:hover {
+      color: #00eaff;
+      text-shadow: 0 0 10px #00eaff;
+    }
+
+    /* Wrapper shifts down so navbar doesn't overlap */
     .bots-wrapper {
+      margin-top: 120px;
       display: flex;
       gap: 40px;
       flex-wrap: wrap;
@@ -41,7 +71,6 @@
       position: relative;
     }
 
-    /* JARVIS boss style */
     .boss {
       transform: scale(1.25);
       border: 2px solid #00d0ff;
@@ -101,6 +130,13 @@
 
 </head>
 <body>
+
+<!-- ✅ NAVBAR (same as JARVIS) -->
+<div class="navbar">
+  <a href="index.html">JARVIS AI</a>
+  <a href="bots.html">Discord Bots</a>
+  <a href="image.html">Image Generator</a>
+</div>
 
 <div class="bots-wrapper">
 
