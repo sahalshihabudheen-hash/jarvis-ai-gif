@@ -5,14 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>JARVIS AI</title>
   <style>
-    /* Full-screen and particle background */
+    /* Full-screen background with GIF and particle overlay */
     body, html {
       margin: 0;
       padding: 0;
       height: 100%;
       width: 100%;
       font-family: 'Segoe UI', sans-serif;
-      background: #000;
+      background: url('https://i.ibb.co/cS9PByps/your-gif.gif') no-repeat center center fixed;
+      background-size: cover;
       overflow: hidden;
     }
 
@@ -101,7 +102,6 @@
       gap: 10px;
     }
 
-    /* Fixed neon input box */
     #userInput {
       flex: 1;
       padding: 10px 12px;
@@ -122,7 +122,6 @@
       background: rgba(0, 0, 0, 0.9);
     }
 
-    /* Pulse animation for neon glow */
     @keyframes pulse {
       0% { box-shadow: 0 0 5px #00eaff, 0 0 10px #00eaff, 0 0 20px #00eaff, 0 0 40px #00eaff; }
       50% { box-shadow: 0 0 8px #00eaff, 0 0 15px #00eaff, 0 0 25px #00eaff, 0 0 50px #00eaff; }
@@ -169,7 +168,7 @@
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     tsParticles.load("particles", {
-      background: { color: "#000" },
+      background: { color: "transparent" }, // keep GIF visible
       fpsLimit: 60,
       particles: {
         number: { value: 120 },
@@ -225,7 +224,7 @@
 
     // Custom replies first
     let customReply = null;
-    if(/who is your creator/i.test(message)) customReply="My creator is SAHAL_SHIHABUDHEEN ðŸ¤–";
+    if(/who is your creator/i.test(message)) customReply="My creator is SAHAL_SHIHABUDHEEN 🧠";
     else if(/which api/i.test(message)) customReply="Fully trained by SAHAL_SHIHABUDHEEN";
 
     if(customReply){
@@ -242,7 +241,7 @@
       const data = await res.json();
       addMessage("JARVIS", data.reply, data.gif);
     } catch(err){
-      addMessage("JARVIS","âš ï¸ Error sending request.");
+      addMessage("JARVIS","⚠️ Error sending request.");
     }
   }
 </script>
