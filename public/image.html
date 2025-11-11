@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Generator</title>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #000;
+      font-family: "Poppins", sans-serif;
+      color: #00ffaa;
+      min-height: 100vh;
+      text-align: center;
+      overflow-x: hidden;
+    }
+
+    /* NAVBAR */
+    .navbar {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background: rgba(0,0,0,0.85);
+      padding: 15px 20px;
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid #00ffaa44;
+      z-index: 9999;
+    }
+
+    .navbar a {
+      color: #00ffaa;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 18px;
+      transition: 0.3s;
+    }
+
+    .navbar a:hover,
+    .navbar .active {
+      color: #00eaff;
+      text-shadow: 0 0 10px #00eaff;
+    }
+
+    .container {
+      margin-top: 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 36px;
+      margin-bottom: 10px;
+      text-shadow: 0 0 8px #00ffaa;
+    }
+
+    p.sub {
+      font-size: 18px;
+      margin-bottom: 30px;
+      color: #a0ffa0;
+    }
+
+    .input-area {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 30px;
+      width: 100%;
+      max-width: 600px;
+    }
+
+    #promptInput {
+      flex: 1;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: none;
+      outline: none;
+      font-size: 16px;
+      background: rgba(0, 0, 0, 0.7);
+      color: #00ffaa;
+      box-shadow: 0 0 5px #00ffaa, 0 0 15px #00ffaa;
+      transition: 0.3s;
+    }
+
+    #promptInput:focus {
+      box-shadow: 0 0 10px #00eaff, 0 0 20px #00eaff;
+      color: #00eaff;
+    }
+
+    #generateBtn {
+      padding: 12px 20px;
+      border-radius: 12px;
+      border: none;
+      background: #00ffaa;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.25s;
+    }
+
+    #generateBtn:hover {
+      background: #00eaff;
+    }
+
+    .images-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .images-container img {
+      max-width: 300px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px #00ffaa;
+      margin-bottom: 20px;
+      transition: 0.3s;
+    }
+
+    .images-container img:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 30px #00eaff;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <div class="navbar">
+    <a href="/index.html">JARVIS AI</a>
+    <a href="/bots.html">Bots</a>
+    <a href="/image.html" class="active">Image Gen</a>
+  </div>
+
+  <div class="container">
+    <h1>Image Generator</h1>
+    <p class="sub">Powered by Freepik API — Type a prompt & generate</p>
+
+    <div class="input-area">
+      <input type="text" id="promptInput" placeholder="Type your image prompt here...">
+      <button id="generateBtn">Generate</button>
+    </div>
+
+    <div class="images-container" id="imagesContainer"></div>
+  </div>
+
+  <script>
+    const promptInput = document.getElementById("promptInput");
+    const generateBtn = document.getElementById("generateBtn");
+    const imagesContainer = document.getElementById("imagesContainer");
+
+    async function generateImage() {
+      const prompt = promptInput.value.trim();
+      if (!prompt) return alert("Please type a prompt!");
+
+      const tempMsg = document.createElement("p");
+      tempMsg.textContent = "Generating image...";
+      imagesContainer.appendChild(tempMsg);
+
+      try {
+        const res = await fetch("/generate-image", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt })
+        });
+        const data = await res.json();
+        tempMsg.remove();
+
+        if (data.imageURL) {
+          const img = document.createElement("img");
+          img.src = data.imageURL;
+          imagesContainer.appendChild(img);
+          promptInput.value = "";
+        } else {
+          alert("⚠️ Failed to generate image.");
+        }
+      } catch (err) {
+        tempMsg.remove();
+        alert("⚠️ Error generating image.");
+        console.error(err);
+      }
+    }
+
+    generateBtn.addEventListener("click", generateImage);
+    promptInput.addEventListener("keydown", e => {
+      if (e.key === "Enter") generateImage();
+    });
+  </script>
+
+</body>
+</html>
