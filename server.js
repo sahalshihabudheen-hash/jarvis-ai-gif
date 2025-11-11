@@ -86,6 +86,30 @@ app.post("/ask", async (req, res) => {
   }
 });
 
+// ====== FREEPIK IMAGE GENERATION ENDPOINT ======
+app.post("/generate-image", async (req, res) => {
+  const prompt = req.body.prompt;
+  if (!prompt) return res.status(400).json({ error: "Prompt is required" });
+
+  try {
+    const response = await axios.post(
+      "https://api.freepik.com/v1/images/generate",
+      { prompt: prompt, size: "512x512", n: 1 }, // adjust based on Freepik API docs
+      { headers: { Authorization: `Bearer ${process.env.FREEPIK_API}` } }
+    );
+
+    // Adjust based on actual response structure from Freepik
+    const imageURL = response.data.data?.[0]?.url || null;
+
+    if (!imageURL) return res.status(500).json({ error: "Failed to generate image" });
+
+    res.json({ imageURL });
+  } catch (err) {
+    console.error(err.response?.data || err.message);
+    res.status(500).json({ error: "Error generating image" });
+  }
+});
+
 // ====== START SERVER ======
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`✅ JARVIS Running on port ${PORT}`));
