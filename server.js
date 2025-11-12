@@ -3,8 +3,7 @@ import axios from "axios";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
-import * as Runware from "@runware/sdk-js";
- // ✅ Added Runware SDK import
+import { RunwareClient } from "@runware/sdk-js"; // ✅ Correct import
 
 dotenv.config();
 
@@ -51,7 +50,7 @@ app.post("/ask", async (req, res) => {
     } else if (/which api/i.test(question)) {
       aiReply = "No API, fully self trained by SAHAL_PRO";
     } else {
-      // GORQ API normal chat
+      // GROQ API normal chat
       const response = await axios.post(
         "https://api.groq.com/openai/v1/chat/completions",
         {
@@ -94,13 +93,13 @@ app.post("/generate-image", async (req, res) => {
   if (!prompt) return res.status(400).json({ error: "Prompt is required" });
 
   try {
-    // Initialize Runware client
-    const runware = new Runware({ apiKey: process.env.RUNWARE_API });
+    // ✅ Initialize Runware client
+    const runware = new RunwareClient({ apiKey: process.env.RUNWARE_API });
 
-    // Generate image
+    // ✅ Generate image
     const response = await runware.image.create({
       model: "flux-dev",
-      prompt: prompt,
+      prompt,
       output_format: "url"
     });
 
