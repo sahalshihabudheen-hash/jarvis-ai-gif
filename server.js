@@ -3,7 +3,8 @@ import axios from "axios";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
-import Runware from "@runware/sdk-js"; // ✅ Added Runware SDK import
+import * as Runware from "@runware/sdk-js";
+ // ✅ Added Runware SDK import
 
 dotenv.config();
 
