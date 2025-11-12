@@ -16,6 +16,16 @@
     color: #fff;
   }
 
+  /* Full-screen canvas */
+  #bg-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+  }
+
   /* NovaBar / Neon navbar */
   nav {
     position: fixed;
@@ -52,24 +62,6 @@
   nav a:hover {
     transform: translateY(-3px);
     box-shadow: 0 0 20px #fff, 0 0 40px #fff;
-  }
-
-  /* Animated background */
-  .bg-animation {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle at center, #00eaff 0%, #000 70%);
-    animation: moveBG 20s linear infinite alternate;
-    z-index: -1;
-  }
-
-  @keyframes moveBG {
-    0% { transform: translate(-25%, -25%) rotate(0deg); }
-    50% { transform: translate(-20%, -20%) rotate(180deg); }
-    100% { transform: translate(-25%, -25%) rotate(360deg); }
   }
 
   .container {
@@ -188,87 +180,143 @@
 
   .input-area button:hover { background: #00eaff; }
 
-  @keyframes fadeIn {
-    to { opacity: 1; transform: translateY(0); }
-  }
-
+  @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
 </style>
 </head>
 <body>
 
-  <!-- Animated Background -->
-  <div class="bg-animation"></div>
+<canvas id="bg-canvas"></canvas>
 
-  <!-- NovaBar / Neon Navbar -->
-  <nav>
-    <a href="index.html" class="chat">Chat-bot</a>
-    <a href="bots.html" class="discord">Discord Bots</a>
-    <a href="image.html" class="image">Image Gen</a>
-  </nav>
+<nav>
+  <a href="index.html" class="chat">Chat-bot</a>
+  <a href="bots.html" class="discord">Discord Bots</a>
+  <a href="image.html" class="image">Image Gen</a>
+</nav>
 
-  <div class="container">
-    <h1 class="title">J A R V I S</h1>
-    <p class="sub">Fully Trained by <span>SAHAL_PRO</span></p>
+<div class="container">
+  <h1 class="title">J A R V I S</h1>
+  <p class="sub">Fully Trained by <span>SAHAL_PRO</span></p>
 
-    <div id="chat-box" class="chat-box"></div>
+  <div id="chat-box" class="chat-box"></div>
 
-    <div class="input-area">
-      <input id="userInput" type="text" placeholder="Type your message..." autocomplete="off">
-      <button id="sendBtn">Send</button>
-    </div>
+  <div class="input-area">
+    <input id="userInput" type="text" placeholder="Type your message..." autocomplete="off">
+    <button id="sendBtn">Send</button>
   </div>
+</div>
 
-  <script>
-    const chatBox = document.getElementById("chat-box");
-    const input = document.getElementById("userInput");
-    const sendBtn = document.getElementById("sendBtn");
+<script>
+  // === PARTICLE BACKGROUND ===
+  const canvas = document.getElementById("bg-canvas");
+  const ctx = canvas.getContext("2d");
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
 
-    sendBtn.onclick = sendMessage;
-    input.addEventListener("keydown", e => { if(e.key==="Enter") sendMessage(); });
+  const particles = [];
+  const particleCount = 100;
 
-    function addMessage(sender, text, gifUrl=null){
-      const bubble = document.createElement("div");
-      bubble.classList.add("message", sender==="You"?"user":"ai");
-      const textEl = document.createElement("div");
-      textEl.textContent = text;
-      bubble.appendChild(textEl);
-      if(gifUrl){
-        const img = document.createElement("img");
-        img.src = gifUrl;
-        bubble.appendChild(img);
+  for(let i=0;i<particleCount;i++){
+    particles.push({
+      x: Math.random()*canvas.width,
+      y: Math.random()*canvas.height,
+      vx: (Math.random()-0.5)*1.5,
+      vy: (Math.random()-0.5)*1.5,
+      size: Math.random()*3+1,
+      color: Math.random()>0.5?"#00eaff":"#00ffaa"
+    });
+  }
+
+  function animate(){
+    ctx.fillStyle="rgba(0,0,0,0.15)";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    for(let p of particles){
+      p.x+=p.vx;
+      p.y+=p.vy;
+
+      if(p.x<0||p.x>canvas.width) p.vx*=-1;
+      if(p.y<0||p.y>canvas.height) p.vy*=-1;
+
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
+      ctx.fillStyle = p.color;
+      ctx.fill();
+      
+      for(let q of particles){
+        const dx=p.x-q.x;
+        const dy=p.y-q.y;
+        const dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist<100){
+          ctx.strokeStyle="rgba(0,255,170,0.1)";
+          ctx.lineWidth=1;
+          ctx.beginPath();
+          ctx.moveTo(p.x,p.y);
+          ctx.lineTo(q.x,q.y);
+          ctx.stroke();
+        }
       }
-      chatBox.appendChild(bubble);
-      chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    async function sendMessage(){
-      const message = input.value.trim();
-      if(!message) return;
-      addMessage("You", message);
-      input.value="";
+    requestAnimationFrame(animate);
+  }
+  animate();
 
-      let customReply = null;
-      if(/who is your creator/i.test(message)) customReply="My creator is SAHAL_PRO";
-      else if(/which api/i.test(message)) customReply="Fully trained by SAHAL_PRO";
+  window.addEventListener("resize",()=>{
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  });
 
-      if(customReply){
-        addMessage("JARVIS", customReply);
-        return;
-      }
+  // === CHAT LOGIC ===
+  const chatBox = document.getElementById("chat-box");
+  const input = document.getElementById("userInput");
+  const sendBtn = document.getElementById("sendBtn");
 
-      try{
-        const res = await fetch("/ask", {
-          method:"POST",
-          headers:{"Content-Type":"application/json"},
-          body: JSON.stringify({message})
-        });
-        const data = await res.json();
-        addMessage("JARVIS", data.reply, data.gif);
-      } catch(err){
-        addMessage("JARVIS","⚠️ Error sending request.");
-      }
+  sendBtn.onclick = sendMessage;
+  input.addEventListener("keydown", e => { if(e.key==="Enter") sendMessage(); });
+
+  function addMessage(sender, text, gifUrl=null){
+    const bubble = document.createElement("div");
+    bubble.classList.add("message", sender==="You"?"user":"ai");
+    const textEl = document.createElement("div");
+    textEl.textContent = text;
+    bubble.appendChild(textEl);
+    if(gifUrl){
+      const img = document.createElement("img");
+      img.src = gifUrl;
+      bubble.appendChild(img);
     }
-  </script>
+    chatBox.appendChild(bubble);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  async function sendMessage(){
+    const message = input.value.trim();
+    if(!message) return;
+    addMessage("You", message);
+    input.value="";
+
+    let customReply = null;
+    if(/who is your creator/i.test(message)) customReply="My creator is SAHAL_PRO";
+    else if(/which api/i.test(message)) customReply="Fully trained by SAHAL_PRO";
+
+    if(customReply){
+      addMessage("JARVIS", customReply);
+      return;
+    }
+
+    try{
+      const res = await fetch("/ask", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({message})
+      });
+      const data = await res.json();
+      addMessage("JARVIS", data.reply, data.gif);
+    } catch(err){
+      addMessage("JARVIS","⚠️ Error sending request.");
+    }
+  }
+</script>
 
 </body>
 </html>
