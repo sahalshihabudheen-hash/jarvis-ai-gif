@@ -17,38 +17,47 @@
       text-align: center;
     }
 
-    /* NAVBAR */
-    .navbar {
-      width: 100%;
-      padding: 18px 0;
-      background: rgba(10, 12, 18, 0.85);
-      backdrop-filter: blur(8px);
+    /* NOVABAR */
+    nav {
       position: fixed;
       top: 0;
       left: 0;
+      width: 100%;
+      height: 60px;
+      background: rgba(0,0,0,0.6);
       display: flex;
+      align-items: center;
       justify-content: center;
-      gap: 50px;
-      font-size: 18px;
-      border-bottom: 1px solid rgba(0, 255, 170, 0.2);
-      z-index: 9999;
+      gap: 20px;
+      backdrop-filter: blur(10px);
+      z-index: 10;
     }
 
-    .navbar a {
+    nav a {
       text-decoration: none;
-      color: #a8b4c7;
+      font-weight: bold;
+      font-size: 16px;
+      padding: 10px 20px;
+      border-radius: 10px;
+      border: 2px solid;
+      box-shadow: 0 0 10px #00eaff, 0 0 20px #00eaff;
       transition: 0.3s;
+      text-align: center;
+      color: #fff;
     }
 
-    .navbar a:hover,
-    .navbar .active {
-      color: #00ffaa;
-      text-shadow: 0 0 8px #00ffaa;
+    nav a.chat { background: rgba(0,234,255,0.3); border-color: #00eaff; color: #00eaff; }
+    nav a.discord { background: rgba(128,0,128,0.3); border-color: purple; color: purple; }
+    nav a.image { background: rgba(255,165,0,0.3); border-color: orange; color: orange; }
+
+    nav a:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0 20px #fff, 0 0 40px #fff;
     }
 
     /* PUSH CONTENT BELOW NAV */
     .content {
-      padding-top: 160px;
+      padding-top: 100px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -65,15 +74,9 @@
     }
 
     @keyframes glow {
-      0% {
-        text-shadow: 0 0 12px #00ffaa, 0 0 20px #00ffaa55, 0 0 30px #00ffaa33;
-      }
-      50% {
-        text-shadow: 0 0 20px #00ffaa, 0 0 30px #00ffaa55, 0 0 40px #00ffaa33;
-      }
-      100% {
-        text-shadow: 0 0 12px #00ffaa, 0 0 20px #00ffaa55, 0 0 30px #00ffaa33;
-      }
+      0% { text-shadow: 0 0 12px #00ffaa, 0 0 20px #00ffaa55, 0 0 30px #00ffaa33; }
+      50% { text-shadow: 0 0 20px #00ffaa, 0 0 30px #00ffaa55, 0 0 40px #00ffaa33; }
+      100% { text-shadow: 0 0 12px #00ffaa, 0 0 20px #00ffaa55, 0 0 30px #00ffaa33; }
     }
 
     .bots-wrapper {
@@ -94,116 +97,33 @@
       width: 260px;
       box-shadow: 0 0 18px rgba(0, 0, 0, 0.6);
       transition: 0.3s;
-      border: 3px solid #2a2f3a; /* default, will glow with animation */
+      border: 3px solid #2a2f3a;
       position: relative;
     }
 
-    .bot-card:hover {
-      transform: scale(1.05);
-    }
+    .bot-card:hover { transform: scale(1.05); }
+    .bot-card img { width: 90px; height: 90px; border-radius: 50%; margin-bottom: 15px; }
+    .status-dot { width: 14px; height: 14px; border-radius: 50%; position: absolute; top: 18px; right: 18px; }
+    .bot-card h2 { margin: 8px 0; font-weight: 600; }
+    .bot-card p { font-size: 14px; opacity: 0.85; margin-bottom: 20px; }
+    .join-btn { padding: 10px 14px; border-radius: 8px; text-decoration: none; font-weight: 600; display: block; transition: 0.25s; color: black; }
 
-    .bot-card img {
-      width: 90px;
-      height: 90px;
-      border-radius: 50%;
-      margin-bottom: 15px;
-    }
+    /* Bot-specific glows */
+    .nyra { border: 3px solid #ffaa00; animation: nyraGlow 2s infinite alternate; }
+    .nyra img { border: 3px solid #ffaa00; }
+    .nyra .status-dot { background: #ffff00; box-shadow: 0 0 8px #ffff00; }
+    @keyframes nyraGlow { 0% { box-shadow:0 0 10px #ffaa00,0 0 20px #ffff0055;}50%{box-shadow:0 0 20px #ffff00,0 0 30px #ffaa0055;}100%{box-shadow:0 0 10px #ffaa00,0 0 20px #ffff0055;}}
 
-    .status-dot {
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      position: absolute;
-      top: 18px;
-      right: 18px;
-    }
+    .jarvis { border: 3px solid #00aaff; animation: jarvisGlow 2s infinite alternate; }
+    .jarvis img { border: 3px solid #00aaff; }
+    .jarvis .status-dot { background: #00aaff; box-shadow: 0 0 8px #00aaff; }
+    @keyframes jarvisGlow { 0% { box-shadow:0 0 10px #00aaff,0 0 20px #00aaff55;}50%{box-shadow:0 0 20px #00ccff,0 0 30px #00aaff55;}100%{box-shadow:0 0 10px #00aaff,0 0 20px #00aaff55;}}
 
-    .bot-card h2 {
-      margin: 8px 0;
-      font-weight: 600;
-    }
+    .bazzoka { border: 3px solid #ff4444; animation: bazzokaGlow 2s infinite alternate; }
+    .bazzoka img { border: 3px solid #ff4444; }
+    .bazzoka .status-dot { background: #ff4444; box-shadow: 0 0 8px #ff4444; }
+    @keyframes bazzokaGlow { 0% { box-shadow:0 0 10px #ff4444,0 0 20px #ff8888;}50%{box-shadow:0 0 20px #ff6666,0 0 30px #ff4444;}100%{box-shadow:0 0 10px #ff4444,0 0 20px #ff8888;}}
 
-    .bot-card p {
-      font-size: 14px;
-      opacity: 0.85;
-      margin-bottom: 20px;
-    }
-
-    .join-btn {
-      padding: 10px 14px;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: 600;
-      display: block;
-      transition: 0.25s;
-      color: black;
-    }
-
-    /* Bot-specific styles & animations */
-    /* NYRA MUSIC - yellow glow */
-    .nyra {
-      border: 3px solid #ffaa00;
-      animation: nyraGlow 2s infinite alternate;
-    }
-
-    .nyra img {
-      border: 3px solid #ffaa00;
-    }
-
-    .nyra .status-dot {
-      background: #ffff00;
-      box-shadow: 0 0 8px #ffff00;
-    }
-
-    @keyframes nyraGlow {
-      0% { box-shadow: 0 0 10px #ffaa00, 0 0 20px #ffff0055; }
-      50% { box-shadow: 0 0 20px #ffff00, 0 0 30px #ffaa0055; }
-      100% { box-shadow: 0 0 10px #ffaa00, 0 0 20px #ffff0055; }
-    }
-
-    /* JARVIS - blue glow */
-    .jarvis {
-      border: 3px solid #00aaff;
-      animation: jarvisGlow 2s infinite alternate;
-    }
-
-    .jarvis img {
-      border: 3px solid #00aaff;
-    }
-
-    .jarvis .status-dot {
-      background: #00aaff;
-      box-shadow: 0 0 8px #00aaff;
-    }
-
-    @keyframes jarvisGlow {
-      0% { box-shadow: 0 0 10px #00aaff, 0 0 20px #00aaff55; }
-      50% { box-shadow: 0 0 20px #00ccff, 0 0 30px #00aaff55; }
-      100% { box-shadow: 0 0 10px #00aaff, 0 0 20px #00aaff55; }
-    }
-
-    /* BAZZOKA - red glow */
-    .bazzoka {
-      border: 3px solid #ff4444;
-      animation: bazzokaGlow 2s infinite alternate;
-    }
-
-    .bazzoka img {
-      border: 3px solid #ff4444;
-    }
-
-    .bazzoka .status-dot {
-      background: #ff4444;
-      box-shadow: 0 0 8px #ff4444;
-    }
-
-    @keyframes bazzokaGlow {
-      0% { box-shadow: 0 0 10px #ff4444, 0 0 20px #ff8888; }
-      50% { box-shadow: 0 0 20px #ff6666, 0 0 30px #ff4444; }
-      100% { box-shadow: 0 0 10px #ff4444, 0 0 20px #ff8888; }
-    }
-
-    /* Buttons glow */
     .join-btn.nyra { background: #ffaa00; }
     .join-btn.nyra:hover { background: #ffcc33; }
     .join-btn.jarvis { background: #00aaff; }
@@ -212,20 +132,18 @@
     .join-btn.bazzoka:hover { background: #ff6666; }
 
   </style>
-
 </head>
 <body>
 
-<!-- NAVBAR -->
-<div class="navbar">
-  <a href="/index.html">JARVIS AI</a>
-  <a href="/bots.html" class="active">Discord Bots</a>
-  <a href="/image.html">Image Gen</a>
-</div>
+<!-- NOVABAR -->
+<nav>
+  <a href="index.html" class="chat">Chat-bot</a>
+  <a href="bots.html" class="discord">Discord Bots</a>
+  <a href="image.html" class="image">Image Gen</a>
+</nav>
 
 <div class="content">
 
-  <!-- OUR BOTS TITLE -->
   <div class="bots-title">OUR BOTS</div>
 
   <div class="bots-wrapper">
