@@ -1,7 +1,7 @@
 {
   "name": "jarvis-ai-gif",
   "version": "1.0.0",
-  "description": "JARVIS AI Web Chat",
+  "description": "JARVIS AI Web Chat with Image Generation",
   "type": "module",
   "main": "server.js",
   "scripts": {
@@ -12,6 +12,7 @@
     "axios": "^1.6.7",
     "dotenv": "^16.3.1",
     "node-fetch": "^2.6.7",
-    "cors": "^2.8.5"
+    "cors": "^2.8.5",
+    "@runware/sdk-js": "^1.0.0"
   }
 }
