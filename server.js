@@ -3,6 +3,7 @@ import axios from "axios";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
+import Runware from "@runware/sdk-js"; // ✅ Added Runware SDK import
 
 dotenv.config();
 
@@ -86,26 +87,23 @@ app.post("/ask", async (req, res) => {
   }
 });
 
-// ====== FREEPIK IMAGE GENERATION ENDPOINT ======
+// ====== RUNWARE IMAGE GENERATION ENDPOINT ======
 app.post("/generate-image", async (req, res) => {
   const prompt = req.body.prompt;
   if (!prompt) return res.status(400).json({ error: "Prompt is required" });
 
   try {
-    const response = await axios.get(
-      "https://api.freepik.com/v1/images/search",
-      {
-        headers: { Authorization: `Bearer ${process.env.FREEPIK_API}` },
-        params: {
-          query: prompt,
-          limit: 1
-        }
-      }
-    );
+    // Initialize Runware client
+    const runware = new Runware({ apiKey: process.env.RUNWARE_API });
 
-    // Adjust according to Freepik's response structure
-    const imageURL = response.data?.data?.[0]?.attributes?.url || null;
+    // Generate image
+    const response = await runware.image.create({
+      model: "flux-dev",
+      prompt: prompt,
+      output_format: "url"
+    });
 
+    const imageURL = response?.data?.[0]?.url;
     if (!imageURL) return res.status(500).json({ error: "Failed to generate image" });
 
     res.json({ imageURL });
