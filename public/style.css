@@ -9,7 +9,7 @@
 body {
   background: #000;
   color: #00eaff;
-  overflow-y: auto; /* allow scrolling for navbar */
+  overflow-y: auto;
   height: 100vh;
 }
 
@@ -26,6 +26,8 @@ body {
   backdrop-filter: blur(10px);
   border-bottom: 1px solid #00ffaa44;
   z-index: 10000;
+  box-shadow: 0 0 20px #00eaff80, inset 0 0 10px #00ffaa40;
+  animation: neonGlow 3s ease-in-out infinite alternate;
 }
 
 .navbar a {
@@ -44,7 +46,7 @@ body {
 /* Full-page container */
 .container {
   position: relative;
-  margin-top: 90px; /* below navbar */
+  margin-top: 90px;
   left: 50%;
   transform: translateX(-50%);
   width: 90%;
@@ -98,7 +100,7 @@ body {
   scroll-behavior: smooth;
 }
 
-/* Chat Bubbles with animation */
+/* Chat Bubbles */
 .message {
   max-width: 70%;
   padding: 12px 18px;
@@ -173,17 +175,16 @@ body {
   }
 }
 
-/* Particles Background */
-#particles {
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  z-index: 0;
+@keyframes neonGlow {
+  from {
+    box-shadow: 0 0 10px #00eaff80, inset 0 0 5px #00ffaa20;
+  }
+  to {
+    box-shadow: 0 0 30px #00ffaaaa, inset 0 0 15px #00eaff60;
+  }
 }
 
-/* === Background Video Styling === */
+/* Background Video */
 #bg-video {
   position: fixed;
   top: 0;
@@ -196,18 +197,12 @@ body {
   filter: brightness(0.6) blur(2px);
 }
 
-/* === Extra Neon Glow for Navbar === */
-.navbar {
-  box-shadow: 0 0 20px #00eaff80, inset 0 0 10px #00ffaa40;
-  border-bottom: 1px solid #00eaff60;
-  animation: neonGlow 3s ease-in-out infinite alternate;
-}
-
-@keyframes neonGlow {
-  from {
-    box-shadow: 0 0 10px #00eaff80, inset 0 0 5px #00ffaa20;
-  }
-  to {
-    box-shadow: 0 0 30px #00ffaaaa, inset 0 0 15px #00eaff60;
-  }
+/* Particles Background */
+#particles {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 0;
 }
