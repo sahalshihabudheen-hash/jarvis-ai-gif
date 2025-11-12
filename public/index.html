@@ -25,6 +25,18 @@
       100% { background-position: 0% 50%; }
     }
 
+    /* Background video */
+    #bg-video {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -1;
+      filter: brightness(0.25) blur(2px);
+    }
+
     /* Nova Bar / Neon navbar */
     nav {
       position: fixed;
@@ -36,9 +48,17 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 20px;
+      gap: 25px;
       backdrop-filter: blur(10px);
       z-index: 10;
+      border-bottom: 2px solid rgba(0, 234, 255, 0.4);
+      box-shadow: 0 0 20px rgba(0, 234, 255, 0.4);
+      animation: navbarGlow 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes navbarGlow {
+      0% { box-shadow: 0 0 10px #00eaff, 0 0 20px #00eaff; }
+      100% { box-shadow: 0 0 25px #00ffaa, 0 0 50px #00ffaa; }
     }
 
     nav a {
@@ -48,18 +68,18 @@
       padding: 10px 20px;
       border-radius: 10px;
       border: 2px solid;
-      box-shadow: 0 0 10px #00eaff, 0 0 20px #00eaff;
       transition: 0.3s;
       text-align: center;
       color: #fff;
+      box-shadow: 0 0 10px #00eaff, 0 0 20px #00eaff, inset 0 0 10px #00eaff;
     }
 
     nav a:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 0 20px #fff, 0 0 40px #fff;
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 0 25px #00ffaa, 0 0 50px #00ffaa, inset 0 0 20px #00ffaa;
     }
 
-    nav a.chat { background: rgba(0,234,255,0.3); border-color: #00eaff; color: #00eaff; }
+    nav a.chat { background: rgba(0,234,255,0.2); border-color: #00eaff; color: #00eaff; }
     nav a.discord { background: rgba(128,0,128,0.3); border-color: purple; color: purple; }
     nav a.image { background: rgba(255,165,0,0.3); border-color: orange; color: orange; }
 
@@ -81,7 +101,13 @@
       text-align: center;
       margin-bottom: 5px;
       font-size: 32px;
-      text-shadow: 0 0 10px #00ffaa, 0 0 20px #00eaff;
+      text-shadow: 0 0 10px #00ffaa, 0 0 20px #00eaff, 0 0 40px #00ffaa;
+      animation: flicker 2s infinite alternate;
+    }
+
+    @keyframes flicker {
+      0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
+      20%, 24%, 55% { opacity: 0.4; }
     }
 
     .sub {
@@ -186,6 +212,11 @@
 </head>
 <body>
 
+  <!-- Background Video -->
+  <video autoplay muted loop id="bg-video">
+    <source src="ai-bg.mp4" type="video/mp4">
+  </video>
+
   <!-- NovaBar / Neon Navbar -->
   <nav>
     <a href="index.html" class="chat">Chat-bot</a>
@@ -206,7 +237,6 @@
   </div>
 
   <script>
-    // Chat JS
     const chatBox = document.getElementById("chat-box");
     const input = document.getElementById("userInput");
     const sendBtn = document.getElementById("sendBtn");
