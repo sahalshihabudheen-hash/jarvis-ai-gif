@@ -12,16 +12,18 @@
       width: 100%;
       font-family: 'Segoe UI', sans-serif;
       overflow-x: hidden;
-      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-      background-size: 400% 400%;
-      animation: gradientBG 15s ease infinite;
       color: #fff;
     }
 
-    @keyframes gradientBG {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
+    /* Background video setup */
+    #bg-video {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -1;
     }
 
     /* Nova Bar / Neon navbar */
@@ -158,6 +160,11 @@
 </head>
 <body>
 
+  <!-- Background video -->
+  <video autoplay muted loop playsinline id="bg-video">
+    <source src="https://files.catbox.moe/3oohtn.mp4" type="video/mp4">
+  </video>
+
   <!-- NovaBar / Neon Navbar -->
   <nav>
     <a href="index.html" class="chat">Chat-bot</a>
@@ -166,11 +173,9 @@
   </nav>
 
   <div class="content">
-
     <div class="bots-title">OUR BOTS</div>
 
     <div class="bots-wrapper">
-
       <div class="bot-card">
         <div class="status-dot"></div>
         <img src="https://i.postimg.cc/j5qbRQVS/Screenshot-2025-11-11-at-19-50-32-2767-Discord-ALAN.png">
@@ -194,7 +199,6 @@
         <p>Fun and chaos — always joking.</p>
         <a class="join-btn" href="https://discord.gg/gfd6jSPVvp" target="_blank">Invite / Join Server</a>
       </div>
-
     </div>
   </div>
 
