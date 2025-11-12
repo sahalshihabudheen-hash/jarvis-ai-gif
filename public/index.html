@@ -12,29 +12,17 @@
       height: 100%;
       width: 100%;
       font-family: 'Segoe UI', sans-serif;
+      overflow: hidden;
       background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
       background-size: 400% 400%;
       animation: gradientBG 15s ease infinite;
       color: #fff;
-      overflow: hidden; /* removed this to let the video show properly */
     }
 
     @keyframes gradientBG {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
-    }
-
-    /* Background video */
-    #bg-video {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      z-index: -1;
-      filter: brightness(0.25) blur(2px);
     }
 
     /* Nova Bar / Neon navbar */
@@ -48,19 +36,12 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 25px;
+      gap: 20px;
       backdrop-filter: blur(10px);
       z-index: 10;
-      border-bottom: 2px solid rgba(0, 234, 255, 0.4);
-      box-shadow: 0 0 20px rgba(0, 234, 255, 0.4);
-      animation: navbarGlow 3s ease-in-out infinite alternate;
     }
 
-    @keyframes navbarGlow {
-      0% { box-shadow: 0 0 10px #00eaff, 0 0 20px #00eaff; }
-      100% { box-shadow: 0 0 25px #00ffaa, 0 0 50px #00ffaa; }
-    }
-
+    /* Neon button style */
     nav a {
       text-decoration: none;
       font-weight: bold;
@@ -68,20 +49,35 @@
       padding: 10px 20px;
       border-radius: 10px;
       border: 2px solid;
+      box-shadow: 0 0 10px #00eaff, 0 0 20px #00eaff;
       transition: 0.3s;
       text-align: center;
       color: #fff;
-      box-shadow: 0 0 10px #00eaff, 0 0 20px #00eaff, inset 0 0 10px #00eaff;
     }
 
     nav a:hover {
-      transform: translateY(-3px) scale(1.05);
-      box-shadow: 0 0 25px #00ffaa, 0 0 50px #00ffaa, inset 0 0 20px #00ffaa;
+      transform: translateY(-3px);
+      box-shadow: 0 0 20px #fff, 0 0 40px #fff;
     }
 
-    nav a.chat { background: rgba(0,234,255,0.2); border-color: #00eaff; color: #00eaff; }
-    nav a.discord { background: rgba(128,0,128,0.3); border-color: purple; color: purple; }
-    nav a.image { background: rgba(255,165,0,0.3); border-color: orange; color: orange; }
+    /* Individual button colors */
+    nav a.chat {
+      background: rgba(0,234,255,0.3);
+      border-color: #00eaff;
+      color: #00eaff;
+    }
+
+    nav a.discord {
+      background: rgba(128,0,128,0.3);
+      border-color: purple;
+      color: purple;
+    }
+
+    nav a.image {
+      background: rgba(255,165,0,0.3);
+      border-color: orange;
+      color: orange;
+    }
 
     .container {
       position: absolute;
@@ -94,7 +90,6 @@
       justify-content: flex-end;
       padding: 20px;
       box-sizing: border-box;
-      z-index: 2;
     }
 
     .title {
@@ -102,13 +97,7 @@
       text-align: center;
       margin-bottom: 5px;
       font-size: 32px;
-      text-shadow: 0 0 10px #00ffaa, 0 0 20px #00eaff, 0 0 40px #00ffaa;
-      animation: flicker 2s infinite alternate;
-    }
-
-    @keyframes flicker {
-      0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
-      20%, 24%, 55% { opacity: 0.4; }
+      text-shadow: 0 0 10px #00ffaa, 0 0 20px #00eaff;
     }
 
     .sub {
@@ -117,7 +106,9 @@
       margin-bottom: 10px;
     }
 
-    .sub span { color: #00eaff; }
+    .sub span {
+      color: #00eaff;
+    }
 
     .chat-box {
       flex: 1;
@@ -188,9 +179,15 @@
     }
 
     @keyframes pulse {
-      0% { box-shadow: 0 0 5px #00eaff, 0 0 10px #00eaff, 0 0 20px #00eaff, 0 0 40px #00eaff; }
-      50% { box-shadow: 0 0 8px #00eaff, 0 0 15px #00eaff, 0 0 25px #00eaff, 0 0 50px #00eaff; }
-      100% { box-shadow: 0 0 5px #00eaff, 0 0 10px #00eaff, 0 0 20px #00eaff, 0 0 40px #00eaff; }
+      0% {
+        box-shadow: 0 0 5px #00eaff, 0 0 10px #00eaff, 0 0 20px #00eaff, 0 0 40px #00eaff;
+      }
+      50% {
+        box-shadow: 0 0 8px #00eaff, 0 0 15px #00eaff, 0 0 25px #00eaff, 0 0 50px #00eaff;
+      }
+      100% {
+        box-shadow: 0 0 5px #00eaff, 0 0 10px #00eaff, 0 0 20px #00eaff, 0 0 40px #00eaff;
+      }
     }
 
     .input-area button {
@@ -204,20 +201,19 @@
       transition: 0.2s;
     }
 
-    .input-area button:hover { background: #00eaff; }
+    .input-area button:hover {
+      background: #00eaff;
+    }
 
     @keyframes fadeIn {
-      to { opacity: 1; transform: translateY(0); }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
   </style>
 </head>
 <body>
-
-  <!-- Background Video -->
-  <video autoplay muted loop id="bg-video">
-    <source src="ai-bg.mp4" type="video/mp4">
-  </video>
-
   <!-- NovaBar / Neon Navbar -->
   <nav>
     <a href="index.html" class="chat">Chat-bot</a>
@@ -238,22 +234,25 @@
   </div>
 
   <script>
+    // Chat JS
     const chatBox = document.getElementById("chat-box");
     const input = document.getElementById("userInput");
     const sendBtn = document.getElementById("sendBtn");
 
     sendBtn.onclick = sendMessage;
-    input.addEventListener("keydown", e => { if(e.key==="Enter") sendMessage(); });
+    input.addEventListener("keydown", e => {
+      if (e.key === "Enter") sendMessage();
+    });
 
-    function addMessage(sender, text, gifUrl=null){
+    function addMessage(sender, text, gifUrl = null) {
       const bubble = document.createElement("div");
-      bubble.classList.add("message", sender==="You"?"user":"ai");
+      bubble.classList.add("message", sender === "You" ? "user" : "ai");
 
       const textEl = document.createElement("div");
       textEl.textContent = text;
       bubble.appendChild(textEl);
 
-      if(gifUrl){
+      if (gifUrl) {
         const img = document.createElement("img");
         img.src = gifUrl;
         bubble.appendChild(img);
@@ -263,31 +262,36 @@
       chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    async function sendMessage(){
+    async function sendMessage() {
       const message = input.value.trim();
-      if(!message) return;
+      if (!message) return;
+
       addMessage("You", message);
-      input.value="";
+      input.value = "";
 
       let customReply = null;
-      if(/who is your creator/i.test(message)) customReply="My creator is SAHAL_PRO";
-      else if(/which api/i.test(message)) customReply="Fully trained by SAHAL_PRO";
 
-      if(customReply){
+      if (/who is your creator/i.test(message))
+        customReply = "My creator is SAHAL_PRO";
+      else if (/which api/i.test(message))
+        customReply = "Fully trained by SAHAL_PRO";
+
+      if (customReply) {
         addMessage("JARVIS", customReply);
         return;
       }
 
-      try{
+      try {
         const res = await fetch("/ask", {
-          method:"POST",
-          headers:{"Content-Type":"application/json"},
-          body: JSON.stringify({message})
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message })
         });
+
         const data = await res.json();
         addMessage("JARVIS", data.reply, data.gif);
-      } catch(err){
-        addMessage("JARVIS","⚠️ Error sending request.");
+      } catch (err) {
+        addMessage("JARVIS", "⚠️ Error sending request.");
       }
     }
   </script>
