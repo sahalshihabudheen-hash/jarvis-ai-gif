@@ -1,266 +1,137 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JARVIS AI</title>
+  <title>Discord Bots</title>
+
   <style>
-    /* Reset and basic styles */
-    body, html {
+    body {
       margin: 0;
       padding: 0;
-      height: 100%;
-      width: 100%;
-      font-family: 'Segoe UI', sans-serif;
-      overflow: hidden;
-      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-      background-size: 400% 400%;
-      animation: gradientBG 15s ease infinite;
-      color: #fff;
-    }
-
-    @keyframes gradientBG {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-
-    /* Nova Bar / Neon navbar */
-    nav {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 60px;
-      background: rgba(0,0,0,0.6);
+      background: #0d0f17;
+      font-family: "Poppins", sans-serif;
+      color: white;
       display: flex;
-      align-items: center;
       justify-content: center;
-      gap: 20px;
-      backdrop-filter: blur(10px);
-      z-index: 10;
+      align-items: center;
+      min-height: 100vh;
+      overflow-x: hidden;
     }
 
-    /* Neon button style */
-    nav a {
-      text-decoration: none;
-      font-weight: bold;
-      font-size: 16px;
-      padding: 10px 20px;
-      border-radius: 10px;
-      border: 2px solid;
-      box-shadow: 0 0 10px #00eaff, 0 0 20px #00eaff;
-      transition: 0.3s;
+    .bots-wrapper {
+      display: flex;
+      gap: 40px;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
       text-align: center;
-      color: #fff;
+      max-width: 1100px;
+      padding: 30px;
     }
 
-    nav a:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 0 20px #fff, 0 0 40px #fff;
+    .bot-card {
+      background: #141820;
+      border-radius: 14px;
+      padding: 28px;
+      width: 260px;
+      box-shadow: 0 0 18px rgba(0, 0, 0, 0.6);
+      transition: 0.3s;
+      border: 1px solid #2a2f3a;
+      position: relative;
     }
 
-    /* Individual button colors */
-    nav a.chat { background: rgba(0,234,255,0.3); border-color: #00eaff; color: #00eaff; }
-    nav a.discord { background: rgba(128,0,128,0.3); border-color: purple; color: purple; }
-    nav a.image { background: rgba(255,165,0,0.3); border-color: orange; color: orange; }
+    /* JARVIS boss style */
+    .boss {
+      transform: scale(1.25);
+      border: 2px solid #00d0ff;
+      box-shadow: 0 0 25px rgba(0, 255, 255, 0.5);
+    }
 
-    .container {
+    .bot-card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 30px rgba(0, 255, 255, 0.35);
+    }
+
+    .bot-card img {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      border: 3px solid #00d0ff;
+      margin-bottom: 15px;
+    }
+
+    .status-dot {
+      width: 14px;
+      height: 14px;
+      background: #00ff4c;
+      border-radius: 50%;
       position: absolute;
-      top: 60px;
-      left: 0;
-      width: 100%;
-      height: calc(100% - 60px);
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      padding: 20px;
-      box-sizing: border-box;
+      top: 18px;
+      right: 18px;
+      box-shadow: 0 0 8px #00ff4c;
     }
 
-    .title {
-      color: #00ffaa;
-      text-align: center;
-      margin-bottom: 5px;
-      font-size: 32px;
-      text-shadow: 0 0 10px #00ffaa, 0 0 20px #00eaff;
+    .bot-card h2 {
+      margin: 8px 0;
+      font-weight: 600;
     }
 
-    .sub {
-      color: #fff;
-      text-align: center;
-      margin-bottom: 10px;
+    .bot-card p {
+      font-size: 14px;
+      opacity: 0.85;
+      margin-bottom: 20px;
     }
 
-    .sub span { color: #00eaff; }
-
-    .chat-box {
-      flex: 1;
-      width: 100%;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      padding: 10px;
-      background: rgba(0,0,0,0.5);
-      border-radius: 12px;
-      margin-bottom: 10px;
-    }
-
-    .message {
-      max-width: 90%;
+    .join-btn {
+      background: #00d0ff;
+      color: black;
       padding: 10px 14px;
-      border-radius: 12px;
-      word-wrap: break-word;
-      display: inline-block;
-      opacity: 0;
-      transform: translateY(20px);
-      animation: fadeIn 0.3s forwards;
-    }
-
-    .message.user {
-      align-self: flex-end;
-      background: rgba(0, 234, 255, 0.8);
-      color: #000;
-    }
-
-    .message.ai {
-      align-self: flex-start;
-      background: rgba(0, 255, 170, 0.2);
-      color: #fff;
-    }
-
-    .message img {
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: 0.25s;
       display: block;
-      margin-top: 8px;
-      max-width: 100%;
-      border-radius: 12px;
     }
 
-    .input-area {
-      display: flex;
-      gap: 10px;
-    }
-
-    #userInput {
-      flex: 1;
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: none;
-      outline: none;
-      font-size: 16px;
-      background: rgba(0, 0, 0, 0.8);
-      color: #00eaff;
-      box-shadow: 0 0 5px #00eaff, 0 0 10px #00eaff, 0 0 20px #00eaff, 0 0 40px #00eaff;
-      transition: 0.3s;
-      animation: pulse 2s infinite alternate;
-    }
-
-    #userInput:focus {
-      box-shadow: 0 0 10px #00ffaa, 0 0 20px #00ffaa, 0 0 40px #00ffaa, 0 0 60px #00ffaa;
-      color: #00ffaa;
-      background: rgba(0, 0, 0, 0.9);
-    }
-
-    @keyframes pulse {
-      0% { box-shadow: 0 0 5px #00eaff, 0 0 10px #00eaff, 0 0 20px #00eaff, 0 0 40px #00eaff; }
-      50% { box-shadow: 0 0 8px #00eaff, 0 0 15px #00eaff, 0 0 25px #00eaff, 0 0 50px #00eaff; }
-      100% { box-shadow: 0 0 5px #00eaff, 0 0 10px #00eaff, 0 0 20px #00eaff, 0 0 40px #00eaff; }
-    }
-
-    .input-area button {
-      padding: 10px 16px;
-      border-radius: 12px;
-      border: none;
-      background: #00ffaa;
-      color: #000;
-      font-weight: bold;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-
-    .input-area button:hover { background: #00eaff; }
-
-    @keyframes fadeIn {
-      to { opacity: 1; transform: translateY(0); }
+    .join-btn:hover {
+      background: #00a6d4;
     }
   </style>
+
 </head>
 <body>
 
-  <!-- NovaBar / Neon Navbar -->
-  <nav>
-    <a href="index.html" class="chat">Chat-bot</a>
-    <a href="bots.html" class="discord">Discord Bots</a>
-    <a href="image.html" class="image">Image Gen</a>
-  </nav>
+<div class="bots-wrapper">
 
-  <div class="container">
-    <h1 class="title">J A R V I S</h1>
-    <p class="sub">Fully Trained by <span>SAHAL_PRO</span></p>
-
-    <div id="chat-box" class="chat-box"></div>
-
-    <div class="input-area">
-      <input id="userInput" type="text" placeholder="Type your message..." autocomplete="off">
-      <button id="sendBtn">Send</button>
-    </div>
+  <!-- NYRA MUSIC -->
+  <div class="bot-card">
+    <div class="status-dot"></div>
+    <img src="https://i.postimg.cc/j5qbRQVS/Screenshot-2025-11-11-at-19-50-32-2767-Discord-ALAN.png">
+    <h2>NYRA MUSIC</h2>
+    <p>Best music bot powered by Lavalink.</p>
+    <a class="join-btn" href="https://discord.gg/uqbSrkwEVN" target="_blank">Invite / Join Server</a>
   </div>
 
-  <script>
-    // Chat JS
-    const chatBox = document.getElementById("chat-box");
-    const input = document.getElementById("userInput");
-    const sendBtn = document.getElementById("sendBtn");
+  <!-- JARVIS (BOSS) -->
+  <div class="bot-card boss">
+    <div class="status-dot"></div>
+    <img src="https://i.postimg.cc/T3X2ZbPP/Screenshot-2025-10-22-at-11-55-52-Chat-GPT-Smart-Fast-Free-AI-Chat.png">
+    <h2>JARVIS</h2>
+    <p>Smart AI — Fast responses. Built to assist.</p>
+    <a class="join-btn" href="https://discord.gg/pPGV4FAnWz" target="_blank">Invite / Join Server</a>
+  </div>
 
-    sendBtn.onclick = sendMessage;
-    input.addEventListener("keydown", e => { if(e.key==="Enter") sendMessage(); });
+  <!-- BAZZOKA -->
+  <div class="bot-card">
+    <div class="status-dot"></div>
+    <img src="https://i.postimg.cc/dV0NQH39/Screenshot-2025-11-11-at-19-54-11-2767-Discord-BAZOOKA-AI.png">
+    <h2>BAZZOKA</h2>
+    <p>Fun and chaos — always joking.</p>
+    <a class="join-btn" href="https://discord.gg/gfd6jSPVvp" target="_blank">Invite / Join Server</a>
+  </div>
 
-    function addMessage(sender, text, gifUrl=null){
-      const bubble = document.createElement("div");
-      bubble.classList.add("message", sender==="You"?"user":"ai");
+</div>
 
-      const textEl = document.createElement("div");
-      textEl.textContent = text;
-      bubble.appendChild(textEl);
-
-      if(gifUrl){
-        const img = document.createElement("img");
-        img.src = gifUrl;
-        bubble.appendChild(img);
-      }
-
-      chatBox.appendChild(bubble);
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
-
-    async function sendMessage(){
-      const message = input.value.trim();
-      if(!message) return;
-      addMessage("You", message);
-      input.value="";
-
-      let customReply = null;
-      if(/who is your creator/i.test(message)) customReply="My creator is SAHAL_PRO";
-      else if(/which api/i.test(message)) customReply="Fully trained by SAHAL_PRO";
-
-      if(customReply){
-        addMessage("JARVIS", customReply);
-        return;
-      }
-
-      try{
-        const res = await fetch("/ask", {
-          method:"POST",
-          headers:{"Content-Type":"application/json"},
-          body: JSON.stringify({message})
-        });
-        const data = await res.json();
-        addMessage("JARVIS", data.reply, data.gif);
-      } catch(err){
-        addMessage("JARVIS","⚠️ Error sending request.");
-      }
-    }
-  </script>
 </body>
 </html>
