@@ -5,31 +5,72 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>JARVIS AI</title>
   <style>
-    /* Full-screen and particle background */
+    /* Reset and basic styles */
     body, html {
       margin: 0;
       padding: 0;
       height: 100%;
       width: 100%;
       font-family: 'Segoe UI', sans-serif;
-      background: #000;
       overflow: hidden;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      color: #fff;
     }
 
-    #particles {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      z-index: 1;
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
-    .container {
-      position: absolute;
+    /* Nova Bar / Neon navbar */
+    nav {
+      position: fixed;
       top: 0;
       left: 0;
       width: 100%;
-      height: 100%;
-      z-index: 2;
+      height: 60px;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      backdrop-filter: blur(10px);
+      z-index: 10;
+    }
+
+    /* Neon button style */
+    nav a {
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 16px;
+      padding: 10px 20px;
+      border-radius: 10px;
+      border: 2px solid;
+      box-shadow: 0 0 10px #00eaff, 0 0 20px #00eaff;
+      transition: 0.3s;
+      text-align: center;
+      color: #fff;
+    }
+
+    nav a:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0 20px #fff, 0 0 40px #fff;
+    }
+
+    /* Individual button colors */
+    nav a.chat { background: rgba(0,234,255,0.3); border-color: #00eaff; color: #00eaff; }
+    nav a.discord { background: rgba(128,0,128,0.3); border-color: purple; color: purple; }
+    nav a.image { background: rgba(255,165,0,0.3); border-color: orange; color: orange; }
+
+    .container {
+      position: absolute;
+      top: 60px;
+      left: 0;
+      width: 100%;
+      height: calc(100% - 60px);
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
@@ -41,6 +82,8 @@
       color: #00ffaa;
       text-align: center;
       margin-bottom: 5px;
+      font-size: 32px;
+      text-shadow: 0 0 10px #00ffaa, 0 0 20px #00eaff;
     }
 
     .sub {
@@ -49,9 +92,7 @@
       margin-bottom: 10px;
     }
 
-    .sub span {
-      color: #00eaff;
-    }
+    .sub span { color: #00eaff; }
 
     .chat-box {
       flex: 1;
@@ -101,7 +142,6 @@
       gap: 10px;
     }
 
-    /* Fixed neon input box */
     #userInput {
       flex: 1;
       padding: 10px 12px;
@@ -122,7 +162,6 @@
       background: rgba(0, 0, 0, 0.9);
     }
 
-    /* Pulse animation for neon glow */
     @keyframes pulse {
       0% { box-shadow: 0 0 5px #00eaff, 0 0 10px #00eaff, 0 0 20px #00eaff, 0 0 40px #00eaff; }
       50% { box-shadow: 0 0 8px #00eaff, 0 0 15px #00eaff, 0 0 25px #00eaff, 0 0 50px #00eaff; }
@@ -140,9 +179,7 @@
       transition: 0.2s;
     }
 
-    .input-area button:hover {
-      background: #00eaff;
-    }
+    .input-area button:hover { background: #00eaff; }
 
     @keyframes fadeIn {
       to { opacity: 1; transform: translateY(0); }
@@ -151,101 +188,79 @@
 </head>
 <body>
 
-<div id="particles"></div>
+  <!-- NovaBar / Neon Navbar -->
+  <nav>
+    <a href="index.html" class="chat">Chat-bot</a>
+    <a href="bots.html" class="discord">Discord Bots</a>
+    <a href="image.html" class="image">Image Gen</a>
+  </nav>
 
-<div class="container">
-  <h1 class="title">J A R V I S</h1>
-  <p class="sub">Fully Trained by <span>SAHAL_PRO</span></p>
+  <div class="container">
+    <h1 class="title">J A R V I S</h1>
+    <p class="sub">Fully Trained by <span>SAHAL_PRO</span></p>
 
-  <div id="chat-box" class="chat-box"></div>
+    <div id="chat-box" class="chat-box"></div>
 
-  <div class="input-area">
-    <input id="userInput" type="text" placeholder="Type your message..." autocomplete="off">
-    <button id="sendBtn">Send</button>
+    <div class="input-area">
+      <input id="userInput" type="text" placeholder="Type your message..." autocomplete="off">
+      <button id="sendBtn">Send</button>
+    </div>
   </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/tsparticles@2/tsparticles.bundle.min.js"></script>
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    tsParticles.load("particles", {
-      background: { color: "#000" },
-      fpsLimit: 60,
-      particles: {
-        number: { value: 120 },
-        color: { value: ["#00eaff","#00ffaa"] },
-        shape: { type: "circle" },
-        opacity: { value: 0.6 },
-        size: { value: { min: 2, max: 4 } },
-        move: { enable: true, speed: 1.5, direction: "none", outModes: "bounce" },
-        links: { enable: true, distance: 120, color: "#00ffaa", opacity: 0.4, width: 1 }
-      },
-      interactivity: {
-        events: { 
-          onHover: { enable: true, mode: "repulse" }, 
-          onClick: { enable: true, mode: "push" } 
-        },
-        modes: { repulse: { distance: 100 }, push: { quantity: 4 } }
-      },
-      detectRetina: true
-    });
-  });
+  <script>
+    // Chat JS
+    const chatBox = document.getElementById("chat-box");
+    const input = document.getElementById("userInput");
+    const sendBtn = document.getElementById("sendBtn");
 
-  // Chat JS
-  const chatBox = document.getElementById("chat-box");
-  const input = document.getElementById("userInput");
-  const sendBtn = document.getElementById("sendBtn");
+    sendBtn.onclick = sendMessage;
+    input.addEventListener("keydown", e => { if(e.key==="Enter") sendMessage(); });
 
-  sendBtn.onclick = sendMessage;
-  input.addEventListener("keydown", e => { if(e.key==="Enter") sendMessage(); });
+    function addMessage(sender, text, gifUrl=null){
+      const bubble = document.createElement("div");
+      bubble.classList.add("message", sender==="You"?"user":"ai");
 
-  function addMessage(sender, text, gifUrl=null){
-    const bubble = document.createElement("div");
-    bubble.classList.add("message", sender==="You"?"user":"ai");
+      const textEl = document.createElement("div");
+      textEl.textContent = text;
+      bubble.appendChild(textEl);
 
-    const textEl = document.createElement("div");
-    textEl.textContent = text;
-    bubble.appendChild(textEl);
+      if(gifUrl){
+        const img = document.createElement("img");
+        img.src = gifUrl;
+        bubble.appendChild(img);
+      }
 
-    if(gifUrl){
-      const img = document.createElement("img");
-      img.src = gifUrl;
-      bubble.appendChild(img);
+      chatBox.appendChild(bubble);
+      chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    chatBox.appendChild(bubble);
-    chatBox.scrollTop = chatBox.scrollHeight;
-  }
+    async function sendMessage(){
+      const message = input.value.trim();
+      if(!message) return;
+      addMessage("You", message);
+      input.value="";
 
-  async function sendMessage(){
-    const message = input.value.trim();
-    if(!message) return;
-    addMessage("You", message);
-    input.value="";
+      let customReply = null;
+      if(/who is your creator/i.test(message)) customReply="My creator is SAHAL_PRO";
+      else if(/which api/i.test(message)) customReply="Fully trained by SAHAL_PRO";
 
-    // Custom replies first
-    let customReply = null;
-    if(/who is your creator/i.test(message)) customReply="My creator is SAHAL_PRO ðŸ¤–";
-    else if(/which api/i.test(message)) customReply="Fully trained by SAHAL_PRO";
+      if(customReply){
+        addMessage("JARVIS", customReply);
+        return;
+      }
 
-    if(customReply){
-      addMessage("JARVIS", customReply);
-      return;
+      try{
+        const res = await fetch("/ask", {
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body: JSON.stringify({message})
+        });
+        const data = await res.json();
+        addMessage("JARVIS", data.reply, data.gif);
+      } catch(err){
+        addMessage("JARVIS","⚠️ Error sending request.");
+      }
     }
-
-    try{
-      const res = await fetch("/ask", {
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({message})
-      });
-      const data = await res.json();
-      addMessage("JARVIS", data.reply, data.gif);
-    } catch(err){
-      addMessage("JARVIS","âš ï¸ Error sending request.");
-    }
-  }
-</script>
-
+  </script>
 </body>
 </html>
