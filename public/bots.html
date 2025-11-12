@@ -1,23 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Discord Bots</title>
-
+  <title>JARVIS AI</title>
   <style>
-    body {
+    /* Reset and basic styles */
+    body, html {
       margin: 0;
       padding: 0;
-      background: #0d0f17;
-      font-family: "Poppins", sans-serif;
-      color: white;
-      min-height: 100vh;
-      overflow-x: hidden;
-      text-align: center;
+      height: 100%;
+      width: 100%;
+      font-family: 'Segoe UI', sans-serif;
+      overflow: hidden;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      color: #fff;
     }
 
-    /* NOVABAR */
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Nova Bar / Neon navbar */
     nav {
       position: fixed;
       top: 0;
@@ -33,6 +41,7 @@
       z-index: 10;
     }
 
+    /* Neon button style */
     nav a {
       text-decoration: none;
       font-weight: bold;
@@ -46,137 +55,212 @@
       color: #fff;
     }
 
-    nav a.chat { background: rgba(0,234,255,0.3); border-color: #00eaff; color: #00eaff; }
-    nav a.discord { background: rgba(128,0,128,0.3); border-color: purple; color: purple; }
-    nav a.image { background: rgba(255,165,0,0.3); border-color: orange; color: orange; }
-
     nav a:hover {
       transform: translateY(-3px);
       box-shadow: 0 0 20px #fff, 0 0 40px #fff;
     }
 
-    /* PUSH CONTENT BELOW NAV */
-    .content {
-      padding-top: 100px;
+    /* Individual button colors */
+    nav a.chat { background: rgba(0,234,255,0.3); border-color: #00eaff; color: #00eaff; }
+    nav a.discord { background: rgba(128,0,128,0.3); border-color: purple; color: purple; }
+    nav a.image { background: rgba(255,165,0,0.3); border-color: orange; color: orange; }
+
+    .container {
+      position: absolute;
+      top: 60px;
+      left: 0;
+      width: 100%;
+      height: calc(100% - 60px);
       display: flex;
       flex-direction: column;
-      align-items: center;
+      justify-content: flex-end;
+      padding: 20px;
+      box-sizing: border-box;
     }
 
-    /* OUR BOTS TITLE */
-    .bots-title {
-      font-size: 36px;
-      font-weight: 700;
+    .title {
       color: #00ffaa;
-      margin-bottom: 30px;
-      text-shadow: 0 0 12px #00ffaa;
-      animation: glow 2s infinite alternate;
-    }
-
-    @keyframes glow {
-      0% { text-shadow: 0 0 12px #00ffaa, 0 0 20px #00ffaa55, 0 0 30px #00ffaa33; }
-      50% { text-shadow: 0 0 20px #00ffaa, 0 0 30px #00ffaa55, 0 0 40px #00ffaa33; }
-      100% { text-shadow: 0 0 12px #00ffaa, 0 0 20px #00ffaa55, 0 0 30px #00ffaa33; }
-    }
-
-    .bots-wrapper {
-      display: flex;
-      gap: 40px;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: center;
       text-align: center;
-      max-width: 1100px;
-      padding: 30px;
+      margin-bottom: 5px;
+      font-size: 32px;
+      text-shadow: 0 0 10px #00ffaa, 0 0 20px #00eaff;
     }
 
-    .bot-card {
-      background: #141820;
-      border-radius: 14px;
-      padding: 28px;
-      width: 260px;
-      box-shadow: 0 0 18px rgba(0, 0, 0, 0.6);
+    .sub {
+      color: #fff;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .sub span { color: #00eaff; }
+
+    .chat-box {
+      flex: 1;
+      width: 100%;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 10px;
+      background: rgba(0,0,0,0.5);
+      border-radius: 12px;
+      margin-bottom: 10px;
+    }
+
+    .message {
+      max-width: 90%;
+      padding: 10px 14px;
+      border-radius: 12px;
+      word-wrap: break-word;
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeIn 0.3s forwards;
+    }
+
+    .message.user {
+      align-self: flex-end;
+      background: rgba(0, 234, 255, 0.8);
+      color: #000;
+    }
+
+    .message.ai {
+      align-self: flex-start;
+      background: rgba(0, 255, 170, 0.2);
+      color: #fff;
+    }
+
+    .message img {
+      display: block;
+      margin-top: 8px;
+      max-width: 100%;
+      border-radius: 12px;
+    }
+
+    .input-area {
+      display: flex;
+      gap: 10px;
+    }
+
+    #userInput {
+      flex: 1;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: none;
+      outline: none;
+      font-size: 16px;
+      background: rgba(0, 0, 0, 0.8);
+      color: #00eaff;
+      box-shadow: 0 0 5px #00eaff, 0 0 10px #00eaff, 0 0 20px #00eaff, 0 0 40px #00eaff;
       transition: 0.3s;
-      border: 3px solid #2a2f3a;
-      position: relative;
+      animation: pulse 2s infinite alternate;
     }
 
-    .bot-card:hover { transform: scale(1.05); }
-    .bot-card img { width: 90px; height: 90px; border-radius: 50%; margin-bottom: 15px; }
-    .status-dot { width: 14px; height: 14px; border-radius: 50%; position: absolute; top: 18px; right: 18px; }
-    .bot-card h2 { margin: 8px 0; font-weight: 600; }
-    .bot-card p { font-size: 14px; opacity: 0.85; margin-bottom: 20px; }
-    .join-btn { padding: 10px 14px; border-radius: 8px; text-decoration: none; font-weight: 600; display: block; transition: 0.25s; color: black; }
+    #userInput:focus {
+      box-shadow: 0 0 10px #00ffaa, 0 0 20px #00ffaa, 0 0 40px #00ffaa, 0 0 60px #00ffaa;
+      color: #00ffaa;
+      background: rgba(0, 0, 0, 0.9);
+    }
 
-    /* Bot-specific glows */
-    .nyra { border: 3px solid #ffaa00; animation: nyraGlow 2s infinite alternate; }
-    .nyra img { border: 3px solid #ffaa00; }
-    .nyra .status-dot { background: #ffff00; box-shadow: 0 0 8px #ffff00; }
-    @keyframes nyraGlow { 0% { box-shadow:0 0 10px #ffaa00,0 0 20px #ffff0055;}50%{box-shadow:0 0 20px #ffff00,0 0 30px #ffaa0055;}100%{box-shadow:0 0 10px #ffaa00,0 0 20px #ffff0055;}}
+    @keyframes pulse {
+      0% { box-shadow: 0 0 5px #00eaff, 0 0 10px #00eaff, 0 0 20px #00eaff, 0 0 40px #00eaff; }
+      50% { box-shadow: 0 0 8px #00eaff, 0 0 15px #00eaff, 0 0 25px #00eaff, 0 0 50px #00eaff; }
+      100% { box-shadow: 0 0 5px #00eaff, 0 0 10px #00eaff, 0 0 20px #00eaff, 0 0 40px #00eaff; }
+    }
 
-    .jarvis { border: 3px solid #00aaff; animation: jarvisGlow 2s infinite alternate; }
-    .jarvis img { border: 3px solid #00aaff; }
-    .jarvis .status-dot { background: #00aaff; box-shadow: 0 0 8px #00aaff; }
-    @keyframes jarvisGlow { 0% { box-shadow:0 0 10px #00aaff,0 0 20px #00aaff55;}50%{box-shadow:0 0 20px #00ccff,0 0 30px #00aaff55;}100%{box-shadow:0 0 10px #00aaff,0 0 20px #00aaff55;}}
+    .input-area button {
+      padding: 10px 16px;
+      border-radius: 12px;
+      border: none;
+      background: #00ffaa;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s;
+    }
 
-    .bazzoka { border: 3px solid #ff4444; animation: bazzokaGlow 2s infinite alternate; }
-    .bazzoka img { border: 3px solid #ff4444; }
-    .bazzoka .status-dot { background: #ff4444; box-shadow: 0 0 8px #ff4444; }
-    @keyframes bazzokaGlow { 0% { box-shadow:0 0 10px #ff4444,0 0 20px #ff8888;}50%{box-shadow:0 0 20px #ff6666,0 0 30px #ff4444;}100%{box-shadow:0 0 10px #ff4444,0 0 20px #ff8888;}}
+    .input-area button:hover { background: #00eaff; }
 
-    .join-btn.nyra { background: #ffaa00; }
-    .join-btn.nyra:hover { background: #ffcc33; }
-    .join-btn.jarvis { background: #00aaff; }
-    .join-btn.jarvis:hover { background: #00ccff; }
-    .join-btn.bazzoka { background: #ff4444; }
-    .join-btn.bazzoka:hover { background: #ff6666; }
-
+    @keyframes fadeIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 <body>
 
-<!-- NOVABAR -->
-<nav>
-  <a href="index.html" class="chat">Chat-bot</a>
-  <a href="bots.html" class="discord">Discord Bots</a>
-  <a href="image.html" class="image">Image Gen</a>
-</nav>
+  <!-- NovaBar / Neon Navbar -->
+  <nav>
+    <a href="index.html" class="chat">Chat-bot</a>
+    <a href="bots.html" class="discord">Discord Bots</a>
+    <a href="image.html" class="image">Image Gen</a>
+  </nav>
 
-<div class="content">
+  <div class="container">
+    <h1 class="title">J A R V I S</h1>
+    <p class="sub">Fully Trained by <span>SAHAL_PRO</span></p>
 
-  <div class="bots-title">OUR BOTS</div>
+    <div id="chat-box" class="chat-box"></div>
 
-  <div class="bots-wrapper">
-
-    <!-- NYRA MUSIC -->
-    <div class="bot-card nyra">
-      <div class="status-dot"></div>
-      <img src="https://i.postimg.cc/j5qbRQVS/Screenshot-2025-11-11-at-19-50-32-2767-Discord-ALAN.png">
-      <h2>NYRA MUSIC</h2>
-      <p>Best music bot powered by Lavalink.</p>
-      <a class="join-btn nyra" href="https://discord.gg/uqbSrkwEVN" target="_blank">Invite / Join Server</a>
+    <div class="input-area">
+      <input id="userInput" type="text" placeholder="Type your message..." autocomplete="off">
+      <button id="sendBtn">Send</button>
     </div>
-
-    <!-- JARVIS -->
-    <div class="bot-card jarvis">
-      <div class="status-dot"></div>
-      <img src="https://i.postimg.cc/T3X2ZbPP/Screenshot-2025-10-22-at-11-55-52-Chat-GPT-Smart-Fast-Free-AI-Chat.png">
-      <h2>JARVIS</h2>
-      <p>Smart AI — Fast responses. Built to assist.</p>
-      <a class="join-btn jarvis" href="https://discord.gg/pPGV4FAnWz" target="_blank">Invite / Join Server</a>
-    </div>
-
-    <!-- BAZZOKA -->
-    <div class="bot-card bazzoka">
-      <div class="status-dot"></div>
-      <img src="https://i.postimg.cc/vmpdV1Nd/Screenshot-2025-11-11-at-20-25-19-2769-Discord-𝗧𝗿𝗼𝗹𝗹-𝗙𝗮𝗰𝗲𝘇.png">
-      <h2>BAZZOKA</h2>
-      <p>Fun and chaos — always joking.</p>
-      <a class="join-btn bazzoka" href="https://discord.gg/gfd6jSPVvp" target="_blank">Invite / Join Server</a>
-    </div>
-
   </div>
-</div>
 
+  <script>
+    // Chat JS
+    const chatBox = document.getElementById("chat-box");
+    const input = document.getElementById("userInput");
+    const sendBtn = document.getElementById("sendBtn");
+
+    sendBtn.onclick = sendMessage;
+    input.addEventListener("keydown", e => { if(e.key==="Enter") sendMessage(); });
+
+    function addMessage(sender, text, gifUrl=null){
+      const bubble = document.createElement("div");
+      bubble.classList.add("message", sender==="You"?"user":"ai");
+
+      const textEl = document.createElement("div");
+      textEl.textContent = text;
+      bubble.appendChild(textEl);
+
+      if(gifUrl){
+        const img = document.createElement("img");
+        img.src = gifUrl;
+        bubble.appendChild(img);
+      }
+
+      chatBox.appendChild(bubble);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    async function sendMessage(){
+      const message = input.value.trim();
+      if(!message) return;
+      addMessage("You", message);
+      input.value="";
+
+      let customReply = null;
+      if(/who is your creator/i.test(message)) customReply="My creator is SAHAL_PRO";
+      else if(/which api/i.test(message)) customReply="Fully trained by SAHAL_PRO";
+
+      if(customReply){
+        addMessage("JARVIS", customReply);
+        return;
+      }
+
+      try{
+        const res = await fetch("/ask", {
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body: JSON.stringify({message})
+        });
+        const data = await res.json();
+        addMessage("JARVIS", data.reply, data.gif);
+      } catch(err){
+        addMessage("JARVIS","⚠️ Error sending request.");
+      }
+    }
+  </script>
 </body>
 </html>
