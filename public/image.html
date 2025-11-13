@@ -27,7 +27,7 @@
       filter: brightness(65%);
     }
 
-    /* ===== Futuristic Glass NovaBar ===== */
+    /* ===== EXACT Futuristic Glass NovaBar (copied from bots.html) ===== */
     nav {
       position: fixed;
       top: 0;
@@ -35,28 +35,29 @@
       transform: translateX(-50%);
       width: 90%;
       height: 65px;
-      background: rgba(15, 20, 30, 0.65);
+      background: rgba(10, 15, 25, 0.65);
       border: 1px solid rgba(0, 255, 255, 0.25);
       border-radius: 14px;
-      backdrop-filter: blur(14px);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
       box-shadow: 0 0 25px rgba(0, 255, 255, 0.2), inset 0 0 10px rgba(0, 255, 255, 0.1);
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 30px;
+      gap: 35px;
       z-index: 20;
-      transition: 0.4s;
+      transition: 0.4s ease;
     }
 
     nav:hover {
-      box-shadow: 0 0 30px rgba(0, 255, 255, 0.3), inset 0 0 12px rgba(0, 255, 255, 0.15);
+      box-shadow: 0 0 30px rgba(0, 255, 255, 0.35), inset 0 0 12px rgba(0, 255, 255, 0.15);
     }
 
     nav a {
       text-decoration: none;
       font-weight: 600;
       font-size: 16px;
-      color: #e0faff;
+      color: #d9faff;
       padding: 10px 20px;
       border-radius: 10px;
       position: relative;
@@ -204,7 +205,7 @@
     <source src="https://files.catbox.moe/0ouh3o.mp4" type="video/mp4">
   </video>
 
-  <!-- ===== Futuristic Glass NovaBar ===== -->
+  <!-- ===== EXACT Futuristic Glass NovaBar from bots.html ===== -->
   <nav>
     <a href="index.html" class="chat">Chat-bot</a>
     <a href="bots.html" class="discord">Discord Bots</a>
