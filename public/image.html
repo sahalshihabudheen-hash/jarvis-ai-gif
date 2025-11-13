@@ -5,96 +5,84 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>JARVIS AI - Image Generator</title>
   <style>
-    /* ===== Reset ===== */
     body, html {
       margin: 0;
       padding: 0;
       height: 100%;
       width: 100%;
       font-family: 'Segoe UI', sans-serif;
-      color: #fff;
       overflow-x: hidden;
-      background: #000;
+      color: #fff;
     }
 
-    /* ===== Background Video ===== */
-    .bg-video {
+    /* Background video setup */
+    #bg-video {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
-      z-index: -2;
-      filter: brightness(0.45) blur(1px);
-      pointer-events: none;
+      z-index: -1;
     }
 
-    /* ===== Overlay ===== */
-    .overlay {
+    /* ===== Modern NovaBar ===== */
+    nav {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.5);
-      z-index: -1;
-    }
-
-    /* ===== Cool Futuristic Navbar ===== */
-    nav {
-      position: fixed;
-      top: 15px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 90%;
       height: 60px;
-      background: rgba(0, 0, 0, 0.6);
-      border: 1px solid rgba(0, 255, 255, 0.4);
-      border-radius: 15px;
+      background: rgba(0,0,0,0.6);
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 25px;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.15);
       z-index: 10;
+      box-shadow: 0 0 15px rgba(0,234,255,0.2);
     }
 
     nav a {
       text-decoration: none;
       font-weight: bold;
       font-size: 16px;
-      padding: 10px 18px;
-      border-radius: 8px;
-      color: #00eaff;
-      transition: 0.3s;
+      padding: 10px 22px;
+      border-radius: 10px;
+      border: 2px solid transparent;
+      transition: 0.3s ease;
       position: relative;
+      color: #fff;
+      text-shadow: 0 0 6px rgba(255,255,255,0.5);
     }
 
-    nav a::after {
+    nav a::before {
       content: "";
       position: absolute;
-      bottom: 0;
-      left: 0;
-      height: 2px;
-      width: 0%;
-      background: #00eaff;
-      transition: width 0.3s;
-      box-shadow: 0 0 10px #00eaff;
+      inset: 0;
+      border-radius: 10px;
+      background: linear-gradient(90deg, #00eaff, #ff00ff, #ffa500);
+      background-size: 300%;
+      filter: blur(5px);
+      opacity: 0;
+      transition: opacity 0.3s, transform 0.4s;
+      z-index: -1;
     }
 
-    nav a:hover::after {
-      width: 100%;
+    nav a:hover::before {
+      opacity: 1;
+      transform: scale(1.1);
+      animation: glowMove 2s linear infinite;
     }
 
-    nav a:hover {
-      color: #fff;
-      text-shadow: 0 0 10px #00eaff, 0 0 30px #00eaff;
+    @keyframes glowMove {
+      0% { background-position: 0%; }
+      100% { background-position: 300%; }
     }
 
     nav a.chat { color: #00eaff; }
-    nav a.discord { color: #bf00ff; }
+    nav a.discord { color: #ff00ff; }
     nav a.image { color: #ffa500; }
 
     /* ===== Page Content ===== */
@@ -109,9 +97,9 @@
 
     h1 {
       color: #ffa500;
-      text-shadow: 0 0 15px #ffa500, 0 0 30px #ffa500;
-      font-size: 42px;
-      margin-bottom: 30px;
+      text-shadow: 0 0 10px #ffa500, 0 0 20px #ffa500;
+      font-size: 36px;
+      margin-bottom: 20px;
     }
 
     .input-area {
@@ -124,45 +112,42 @@
 
     #promptInput {
       flex: 1;
-      padding: 12px 15px;
+      padding: 10px 12px;
       border-radius: 12px;
       border: none;
       outline: none;
       font-size: 16px;
-      background: rgba(0, 0, 0, 0.7);
+      background: rgba(0, 0, 0, 0.8);
       color: #ffa500;
-      box-shadow: 0 0 15px #ffa500;
+      box-shadow: 0 0 10px #ffa500;
     }
 
     button {
-      padding: 12px 18px;
+      padding: 10px 16px;
       border-radius: 12px;
       border: none;
-      background: linear-gradient(45deg, #ffa500, #ffcc00);
+      background: #ffa500;
       color: #000;
       font-weight: bold;
       cursor: pointer;
-      transition: 0.3s;
+      transition: 0.2s;
     }
 
     button:hover {
       background: #fff;
       color: #000;
-      transform: scale(1.05);
-      box-shadow: 0 0 15px #ffa500;
     }
 
     #output {
-      margin-top: 30px;
+      margin-top: 20px;
     }
 
     #generatedImage {
       max-width: 80%;
       border-radius: 12px;
       margin-top: 20px;
-      box-shadow: 0 0 20px #ffa500;
+      box-shadow: 0 0 15px #ffa500;
       display: none;
-      transition: 0.3s;
     }
 
     #loading {
@@ -174,21 +159,19 @@
 </head>
 <body>
 
-  <!-- ===== Background Video ===== -->
-  <video autoplay muted loop playsinline class="bg-video">
-    <source src="https://files.catbox.moe/0ouh3o.mp4" type="video/mp4" />
-    Your browser does not support HTML5 video.
+  <!-- Background video -->
+  <video autoplay muted loop playsinline id="bg-video">
+    <source src="https://files.catbox.moe/0ouh3o.mp4" type="video/mp4">
   </video>
-  <div class="overlay"></div>
 
-  <!-- ===== Navbar ===== -->
+  <!-- ===== NovaBar ===== -->
   <nav>
-    <a href="index.html" class="chat">Chat-Bot</a>
+    <a href="index.html" class="chat">Chat-bot</a>
     <a href="bots.html" class="discord">Discord Bots</a>
     <a href="image.html" class="image">Image Gen</a>
   </nav>
 
-  <!-- ===== Main Content ===== -->
+  <!-- ===== Image Generator Content ===== -->
   <div class="container">
     <h1>🧠 Image Generator</h1>
 
