@@ -3,7 +3,7 @@ import axios from "axios";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
-import { RunwareClient } from "@runware/sdk-js"; // ✅ Correct import
+import { Runware } from "@runware/sdk-js"; // ✅ Correct import
 
 dotenv.config();
 
@@ -55,7 +55,7 @@ app.post("/ask", async (req, res) => {
         "https://api.groq.com/openai/v1/chat/completions",
         {
           model: "llama-3.1-8b-instant",
-          messages: conversationMemory
+          messages: conversationMemory,
         },
         { headers: { Authorization: `Bearer ${process.env.GROQ_API}` } }
       );
@@ -72,8 +72,8 @@ app.post("/ask", async (req, res) => {
         params: {
           q: question,
           key: process.env.TENOR_API,
-          limit: 1
-        }
+          limit: 1,
+        },
       });
       gifUrl = tenorRes.data.results?.[0]?.media?.[0]?.gif?.url || null;
     } catch {
@@ -93,24 +93,26 @@ app.post("/generate-image", async (req, res) => {
   if (!prompt) return res.status(400).json({ error: "Prompt is required" });
 
   try {
-    // ✅ Use correct import and initialization
-    const client = new Runware.RunwareClient({
-      apiKey: process.env.RUNWARE_API
+    // ✅ Initialize the Runware client correctly
+    const runware = new Runware({
+      apiKey: process.env.RUNWARE_API,
+      shouldReconnect: true,
     });
 
-    // ✅ Call correct image generation function
-    const response = await client.image.generate({
-      prompt,
-      model: "flux-dev",
-      output_format: "url"
+    // ✅ Generate image using requestImages()
+    const images = await runware.requestImages({
+      positivePrompt: prompt,
+      model: "runware:101@1", // You can switch model if needed
+      width: 1024,
+      height: 1024,
     });
 
-    const imageURL = response?.output?.[0]?.url || null;
+    const imageURL = images?.[0]?.imageURL || null;
     if (!imageURL) return res.status(500).json({ error: "Failed to generate image" });
 
     res.json({ imageURL });
   } catch (err) {
-    console.error("❌ Image generation error:", err.response?.data || err.message);
+    console.error("❌ Image generation error:", err.message);
     res.status(500).json({ error: "Error generating image" });
   }
 });
