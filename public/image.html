@@ -15,7 +15,7 @@
       color: #fff;
     }
 
-    /* Background video setup */
+    /* Background video setup with brightness adjustment */
     #bg-video {
       position: fixed;
       top: 0;
@@ -24,6 +24,7 @@
       height: 100%;
       object-fit: cover;
       z-index: -1;
+      filter: brightness(70%); /* ✅ Reduced brightness */
     }
 
     /* ===== Modern NovaBar ===== */
@@ -54,7 +55,7 @@
       transition: 0.3s ease;
       position: relative;
       color: #fff;
-      text-shadow: 0 0 6px rgba(255,255,255,0.5);
+      text-shadow: 0 0 6px rgba(255,255,255,0.4);
     }
 
     nav a::before {
@@ -68,6 +69,13 @@
       opacity: 0;
       transition: opacity 0.3s, transform 0.4s;
       z-index: -1;
+    }
+
+    /* ✅ Glow effect for text on hover */
+    nav a:hover {
+      color: #fff;
+      text-shadow: 0 0 10px #fff, 0 0 20px currentColor, 0 0 40px currentColor;
+      transform: scale(1.05);
     }
 
     nav a:hover::before {
