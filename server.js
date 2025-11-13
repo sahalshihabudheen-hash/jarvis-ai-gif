@@ -93,22 +93,24 @@ app.post("/generate-image", async (req, res) => {
   if (!prompt) return res.status(400).json({ error: "Prompt is required" });
 
   try {
-    // ✅ Initialize Runware client
-    const runware = new RunwareClient({ apiKey: process.env.RUNWARE_API });
+    // ✅ Use correct import and initialization
+    const client = new Runware.RunwareClient({
+      apiKey: process.env.RUNWARE_API
+    });
 
-    // ✅ Generate image
-    const response = await runware.image.create({
-      model: "flux-dev",
+    // ✅ Call correct image generation function
+    const response = await client.image.generate({
       prompt,
+      model: "flux-dev",
       output_format: "url"
     });
 
-    const imageURL = response?.data?.[0]?.url;
+    const imageURL = response?.output?.[0]?.url || null;
     if (!imageURL) return res.status(500).json({ error: "Failed to generate image" });
 
     res.json({ imageURL });
   } catch (err) {
-    console.error(err.response?.data || err.message);
+    console.error("❌ Image generation error:", err.response?.data || err.message);
     res.status(500).json({ error: "Error generating image" });
   }
 });
