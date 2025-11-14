@@ -30,6 +30,11 @@ app.get("/music", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "music.html"));
 });
 
+// ⭐ FIX: Make ALL HTML pages inside public work (bots.html, image.html, etc)
+app.get("/:page", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", req.params.page));
+});
+
 // ====== CHAT AI + GIF ENDPOINT ======
 let conversationMemory = [];
 
@@ -102,7 +107,7 @@ app.post("/generate-image", async (req, res) => {
     // ✅ Generate image using requestImages()
     const images = await runware.requestImages({
       positivePrompt: prompt,
-      model: "runware:101@1", // You can switch model if needed
+      model: "runware:101@1",
       width: 1024,
       height: 1024,
     });
