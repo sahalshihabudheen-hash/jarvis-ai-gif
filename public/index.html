@@ -258,11 +258,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const el = document.getElementById("typeText");
   let lineIndex = 0;
 
-  // Colors for letters
-  const colors = ["#ff3b3b", "#39ff14", "#ff8c00"]; // neon red, green, orange
+  // Colors for each line
+  const lineColors = ["#ff3b3b", "#39ff14", "#ff8c00"]; // red, green, orange
   let colorIndex = 0;
 
-  function typeLine(line, callback) {
+  function typeLine(line, color, callback) {
     el.innerHTML = "";
     let charIndex = 0;
 
@@ -270,15 +270,14 @@ document.addEventListener("DOMContentLoaded", () => {
       if (charIndex < line.length) {
         const span = document.createElement("span");
         span.textContent = line[charIndex];
-        span.style.color = colors[colorIndex % colors.length];
-        span.style.textShadow = `0 0 5px ${colors[colorIndex % colors.length]}, 0 0 10px ${colors[colorIndex % colors.length]}`;
+        span.style.color = color;
+        span.style.textShadow = `0 0 5px ${color}, 0 0 10px ${color}`;
         span.style.opacity = "0";
         span.style.transition = "opacity 0.2s ease";
         el.appendChild(span);
         requestAnimationFrame(() => { span.style.opacity = "1"; });
 
         charIndex++;
-        colorIndex++;
         setTimeout(typeChar, 50);
       } else {
         if (callback) callback();
@@ -289,9 +288,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function startTyping() {
-    typeLine(lines[lineIndex], () => {
+    const color = lineColors[colorIndex % lineColors.length];
+    typeLine(lines[lineIndex], color, () => {
       setTimeout(() => {
         lineIndex = (lineIndex + 1) % lines.length;
+        colorIndex++;
         startTyping();
       }, 1500);
     });
@@ -300,6 +301,7 @@ document.addEventListener("DOMContentLoaded", () => {
   startTyping();
 });
 </script>
+
 
 
 
