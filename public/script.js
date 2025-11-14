@@ -55,11 +55,11 @@ function addMessage(sender, text, gifUrl = null) {
   bubble.classList.add("message", sender === "You" ? "user" : "ai");
 
   const textEl = document.createElement("div");
-  if(sender === "JARVIS") {
-    textEl.textContent = `${userName}: ${text}`;
-  } else {
-    textEl.textContent = text;
-  }
+
+  // Include name occasionally (~50% chance) only in friendly messages
+  const includeName = sender === "JARVIS" && userName && Math.random() < 0.5 && !text.startsWith("⚠️") && !text.includes("SAHAL_PRO");
+  textEl.textContent = includeName ? `${userName}, ${text}` : text;
+
   bubble.appendChild(textEl);
 
   if (gifUrl) {
@@ -108,7 +108,7 @@ async function sendMessage() {
   }
 
   if (customReply) {
-    addMessage("JARVIS", customReply, customGif);
+    addMessage("JARVIS", customReply, customGif); // always without name
     return; // skip backend call
   }
 
@@ -121,8 +121,8 @@ async function sendMessage() {
     });
 
     const data = await res.json();
-    addMessage("JARVIS", data.reply, data.gif);
+    addMessage("JARVIS", data.reply, data.gif); // random name inclusion handled inside addMessage
   } catch (err) {
-    addMessage("JARVIS", "âš ï¸ Error sending request.", null);
+    addMessage("JARVIS", "⚠️ Error sending request.", null);
   }
 }
