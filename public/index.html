@@ -238,7 +238,6 @@
       <button id="sendBtn">Send</button>
     </div>
   </div>
-
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   let savedName = localStorage.getItem("jarvisName") || "User";
@@ -259,34 +258,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const el = document.getElementById("typeText");
   let i = 0;
 
-  // Neon colors suitable for black/blue background
-  const colors = ["#00ffea", "#00ff7f", "#ffd700"]; // neon blue, neon green, golden yellow
-
-  // Create smooth glowing cursor
-  const cursor = document.createElement("span");
-  cursor.textContent = "_";
-  cursor.style.color = "#00ffea";
-  cursor.style.fontWeight = "bold";
-  cursor.style.textShadow = "0 0 5px #00ffea, 0 0 10px #00ffea";
-  cursor.style.transition = "opacity 0.3s ease, text-shadow 0.3s ease";
-  el.appendChild(cursor);
-
-  // Add blink keyframes dynamically
-  const style = document.createElement("style");
-  style.textContent = `
-    @keyframes glowBlink {
-      0%, 100% { opacity: 1; text-shadow: 0 0 5px #00ffea, 0 0 15px #00ffea; }
-      50% { opacity: 0; text-shadow: 0 0 0px #00ffea, 0 0 0px #00ffea; }
-    }
-    .cursor-blink { animation: glowBlink 1s infinite; }
-  `;
-  document.head.appendChild(style);
+  // Colors suitable for black+blue background
+  const colors = ["#ff3b3b", "#39ff14", "#ff8c00"]; // neon red, neon green, neon orange
 
   function typeLineLetterByLetter(line, callback) {
     el.innerHTML = "";
-    el.appendChild(cursor);
-    cursor.classList.remove("cursor-blink"); // hide cursor during typing
-
     const words = line.split(" ");
     let w = 0;
 
@@ -296,13 +272,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
       function typeLetter() {
         if (l >= letters.length) {
-          el.innerHTML += " "; // add space after word
+          el.innerHTML += " "; // space after word
           w++;
           if (w < words.length) {
             setTimeout(() => typeWordLetters(words[w]), 150);
           } else {
-            // Line completed, start glowing blinking cursor
-            cursor.classList.add("cursor-blink");
             if (callback) callback();
           }
           return;
@@ -315,8 +289,7 @@ document.addEventListener("DOMContentLoaded", () => {
         span.style.opacity = "0";
         span.style.transition = "opacity 0.2s ease";
 
-        el.insertBefore(span, cursor);
-
+        el.appendChild(span);
         requestAnimationFrame(() => { span.style.opacity = "1"; });
 
         l++;
@@ -341,6 +314,8 @@ document.addEventListener("DOMContentLoaded", () => {
   startTyping();
 });
 </script>
+
+
 
 
   <script src="script.js"></script>
