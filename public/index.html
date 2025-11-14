@@ -13,9 +13,10 @@
       font-family: 'Segoe UI', sans-serif;
       overflow: hidden;
       color: #fff;
-      background: transparent; /* 🔥 FIXED: Video now visible */
+      background: transparent; /* Keeps video visible */
     }
 
+    /* Background video setup */
     #bg-video {
       position: fixed;
       top: 0;
@@ -24,6 +25,7 @@
       height: 100%;
       object-fit: cover;
       z-index: -1;
+      filter: brightness(80%); /* 🔥 Added brightness fix */
     }
 
     nav {
@@ -149,6 +151,7 @@
 </head>
 <body>
 
+  <!-- Background video -->
   <video autoplay muted loop playsinline id="bg-video">
     <source src="https://files.catbox.moe/sx5ph8.mp4" type="video/mp4">
   </video>
