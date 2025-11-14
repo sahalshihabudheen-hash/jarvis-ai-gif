@@ -256,56 +256,42 @@ document.addEventListener("DOMContentLoaded", () => {
   ];
 
   const el = document.getElementById("typeText");
-  let i = 0;
+  let lineIndex = 0;
 
-  // Colors suitable for black+blue background
-  const colors = ["#ff3b3b", "#39ff14", "#ff8c00"]; // neon red, neon green, neon orange
+  // Colors for letters
+  const colors = ["#ff3b3b", "#39ff14", "#ff8c00"]; // neon red, green, orange
+  let colorIndex = 0;
 
-  function typeLineLetterByLetter(line, callback) {
+  function typeLine(line, callback) {
     el.innerHTML = "";
-    const words = line.split(" ");
-    let w = 0;
+    let charIndex = 0;
 
-    function typeWordLetters(word) {
-      let letters = word.split("");
-      let l = 0;
-
-      function typeLetter() {
-        if (l >= letters.length) {
-          el.innerHTML += " "; // space after word
-          w++;
-          if (w < words.length) {
-            setTimeout(() => typeWordLetters(words[w]), 150);
-          } else {
-            if (callback) callback();
-          }
-          return;
-        }
-
+    function typeChar() {
+      if (charIndex < line.length) {
         const span = document.createElement("span");
-        span.textContent = letters[l];
-        span.style.color = colors[w % colors.length];
-        span.style.textShadow = `0 0 5px ${colors[w % colors.length]}, 0 0 10px ${colors[w % colors.length]}`;
+        span.textContent = line[charIndex];
+        span.style.color = colors[colorIndex % colors.length];
+        span.style.textShadow = `0 0 5px ${colors[colorIndex % colors.length]}, 0 0 10px ${colors[colorIndex % colors.length]}`;
         span.style.opacity = "0";
         span.style.transition = "opacity 0.2s ease";
-
         el.appendChild(span);
         requestAnimationFrame(() => { span.style.opacity = "1"; });
 
-        l++;
-        setTimeout(typeLetter, 50);
+        charIndex++;
+        colorIndex++;
+        setTimeout(typeChar, 50);
+      } else {
+        if (callback) callback();
       }
-
-      typeLetter();
     }
 
-    typeWordLetters(words[w]);
+    typeChar();
   }
 
   function startTyping() {
-    typeLineLetterByLetter(lines[i], () => {
+    typeLine(lines[lineIndex], () => {
       setTimeout(() => {
-        i = (i + 1) % lines.length;
+        lineIndex = (lineIndex + 1) % lines.length;
         startTyping();
       }, 1500);
     });
@@ -314,6 +300,7 @@ document.addEventListener("DOMContentLoaded", () => {
   startTyping();
 });
 </script>
+
 
 
 
