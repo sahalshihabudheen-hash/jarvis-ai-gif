@@ -11,11 +11,11 @@
       height: 100%;
       width: 100%;
       font-family: 'Segoe UI', sans-serif;
-      overflow-x: hidden;
+      overflow: hidden;
       color: #fff;
+      background: transparent;
     }
 
-    /* Background video setup */
     #bg-video {
       position: fixed;
       top: 0;
@@ -24,10 +24,9 @@
       height: 100%;
       object-fit: cover;
       z-index: -1;
-      filter: brightness(70%);
+      filter: brightness(60%);
     }
 
-    /* ====== Futuristic Glass Navbar ====== */
     nav {
       position: fixed;
       top: 0;
@@ -36,13 +35,13 @@
       height: 65px;
       background: rgba(20, 25, 40, 0.35);
       backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(0, 255, 255, 0.15);
+      border-bottom: 1px solid rgba(0, 255, 255, 0.2);
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 35px;
       z-index: 10;
-      box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.15);
     }
 
     nav a {
@@ -51,7 +50,7 @@
       font-size: 17px;
       padding: 10px 24px;
       border-radius: 12px;
-      color: #e3f9ff;
+      color: #dffaff;
       letter-spacing: 0.5px;
       transition: all 0.3s ease;
       position: relative;
@@ -63,130 +62,118 @@
       position: absolute;
       inset: 0;
       border-radius: 12px;
-      background: linear-gradient(120deg, rgba(0,255,255,0.3), rgba(100,0,255,0.25));
+      background: linear-gradient(120deg, rgba(0,255,255,0.6), rgba(100,0,255,0.5));
       opacity: 0;
       transform: scale(0.9);
       transition: all 0.3s ease;
       z-index: -1;
-      box-shadow: 0 0 8px rgba(0,255,255,0.25);
+      box-shadow: 0 0 12px rgba(0,255,255,0.4);
     }
 
-    nav a:hover::before {
-      opacity: 1;
-      transform: scale(1);
-    }
+    nav a:hover::before { opacity: 1; transform: scale(1); }
+    nav a:hover { color: #fff; text-shadow: 0 0 8px #00ffff; transform: translateY(-2px); }
 
-    nav a:hover {
-      color: #fff;
-      text-shadow: 0 0 4px #00ffff;
-      transform: translateY(-2px);
-    }
-
-    nav a.chat { color: #00d4ff; }
-    nav a.discord { color: #a080ff; }
-    nav a.image { color: #46ff7a; }
+    nav a.chat { color: #00eaff; }
+    nav a.discord { color: #a377ff; }
+    nav a.image { color: #39ff14; }
     nav a.video { color: #ff6b6b; }
 
-    /* ===== Page Content ===== */
     .container {
-      margin-top: 120px;
+      position: absolute;
+      top: 65px;
+      left: 0;
+      width: 100%;
+      height: calc(100% - 65px);
       display: flex;
       flex-direction: column;
+      justify-content: flex-start;
       align-items: center;
-      text-align: center;
       padding: 20px;
-      animation: fadeIn 1s ease-in-out;
+      box-sizing: border-box;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    h1 {
-      font-size: 42px;
-      margin-bottom: 25px;
+    h1.title {
+      font-size: 38px;
+      text-align: center;
+      margin-bottom: 10px;
       background: linear-gradient(90deg, #ff6b6b, #ff8c00);
-      background-clip: text;
       -webkit-background-clip: text;
       color: transparent;
-      text-shadow: 0 0 6px rgba(255, 107, 107, 0.3);
-      animation: glowPulse 4s infinite alternate;
+      text-shadow: 0 0 10px #ff6b6b, 0 0 20px #ff8c00;
+      animation: glowText 2s infinite alternate;
     }
 
-    @keyframes glowPulse {
-      0% { text-shadow: 0 0 10px #ff6b6b, 0 0 15px #ff8c00, 0 0 20px #ff3c3c; }
-      100% { text-shadow: 0 0 15px #ff8c00, 0 0 20px #ff3c3c, 0 0 25px #ff6b6b; }
+    @keyframes glowText {
+      0% { text-shadow: 0 0 5px #ff6b6b, 0 0 15px #ff8c00; }
+      50% { text-shadow: 0 0 15px #ff6b6b, 0 0 25px #ff8c00; }
+      100% { text-shadow: 0 0 5px #ff6b6b, 0 0 15px #ff8c00; }
     }
 
     .input-area {
       display: flex;
       gap: 10px;
-      margin-bottom: 20px;
+      margin-top: 20px;
       width: 80%;
       max-width: 600px;
     }
 
     #promptInput {
       flex: 1;
-      padding: 12px 15px;
-      border-radius: 14px;
+      padding: 12px;
+      border-radius: 12px;
       border: none;
       outline: none;
       font-size: 16px;
-      background: rgba(0, 0, 0, 0.6);
-      color: #fff;
-      box-shadow: 0 0 8px rgba(255, 107, 107, 0.25);
+      background: rgba(0,0,0,0.8);
+      color: #ff6b6b;
+      box-shadow: 0 0 5px #ff6b6b, 0 0 10px #ff8c00;
       transition: 0.3s;
     }
 
     #promptInput:focus {
-      box-shadow: 0 0 12px #ff8c00, 0 0 20px #ff6b6b;
-      transform: scale(1.02);
+      box-shadow: 0 0 15px #ff6b6b, 0 0 30px #ff8c00;
+      color: #fff;
+      background: rgba(0,0,0,0.9);
     }
 
     button {
       padding: 12px 18px;
-      border-radius: 14px;
+      border-radius: 12px;
       border: none;
-      background: linear-gradient(90deg, #ff6b6b, #ff8c00);
-      background-size: 200%;
+      background: #ff6b6b;
       color: #000;
       font-weight: bold;
       cursor: pointer;
       transition: 0.3s;
-      box-shadow: 0 0 10px rgba(255,255,255,0.15);
+      box-shadow: 0 0 10px #ff6b6b;
     }
 
     button:hover {
-      background-position: right center;
-      color: #fff;
-      text-shadow: 0 0 6px #fff;
+      background: #ff8c00;
       box-shadow: 0 0 15px #ff8c00, 0 0 25px #ff6b6b;
-      transform: scale(1.05);
     }
 
     #loading {
+      margin-top: 15px;
       font-size: 18px;
       color: #fff;
       text-shadow: 0 0 8px #ff6b6b, 0 0 12px #ff8c00;
       display: none;
-      animation: glowPulse 3s infinite alternate;
     }
 
     #videoPlayer {
-      margin-top: 25px;
+      margin-top: 20px;
       max-width: 80%;
       border-radius: 15px;
-      box-shadow: 0 0 15px #ff6b6b, 0 0 25px #ff8c00;
       display: none;
+      box-shadow: 0 0 15px #ff6b6b, 0 0 25px #ff8c00;
     }
   </style>
 </head>
 <body>
 
   <video autoplay muted loop playsinline id="bg-video">
-    <source src="https://files.catbox.moe/0ouh3o.mp4" type="video/mp4">
+    <source src="https://files.catbox.moe/sx5ph8.mp4" type="video/mp4">
   </video>
 
   <nav>
@@ -197,17 +184,15 @@
   </nav>
 
   <div class="container">
-    <h1>🎬 Video Generator</h1>
+    <h1 class="title">🎬 Video Generator</h1>
 
     <div class="input-area">
-      <input id="promptInput" type="text" placeholder="Describe the video you want to create...">
+      <input id="promptInput" type="text" placeholder="Describe the video you want...">
       <button id="generateBtn">Generate</button>
     </div>
 
-    <div id="output">
-      <p id="loading">⏳ Generating video... Please wait...</p>
-      <video id="videoPlayer" controls autoplay></video>
-    </div>
+    <p id="loading">⏳ Generating video... Please wait...</p>
+    <video id="videoPlayer" controls autoplay></video>
   </div>
 
   <script>
