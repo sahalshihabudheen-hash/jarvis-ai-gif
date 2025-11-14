@@ -13,10 +13,9 @@
       font-family: 'Segoe UI', sans-serif;
       overflow: hidden;
       color: #fff;
-      background: #0a0a0a;
+      background: transparent; /* 🔥 FIXED: Video now visible */
     }
 
-    /* Background video setup */
     #bg-video {
       position: fixed;
       top: 0;
@@ -27,7 +26,6 @@
       z-index: -1;
     }
 
-    /* Futuristic Glass NovaBar */
     nav {
       position: fixed;
       top: 0;
@@ -151,7 +149,6 @@
 </head>
 <body>
 
-  <!-- Background video -->
   <video autoplay muted loop playsinline id="bg-video">
     <source src="https://files.catbox.moe/sx5ph8.mp4" type="video/mp4">
   </video>
