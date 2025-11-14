@@ -120,12 +120,44 @@ body {
   border-bottom-right-radius: 0;
 }
 
+/* Default AI bubble fallback */
 .message.ai {
   align-self: flex-start;
-  background: linear-gradient(120deg, rgba(10,10,10,0.6), rgba(30,30,30,0.6));
-  border: 1px solid #00eaff;
-  color: #00eaff;
+  background: linear-gradient(120deg, rgba(20,20,20,0.6), rgba(50,50,50,0.6));
+  border: 1px solid #888;
+  color: #fff;
   border-bottom-left-radius: 0;
+}
+
+/* Colorful AI Variants */
+.ai-color-1 {
+  background: linear-gradient(135deg, #ff7ce3, #ff4fa7);
+  color: #fff;
+}
+
+.ai-color-2 {
+  background: linear-gradient(135deg, #ffb347, #ffcc33);
+  color: #000;
+}
+
+.ai-color-3 {
+  background: linear-gradient(135deg, #b44bff, #7a00ff);
+  color: #fff;
+}
+
+.ai-color-4 {
+  background: linear-gradient(135deg, #6affd3, #24ff8a);
+  color: #000;
+}
+
+.ai-color-5 {
+  background: linear-gradient(135deg, #ff5e7e, #ff1e4d);
+  color: white;
+}
+
+.ai-color-6 {
+  background: linear-gradient(135deg, #ff8eff, #c740ff);
+  color: white;
 }
 
 .message img {
