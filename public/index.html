@@ -238,31 +238,48 @@
       <button id="sendBtn">Send</button>
     </div>
   </div>
+
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   let savedName = localStorage.getItem("jarvisName") || "User";
 
   const lines = [
-    `Hello ${savedName}, I am JARVIS.`,
-    "Booting AI Core Systems...",
-    "Initializing Neural Network...",
-    "All systems are online and running smoothly.",
-    `Welcome back, ${savedName}!`,
-    "I am ready to assist you.",
-    "How can I help you today?",
-    "You can ask me anything about your tasks, schedules, or AI commands.",
-    "I will provide accurate responses and guidance.",
-    "Your dashboard is optimized and ready for commands."
+    `Hello ${savedName}, I am JARVIS, your AI Assistant.`,
+    "I can manage your tasks and schedules efficiently.",
+    "I can provide real-time information and answers.",
+    "I can help you generate images and creative content.",
+    "I can connect with your favorite apps and bots.",
+    "I can optimize your workflow and give smart suggestions.",
+    "I can remind you of important events and deadlines.",
+    "I can analyze data and provide quick summaries.",
+    "I can chat and assist you with daily commands.",
+    `How can I help you today, ${savedName}?`
   ];
 
   const el = document.getElementById("typeText");
   let i = 0;
 
-  // Neon colors for words on black/blue bg
-  const colors = ["#0ff", "#ff6fff", "#fff"]; // cyan, magenta, white
+  // Neon colors visible on black/blue background
+  const colors = ["#0ff", "#ff6fff", "#ffff66"]; // cyan, magenta, yellow
+
+  // Create blinking cursor
+  const cursor = document.createElement("span");
+  cursor.textContent = "_";
+  cursor.style.color = "#0ff";
+  cursor.style.fontWeight = "bold";
+  el.appendChild(cursor);
+
+  // Add blink keyframes dynamically
+  const style = document.createElement("style");
+  style.textContent = `
+    @keyframes blink { 0%, 50%, 100% { opacity: 1; } 25%, 75% { opacity: 0; } }
+    .cursor-blink { animation: blink 1s infinite; }
+  `;
+  document.head.appendChild(style);
 
   function typeLineLetterByLetter(line, callback) {
     el.innerHTML = "";
+    el.appendChild(cursor);
     const words = line.split(" ");
     let w = 0;
 
@@ -272,7 +289,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       function typeLetter() {
         if (l >= letters.length) {
-          el.innerHTML += " "; // add space after word
+          el.innerHTML += " "; // space after word
+          el.appendChild(cursor);
           w++;
           if (w < words.length) {
             setTimeout(() => typeWordLetters(words[w]), 150);
@@ -284,18 +302,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const span = document.createElement("span");
         span.textContent = letters[l];
-        // Assign color based on word index
         span.style.color = colors[w % colors.length];
         span.style.textShadow = `0 0 5px ${colors[w % colors.length]}, 0 0 10px ${colors[w % colors.length]}`;
         span.style.opacity = "0";
-        span.style.transition = "opacity 0.3s ease";
-        el.appendChild(span);
+        span.style.transition = "opacity 0.2s ease";
 
-        // Fade in letter
+        // insert before cursor to move it
+        el.insertBefore(span, cursor);
+
+        // fade in letter
         requestAnimationFrame(() => { span.style.opacity = "1"; });
 
+        // move cursor after new letter
+        cursor.classList.remove("cursor-blink");
+        setTimeout(() => cursor.classList.add("cursor-blink"), 50);
+
         l++;
-        setTimeout(typeLetter, 50); // typing speed per letter
+        setTimeout(typeLetter, 50);
       }
 
       typeLetter();
