@@ -38,12 +38,19 @@ if (userName) {
   nameBox.style.display = 'flex';
 }
 
+// ====== Submit Name & Fade Out ======
 nameSubmit.addEventListener('click', () => {
   const name = nameInput.value.trim();
   if (name) {
     userName = name;
     localStorage.setItem('jarvisName', userName);
-    nameBox.style.display = 'none';
+
+    // Smooth fade-out
+    nameBox.style.transition = "opacity 0.5s ease";
+    nameBox.style.opacity = "0";
+    setTimeout(() => {
+      nameBox.style.display = "none";
+    }, 500);
   }
 });
 
@@ -65,7 +72,7 @@ function addMessage(sender, text, gifUrl = null) {
   bubble.classList.add("message", sender === "You" ? "user" : "ai");
 
   const textEl = document.createElement("div");
-  // Only show name if sender is "You"; JARVIS will just speak text
+  // JARVIS just speaks text; no prepending name
   textEl.textContent = text;
   bubble.appendChild(textEl);
 
