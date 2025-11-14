@@ -239,49 +239,63 @@
     </div>
   </div>
 
-  <!-- Typing Animation -->
-  <script>
-    let savedName = localStorage.getItem("jarvisName") || "User";
+<script>
+let savedName = localStorage.getItem("jarvisName") || "User";
 
+const lines = [
+  "  Booting JARVIS Engine...",
+  "⚙️ Initializing Ultra-Core Systems...",
+  "💡 Loading Neural Processor...",
+  `🤖 Hello <${savedName}>...`,
+  "✨ Systems Ready!",
+  `🚀 Optimizing dashboard for ${savedName}...`,
+  `🎯 Preparing smart suggestions for ${savedName}...`,
+  "🔮 Activating Colorful UI Mode...",
+  `🌟 Welcome back, ${savedName}!`,
+  `🔥 Engaging Hyper-Response Mode for ${savedName}...`,
+  "🌐 Syncing Cloud Memory...",
+  "⚡ Turbo Charging User Interface...",
+  `💎 You look powerful today, ${savedName}!`,
+  "✨ How can I assist you today?"
+];
 
-  const lines = [
-    "  Booting JARVIS Engine...",
-    "⚙️ Initializing Ultra-Core Systems...",
-    "💡 Loading Neural Processor...",
-    `🤖 Hello <${savedName}>...`,
-    "✨ Systems Ready!",
-    `🚀 Optimizing dashboard for ${savedName}...`,
-    `🎯 Preparing smart suggestions for ${savedName}...`,
-    "🔮 Activating Colorful UI Mode...",
-    `🌟 Welcome back, ${savedName}!`,
-    `🔥 Engaging Hyper-Response Mode for ${savedName}...`,
-    "🌐 Syncing Cloud Memory...",
-    "⚡ Turbo Charging User Interface...",
-    `💎 You look powerful today, ${savedName}!`,
-    "✨ How can I assist you today?"
-  ];
+const el = document.getElementById("typeText");
+let i = 0;
 
-    let i = 0, j = 0;
-    const speed = 60;
-    const el = document.getElementById("typeText");
+function typeColoredLine(line, callback) {
+  el.innerHTML = "";
+  const colors = ["#00ffaa", "#00eaff", "#a86bff", "#ffdd66", "#ff6b6b", "#39ff14", "#ff69b4"];
+  let j = 0;
+  let colorIndex = 0;
 
-    function type() {
-      if (j < lines[i].length) {
-        el.textContent += lines[i][j];
-        j++;
-        setTimeout(type, speed);
-      } else {
-        setTimeout(() => {
-          j = 0;
-          i = (i + 1) % lines.length;
-          el.textContent = "";
-          type();
-        }, 1200);
-      }
+  const interval = setInterval(() => {
+    const span = document.createElement("span");
+    span.textContent = line[j];
+    span.style.color = colors[colorIndex];
+    el.appendChild(span);
+
+    j++;
+    colorIndex = (colorIndex + 1) % colors.length;
+
+    if (j >= line.length) {
+      clearInterval(interval);
+      if (callback) callback();
     }
+  }, 60);
+}
 
-    type();
-  </script>
+function startTyping() {
+  typeColoredLine(lines[i], () => {
+    setTimeout(() => {
+      i = (i + 1) % lines.length;
+      startTyping();
+    }, 1200);
+  });
+}
+
+startTyping();
+</script>
+
 
   <script src="script.js"></script>
 </body>
