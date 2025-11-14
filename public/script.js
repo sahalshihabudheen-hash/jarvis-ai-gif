@@ -9,7 +9,7 @@ nameBox.id = 'nameBox';
 nameBox.style = "position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:flex; justify-content:center; align-items:center; z-index:1000;";
 
 const nameContent = document.createElement('div');
-nameContent.style = "background:#111; padding:30px; border-radius:12px; text-align:center; color:white;";
+nameContent.style = "background: linear-gradient(135deg, #0ff, #f0f, #ff0); padding:30px; border-radius:12px; text-align:center; color:white; box-shadow:0 0 20px rgba(0,255,255,0.4);";
 nameContent.innerHTML = `
   <h2>Hi! What should JARVIS call you?</h2>
   <input id="nameInput" type="text" placeholder="Enter your name" style="padding:10px; width:200px; border-radius:6px; border:none; margin-top:10px;">
@@ -28,6 +28,7 @@ if (userName) {
   nameBox.style.display = 'flex';
 }
 
+// Submit button click or Enter key
 nameSubmit.addEventListener('click', () => {
   const name = nameInput.value.trim();
   if (name) {
@@ -38,9 +39,7 @@ nameSubmit.addEventListener('click', () => {
 });
 
 nameInput.addEventListener('keydown', e => {
-  if (e.key === 'Enter') {
-    nameSubmit.click();
-  }
+  if (e.key === 'Enter') nameSubmit.click();
 });
 
 // Send message on button click or Enter key
@@ -102,7 +101,7 @@ async function sendMessage() {
   const apiPatterns = [/which api/i, /which ai/i, /what api/i];
 
   if (creatorPatterns.some(p => p.test(message))) {
-    customReply = "My creator is SAHAL_PRO ðŸ¤–";
+    customReply = "My creator is SAHAL_PRO 🧠";
   } else if (apiPatterns.some(p => p.test(message))) {
     customReply = "Fully trained by SAHAL_PRO";
   }
