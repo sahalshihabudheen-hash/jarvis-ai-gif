@@ -64,13 +64,22 @@ nameInput.addEventListener('keydown', e => {
   if (e.key === 'Enter') nameSubmit.click();
 });
 
-// ====== Typing Animation ======
-function typeText(element, text, speed = 60, callback = null) {
-  element.textContent = "";
+// ====== Typing Animation with Smooth Color Cycle ======
+function typeTextColored(element, text, speed = 60, callback = null) {
+  element.innerHTML = "";
+  const colors = ["#00ffaa", "#00eaff", "#a86bff", "#ffdd66", "#ff6b6b", "#39ff14", "#ff69b4"];
   let i = 0;
-  let interval = setInterval(() => {
-    element.textContent += text.charAt(i);
+  let colorIndex = 0;
+
+  const interval = setInterval(() => {
+    const span = document.createElement("span");
+    span.textContent = text.charAt(i);
+    span.style.color = colors[colorIndex];
+    element.appendChild(span);
+
     i++;
+    colorIndex = (colorIndex + 1) % colors.length; // cycle through colors
+
     if (i >= text.length) {
       clearInterval(interval);
       if (callback) callback();
@@ -80,15 +89,13 @@ function typeText(element, text, speed = 60, callback = null) {
 
 // ====== Welcome Animation Sequence ======
 function startWelcomeAnimation() {
-  if (!welcomeLine) return; // If user didn't add the element, do nothing
+  if (!welcomeLine) return;
 
-  welcomeLine.style.color = "#ffcc55"; // any non-blue color  
-
-  typeText(welcomeLine, `How are you, ${userName}?`, 60, () => {
+  typeTextColored(welcomeLine, `How are you, ${userName}?`, 60, () => {
     setTimeout(() => {
-      typeText(welcomeLine, "Welcome to AI Assistant", 60, () => {
+      typeTextColored(welcomeLine, "Welcome to AI Assistant", 60, () => {
         setTimeout(() => {
-          typeText(welcomeLine, "System Ready. Awaiting your command…", 60);
+          typeTextColored(welcomeLine, "System Ready. Awaiting your command…", 60);
         }, 2000);
       });
     }, 1500);
