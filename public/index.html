@@ -13,10 +13,9 @@
       font-family: 'Segoe UI', sans-serif;
       overflow: hidden;
       color: #fff;
-      background: transparent; /* Keeps video visible */
+      background: transparent;
     }
 
-    /* Background video setup */
     #bg-video {
       position: fixed;
       top: 0;
@@ -25,7 +24,7 @@
       height: 100%;
       object-fit: cover;
       z-index: -1;
-      filter: brightness(60%); /* 🔥 Added brightness fix */
+      filter: brightness(60%);
     }
 
     nav {
@@ -108,10 +107,20 @@
       color: #fff;
     }
 
+    /* 🔥 TYPING TEXT COLOR (NOT BLUE) */
     .sub span {
-      color: #00eaff;
+      color: #ffdd55;
       font-weight: bold;
-      text-shadow: 0 0 5px #00eaff;
+      text-shadow: 0 0 6px #ffdd55;
+      border-right: 2px solid #ffdd55;
+      padding-right: 4px;
+      animation: cursorBlink 0.7s infinite;
+    }
+
+    @keyframes cursorBlink {
+      0% { border-color: #ffdd55; }
+      50% { border-color: transparent; }
+      100% { border-color: #ffdd55; }
     }
 
     @keyframes glowText {
@@ -151,7 +160,6 @@
 </head>
 <body>
 
-  <!-- Background video -->
   <video autoplay muted loop playsinline id="bg-video">
     <source src="https://files.catbox.moe/sx5ph8.mp4" type="video/mp4">
   </video>
@@ -164,7 +172,11 @@
 
   <div class="container">
     <h1 class="title">J A R V I S</h1>
-    <p class="sub"><span>Welcome to your AI assistant</span></p>
+
+    <!-- 🔥 Typing text -->
+    <p class="sub">
+      <span id="typeText">Welcome to your AI assistant</span>
+    </p>
 
     <div id="chat-box" class="chat-box"></div>
 
@@ -173,6 +185,36 @@
       <button id="sendBtn">Send</button>
     </div>
   </div>
+
+  <script>
+    const texts = [
+      "Welcome to your AI assistant",
+      "How can I help you today?",
+      "Ask me anything!",
+      "Your smart AI is ready"
+    ];
+
+    let index = 0;
+    let charIndex = 0;
+    const speed = 80;
+    const element = document.getElementById("typeText");
+
+    function typeEffect() {
+      if (charIndex < texts[index].length) {
+        element.textContent = texts[index].substring(0, charIndex + 1);
+        charIndex++;
+        setTimeout(typeEffect, speed);
+      } else {
+        setTimeout(() => {
+          index = (index + 1) % texts.length;
+          charIndex = 0;
+          typeEffect();
+        }, 2000);
+      }
+    }
+
+    typeEffect();
+  </script>
 
   <script src="script.js"></script>
 </body>
