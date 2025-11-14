@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
 import { Runware } from "@runware/sdk-js"; // ✅ Correct import
+import Replicate from "replicate";
 
 dotenv.config();
 
@@ -98,13 +99,11 @@ app.post("/generate-image", async (req, res) => {
   if (!prompt) return res.status(400).json({ error: "Prompt is required" });
 
   try {
-    // ✅ Initialize the Runware client correctly
     const runware = new Runware({
       apiKey: process.env.RUNWARE_API,
       shouldReconnect: true,
     });
 
-    // ✅ Generate image using requestImages()
     const images = await runware.requestImages({
       positivePrompt: prompt,
       model: "runware:101@1",
@@ -119,6 +118,29 @@ app.post("/generate-image", async (req, res) => {
   } catch (err) {
     console.error("❌ Image generation error:", err.message);
     res.status(500).json({ error: "Error generating image" });
+  }
+});
+
+// ====== REPLICATE AI VIDEO GENERATION ENDPOINT ======
+const replicate = new Replicate({ auth: process.env.REPLICATE_API_TOKEN });
+
+app.post("/generate-video", async (req, res) => {
+  const prompt = req.body.prompt;
+  if (!prompt) return res.status(400).json({ error: "Prompt is required" });
+
+  try {
+    const output = await replicate.run("wan-video/wan-2.5-t2v-fast", {
+      input: { prompt },
+    });
+
+    // output is an array, get the first video URL
+    const videoURL = output[0]?.url;
+    if (!videoURL) return res.status(500).json({ error: "Failed to generate video" });
+
+    res.json({ url: videoURL });
+  } catch (err) {
+    console.error("❌ Video generation error:", err.message);
+    res.status(500).json({ error: "Error generating video" });
   }
 });
 
