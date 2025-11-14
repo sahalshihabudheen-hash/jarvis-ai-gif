@@ -2,60 +2,94 @@ const chatBox = document.getElementById("chat-box");
 const input = document.getElementById("userInput");
 const sendBtn = document.getElementById("sendBtn");
 
+// ====== Disable chat until name is entered ======
+input.disabled = true;
+sendBtn.disabled = true;
+
 // ====== JARVIS Name Login Box Feature ======
 let userName = localStorage.getItem('jarvisName');
+
+// Create overlay box
 const nameBox = document.createElement('div');
 nameBox.id = 'nameBox';
-nameBox.style = "position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:flex; justify-content:center; align-items:center; z-index:1000;";
+nameBox.style = `
+  position: fixed; 
+  top:0; left:0; width:100%; height:100%; 
+  background: rgba(0,0,0,0.8); 
+  display:flex; 
+  justify-content:center; 
+  align-items:center; 
+  z-index:1000;
+`;
 
 const nameContent = document.createElement('div');
-nameContent.style = "background: linear-gradient(135deg, #0ff, #f0f, #ff0); padding:30px; border-radius:12px; text-align:center; color:white; box-shadow:0 0 20px rgba(0,255,255,0.4);";
+nameContent.style = `
+  background: linear-gradient(135deg, #0ff, #f0f, #ff0); 
+  padding:30px; 
+  border-radius:12px; 
+  text-align:center; 
+  color:white; 
+  box-shadow:0 0 20px rgba(0,255,255,0.4);
+`;
+
 nameContent.innerHTML = `
   <h2>Hi! What should JARVIS call you?</h2>
   <input id="nameInput" type="text" placeholder="Enter your name" style="padding:10px; width:200px; border-radius:6px; border:none; margin-top:10px;">
   <br>
   <button id="nameSubmit" style="margin-top:15px; padding:8px 20px; border:none; border-radius:6px; background:#00b3ff; color:white; cursor:pointer;">Submit</button>
 `;
+
 nameBox.appendChild(nameContent);
 document.body.appendChild(nameBox);
 
+// Select elements after attaching to DOM
 const nameInput = document.getElementById('nameInput');
 const nameSubmit = document.getElementById('nameSubmit');
 
+// Show/hide box based on localStorage
 if (userName) {
   nameBox.style.display = 'none';
+  input.disabled = false;
+  sendBtn.disabled = false;
 } else {
   nameBox.style.display = 'flex';
 }
 
-// Submit button click or Enter key
-nameSubmit.addEventListener('click', () => {
+// ====== Submit name function ======
+function submitName() {
   const name = nameInput.value.trim();
   if (name) {
     userName = name;
     localStorage.setItem('jarvisName', userName);
     nameBox.style.display = 'none';
+    input.disabled = false;
+    sendBtn.disabled = false;
+    input.focus();
+  } else {
+    nameInput.focus();
   }
-});
+}
 
+// Button click
+nameSubmit.addEventListener('click', submitName);
+
+// Enter key in input
 nameInput.addEventListener('keydown', e => {
-  if (e.key === 'Enter') nameSubmit.click();
+  if (e.key === 'Enter') submitName();
 });
 
-// Send message on button click or Enter key
+// ====== Chat functions ======
 sendBtn.onclick = sendMessage;
 input.addEventListener("keydown", e => {
   if (e.key === "Enter") sendMessage();
 });
 
-// Function to add a message bubble with animation
 function addMessage(sender, text, gifUrl = null) {
   const bubble = document.createElement("div");
   bubble.classList.add("message", sender === "You" ? "user" : "ai");
 
   const textEl = document.createElement("div");
 
-  // Include name occasionally (~50% chance) only in friendly messages
   const includeName = sender === "JARVIS" && userName && Math.random() < 0.5 && !text.startsWith("⚠️") && !text.includes("SAHAL_PRO");
   textEl.textContent = includeName ? `${userName}, ${text}` : text;
 
@@ -71,7 +105,6 @@ function addMessage(sender, text, gifUrl = null) {
     bubble.appendChild(img);
   }
 
-  // Floating/scale animation
   bubble.style.transform = "scale(0.9)";
   bubble.style.opacity = "0";
   bubble.style.transition = "transform 0.3s ease, opacity 0.3s ease";
@@ -84,7 +117,6 @@ function addMessage(sender, text, gifUrl = null) {
   }, 10);
 }
 
-// Send message
 async function sendMessage() {
   const message = input.value.trim();
   if (!message) return;
@@ -92,11 +124,9 @@ async function sendMessage() {
   addMessage("You", message);
   input.value = "";
 
-  // Custom responses first
   let customReply = null;
   let customGif = null;
 
-  // Multiple patterns for creator/developer
   const creatorPatterns = [/who is your creator/i, /who is your developer/i, /who made you/i];
   const apiPatterns = [/which api/i, /which ai/i, /what api/i];
 
@@ -107,11 +137,10 @@ async function sendMessage() {
   }
 
   if (customReply) {
-    addMessage("JARVIS", customReply, customGif); // always without name
-    return; // skip backend call
+    addMessage("JARVIS", customReply, customGif);
+    return;
   }
 
-  // Send to backend if no custom reply
   try {
     const res = await fetch("/ask", {
       method: "POST",
@@ -120,7 +149,7 @@ async function sendMessage() {
     });
 
     const data = await res.json();
-    addMessage("JARVIS", data.reply, data.gif); // random name inclusion handled inside addMessage
+    addMessage("JARVIS", data.reply, data.gif);
   } catch (err) {
     addMessage("JARVIS", "⚠️ Error sending request.", null);
   }
