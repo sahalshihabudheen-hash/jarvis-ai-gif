@@ -78,7 +78,7 @@ function typeTextColored(element, text, speed = 60, callback = null) {
     element.appendChild(span);
 
     i++;
-    colorIndex = (colorIndex + 1) % colors.length; // cycle through colors
+    colorIndex = (colorIndex + 1) % colors.length;
 
     if (i >= text.length) {
       clearInterval(interval);
@@ -138,7 +138,19 @@ function addMessage(sender, text, gifUrl = null) {
   }, 10);
 }
 
-// Send message to backend
+// ====== Video Player Element ======
+let videoPlayer = document.getElementById("videoPlayer");
+if (!videoPlayer) {
+  videoPlayer = document.createElement("video");
+  videoPlayer.id = "videoPlayer";
+  videoPlayer.controls = true;
+  videoPlayer.autoplay = true;
+  videoPlayer.style.width = "100%";
+  videoPlayer.style.marginTop = "10px";
+  document.body.appendChild(videoPlayer);
+}
+
+// ====== Send message to backend ======
 async function sendMessage() {
   const message = input.value.trim();
   if (!message) return;
@@ -149,6 +161,7 @@ async function sendMessage() {
   // Custom replies
   const creatorPatterns = [/who is your creator/i, /who is your developer/i, /who made you/i];
   const apiPatterns = [/which api/i, /which ai/i, /what api/i];
+  const videoPatterns = [/generate video/i, /create video/i, /make video/i]; // trigger video
 
   if (creatorPatterns.some(p => p.test(message))) {
     addMessage("JARVIS", "My creator is SAHAL_PRO 🤖");
@@ -159,7 +172,29 @@ async function sendMessage() {
     return;
   }
 
-  // Backend request
+  // ====== Video generation trigger ======
+  if (videoPatterns.some(p => p.test(message))) {
+    addMessage("JARVIS", "Generating video, please wait...");
+    try {
+      const res = await fetch("/generate-video", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: message })
+      });
+      const data = await res.json();
+      if (data.url) {
+        videoPlayer.src = data.url;
+        addMessage("JARVIS", "Video generated successfully ✅");
+      } else {
+        addMessage("JARVIS", "⚠️ Failed to generate video.");
+      }
+    } catch (err) {
+      addMessage("JARVIS", "⚠️ Error generating video.");
+    }
+    return;
+  }
+
+  // ====== Backend chat request ======
   try {
     const res = await fetch("/ask", {
       method: "POST",
