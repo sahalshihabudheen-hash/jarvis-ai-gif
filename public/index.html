@@ -110,7 +110,7 @@
 
     .sub span {
       font-weight: bold;
-      color: #ffdd66; /* changed color (non-blue) */
+      color: #ffdd66;
       text-shadow: 0 0 8px #ffdd66;
     }
 
@@ -174,14 +174,16 @@
     </div>
   </div>
 
-  <!-- ✨ Typing Animation Script -->
+  <!-- ✨ Updated Typing Animation Script With Username -->
   <script>
+    let savedName = localStorage.getItem("jarvisName") || "User";
+
     const lines = [
-      "Welcome to your AI assistant...",
-      "System initializing...",
-      "All systems online...",
-      "Hello Sahal_Pro.",
-      "How can I help you today?"
+      "🌈 Booting JARVIS Engine...",
+      "⚙️ System Initializing...",
+      "💡 AI Core Activated...",
+      `👋 Hello ${savedName}!`,
+      "✨ How can I assist you today?"
     ];
 
     let i = 0, j = 0;
