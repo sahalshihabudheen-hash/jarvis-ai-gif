@@ -236,6 +236,16 @@
     <a href="image.html" class="image">Image Gen</a>
   </nav>
 
+  <!-- ====== JARVIS Name Login Box ====== -->
+  <div id="nameBox" style="position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:flex; justify-content:center; align-items:center; z-index:1000;">
+    <div style="background:#111; padding:30px; border-radius:12px; text-align:center; color:white;">
+      <h2>Hi! What should JARVIS call you?</h2>
+      <input id="nameInput" type="text" placeholder="Enter your name" style="padding:10px; width:200px; border-radius:6px; border:none; margin-top:10px;">
+      <br>
+      <button id="nameSubmit" style="margin-top:15px; padding:8px 20px; border:none; border-radius:6px; background:#00b3ff; color:white; cursor:pointer;">Submit</button>
+    </div>
+  </div>
+
   <div class="container">
     <h1 class="title">J A R V I S</h1>
     <p class="sub"><span></span></p>
@@ -253,6 +263,28 @@
     const input = document.getElementById("userInput");
     const sendBtn = document.getElementById("sendBtn");
 
+    // ====== JARVIS Name Box Logic ======
+    let userName = localStorage.getItem('jarvisName');
+    const nameBox = document.getElementById('nameBox');
+    const nameInput = document.getElementById('nameInput');
+    const nameSubmit = document.getElementById('nameSubmit');
+
+    if(userName) nameBox.style.display = 'none';
+    else nameBox.style.display = 'flex';
+
+    nameSubmit.addEventListener('click', () => {
+      const name = nameInput.value.trim();
+      if(name) {
+        userName = name;
+        localStorage.setItem('jarvisName', userName);
+        nameBox.style.display = 'none';
+      }
+    });
+
+    nameInput.addEventListener('keydown', e => {
+      if(e.key === 'Enter') nameSubmit.click();
+    });
+
     sendBtn.onclick = sendMessage;
     input.addEventListener("keydown", e => {
       if (e.key === "Enter") sendMessage();
@@ -263,7 +295,8 @@
       bubble.classList.add("message", sender === "You" ? "user" : "ai");
 
       const textEl = document.createElement("div");
-      textEl.textContent = text;
+      if(sender === "JARVIS") textEl.textContent = `${userName}: ${text}`;
+      else textEl.textContent = text;
       bubble.appendChild(textEl);
 
       if (gifUrl) {
