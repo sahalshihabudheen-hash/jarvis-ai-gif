@@ -6,15 +6,25 @@ const sendBtn = document.getElementById("sendBtn");
 let userName = localStorage.getItem('jarvisName');
 const nameBox = document.createElement('div');
 nameBox.id = 'nameBox';
-nameBox.style = "position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:flex; justify-content:center; align-items:center; z-index:1000;";
+nameBox.style = `
+  position: fixed; 
+  top:0; left:0; width:100%; height:100%; 
+  background: rgba(0,0,0,0.85); 
+  display:flex; justify-content:center; align-items:center; z-index:1000;
+`;
 
 const nameContent = document.createElement('div');
-nameContent.style = "background:#111; padding:30px; border-radius:12px; text-align:center; color:white;";
+nameContent.style = `
+  background: linear-gradient(135deg, #00b3ff, #a86bff, #ffaa40); 
+  padding:40px; border-radius:15px; text-align:center; 
+  color:white; font-family:'Segoe UI', sans-serif;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+`;
 nameContent.innerHTML = `
-  <h2>Hi! What should JARVIS call you?</h2>
-  <input id="nameInput" type="text" placeholder="Enter your name" style="padding:10px; width:200px; border-radius:6px; border:none; margin-top:10px;">
+  <h2 style="margin-bottom:15px;">Hi! What should JARVIS call you?</h2>
+  <input id="nameInput" type="text" placeholder="Enter your name" style="padding:10px; width:200px; border-radius:6px; border:none; margin-bottom:15px;">
   <br>
-  <button id="nameSubmit" style="margin-top:15px; padding:8px 20px; border:none; border-radius:6px; background:#00b3ff; color:white; cursor:pointer;">Submit</button>
+  <button id="nameSubmit" style="padding:8px 20px; border:none; border-radius:6px; background:#fff; color:#333; cursor:pointer;">Submit</button>
 `;
 nameBox.appendChild(nameContent);
 document.body.appendChild(nameBox);
@@ -55,11 +65,8 @@ function addMessage(sender, text, gifUrl = null) {
   bubble.classList.add("message", sender === "You" ? "user" : "ai");
 
   const textEl = document.createElement("div");
-  if(sender === "JARVIS") {
-    textEl.textContent = `${userName}: ${text}`;
-  } else {
-    textEl.textContent = text;
-  }
+  // Only show name if sender is "You"; JARVIS will just speak text
+  textEl.textContent = text;
   bubble.appendChild(textEl);
 
   if (gifUrl) {
@@ -123,6 +130,6 @@ async function sendMessage() {
     const data = await res.json();
     addMessage("JARVIS", data.reply, data.gif);
   } catch (err) {
-    addMessage("JARVIS", "âš ï¸ Error sending request.", null);
+    addMessage("JARVIS", "⚠️ Error sending request.", null);
   }
 }
