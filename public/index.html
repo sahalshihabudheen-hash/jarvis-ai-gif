@@ -258,42 +258,54 @@ document.addEventListener("DOMContentLoaded", () => {
   const el = document.getElementById("typeText");
   let i = 0;
 
-  // Neon colors visible on dark/blue background
+  // Neon colors for words on black/blue bg
   const colors = ["#0ff", "#ff6fff", "#fff"]; // cyan, magenta, white
 
-  function typeLineWords(line, callback) {
+  function typeLineLetterByLetter(line, callback) {
     el.innerHTML = "";
     const words = line.split(" ");
     let w = 0;
 
-    function typeWord() {
-      if (w >= words.length) {
-        if (callback) callback();
-        return;
+    function typeWordLetters(word) {
+      let letters = word.split("");
+      let l = 0;
+
+      function typeLetter() {
+        if (l >= letters.length) {
+          el.innerHTML += " "; // add space after word
+          w++;
+          if (w < words.length) {
+            setTimeout(() => typeWordLetters(words[w]), 150);
+          } else {
+            if (callback) callback();
+          }
+          return;
+        }
+
+        const span = document.createElement("span");
+        span.textContent = letters[l];
+        // Assign color based on word index
+        span.style.color = colors[w % colors.length];
+        span.style.textShadow = `0 0 5px ${colors[w % colors.length]}, 0 0 10px ${colors[w % colors.length]}`;
+        span.style.opacity = "0";
+        span.style.transition = "opacity 0.3s ease";
+        el.appendChild(span);
+
+        // Fade in letter
+        requestAnimationFrame(() => { span.style.opacity = "1"; });
+
+        l++;
+        setTimeout(typeLetter, 50); // typing speed per letter
       }
 
-      const span = document.createElement("span");
-      span.textContent = words[w] + " ";
-      span.style.color = colors[w % colors.length];
-      span.style.opacity = "0";
-      span.style.transition = "opacity 0.5s ease, text-shadow 0.5s ease";
-      span.style.textShadow = "0 0 5px #0ff, 0 0 10px #ff6fff"; // subtle neon glow
-      el.appendChild(span);
-
-      // Fade in the word
-      requestAnimationFrame(() => {
-        span.style.opacity = "1";
-      });
-
-      w++;
-      setTimeout(typeWord, 350); // delay between words
+      typeLetter();
     }
 
-    typeWord();
+    typeWordLetters(words[w]);
   }
 
   function startTyping() {
-    typeLineWords(lines[i], () => {
+    typeLineLetterByLetter(lines[i], () => {
       setTimeout(() => {
         i = (i + 1) % lines.length;
         startTyping();
@@ -304,6 +316,7 @@ document.addEventListener("DOMContentLoaded", () => {
   startTyping();
 });
 </script>
+
 
 
 
