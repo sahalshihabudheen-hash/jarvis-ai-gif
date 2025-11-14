@@ -238,7 +238,7 @@
       <button id="sendBtn">Send</button>
     </div>
   </div>
-<script>
+  <script>
 document.addEventListener("DOMContentLoaded", () => {
   let savedName = localStorage.getItem("jarvisName") || "User";
 
@@ -258,8 +258,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const el = document.getElementById("typeText");
   let lineIndex = 0;
 
-  // Colors for each line
-  const lineColors = ["#ff3b3b", "#39ff14", "#ff8c00"]; // red, green, orange
+  // Colors for lines (one color per line)
+  const lineColors = ["#ff3b3b", "#39ff14", "#ff8c00"]; // neon red, green, orange
   let colorIndex = 0;
 
   function typeLine(line, color, callback) {
@@ -268,15 +268,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function typeChar() {
       if (charIndex < line.length) {
-        const span = document.createElement("span");
-        span.textContent = line[charIndex];
-        span.style.color = color;
-        span.style.textShadow = `0 0 5px ${color}, 0 0 10px ${color}`;
-        span.style.opacity = "0";
-        span.style.transition = "opacity 0.2s ease";
-        el.appendChild(span);
-        requestAnimationFrame(() => { span.style.opacity = "1"; });
-
+        el.innerHTML += `<span style="color: ${color}; text-shadow: 0 0 5px ${color}, 0 0 10px ${color};">${line[charIndex]}</span>`;
         charIndex++;
         setTimeout(typeChar, 50);
       } else {
@@ -301,9 +293,6 @@ document.addEventListener("DOMContentLoaded", () => {
   startTyping();
 });
 </script>
-
-
-
 
 
 
