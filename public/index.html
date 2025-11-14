@@ -243,26 +243,22 @@ document.addEventListener("DOMContentLoaded", () => {
   let savedName = localStorage.getItem("jarvisName") || "User";
 
   const lines = [
-    "Booting JARVIS Engine...",
-    "Initializing Ultra-Core Systems...",
-    "Loading Neural Processor...",
-    `Hello ${savedName}...`,
-    "Systems Ready!",
-    `Optimizing dashboard for ${savedName}...`,
-    `Preparing smart suggestions for ${savedName}...`,
-    "Activating Colorful UI Mode...",
+    `Hello ${savedName}, I am JARVIS.`,
+    "Booting AI Core Systems...",
+    "Initializing Neural Network...",
+    "All systems are online and running smoothly.",
     `Welcome back, ${savedName}!`,
-    `Engaging Hyper-Response Mode for ${savedName}...`,
-    "Syncing Cloud Memory...",
-    "Turbo Charging User Interface...",
-    `You look powerful today, ${savedName}!`,
-    "How can I assist you today?"
+    "I am ready to assist you.",
+    "How can I help you today?",
+    "You can ask me anything about your tasks, schedules, or AI commands.",
+    "I will provide accurate responses and guidance.",
+    "Your dashboard is optimized and ready for commands."
   ];
 
   const el = document.getElementById("typeText");
   let i = 0;
 
-  // Neon colors visible on black/blue background
+  // Neon colors visible on dark/blue background
   const colors = ["#0ff", "#ff6fff", "#fff"]; // cyan, magenta, white
 
   function typeLineWords(line, callback) {
@@ -280,16 +276,17 @@ document.addEventListener("DOMContentLoaded", () => {
       span.textContent = words[w] + " ";
       span.style.color = colors[w % colors.length];
       span.style.opacity = "0";
-      span.style.transition = "opacity 0.5s ease";
+      span.style.transition = "opacity 0.5s ease, text-shadow 0.5s ease";
+      span.style.textShadow = "0 0 5px #0ff, 0 0 10px #ff6fff"; // subtle neon glow
       el.appendChild(span);
 
-      // fade in the word
+      // Fade in the word
       requestAnimationFrame(() => {
         span.style.opacity = "1";
       });
 
       w++;
-      setTimeout(typeWord, 400); // delay between words
+      setTimeout(typeWord, 350); // delay between words
     }
 
     typeWord();
@@ -307,6 +304,7 @@ document.addEventListener("DOMContentLoaded", () => {
   startTyping();
 });
 </script>
+
 
 
 
