@@ -32,8 +32,13 @@ document.body.appendChild(nameBox);
 const nameInput = document.getElementById('nameInput');
 const nameSubmit = document.getElementById('nameSubmit');
 
+// ====== Username Welcome Text Element (IMPORTANT) ======
+const welcomeLine = document.getElementById("welcomeLine");
+
+// Load saved name
 if (userName) {
   nameBox.style.display = 'none';
+  startWelcomeAnimation();
 } else {
   nameBox.style.display = 'flex';
 }
@@ -50,29 +55,58 @@ nameSubmit.addEventListener('click', () => {
     nameBox.style.opacity = "0";
     setTimeout(() => {
       nameBox.style.display = "none";
+      startWelcomeAnimation();
     }, 500);
   }
 });
 
 nameInput.addEventListener('keydown', e => {
-  if (e.key === 'Enter') {
-    nameSubmit.click();
-  }
+  if (e.key === 'Enter') nameSubmit.click();
 });
 
-// Send message on button click or Enter key
+// ====== Typing Animation ======
+function typeText(element, text, speed = 60, callback = null) {
+  element.textContent = "";
+  let i = 0;
+  let interval = setInterval(() => {
+    element.textContent += text.charAt(i);
+    i++;
+    if (i >= text.length) {
+      clearInterval(interval);
+      if (callback) callback();
+    }
+  }, speed);
+}
+
+// ====== Welcome Animation Sequence ======
+function startWelcomeAnimation() {
+  if (!welcomeLine) return; // If user didn't add the element, do nothing
+
+  welcomeLine.style.color = "#ffcc55"; // any non-blue color  
+
+  typeText(welcomeLine, `How are you, ${userName}?`, 60, () => {
+    setTimeout(() => {
+      typeText(welcomeLine, "Welcome to AI Assistant", 60, () => {
+        setTimeout(() => {
+          typeText(welcomeLine, "System Ready. Awaiting your command…", 60);
+        }, 2000);
+      });
+    }, 1500);
+  });
+}
+
+// ====== Chat System ======
 sendBtn.onclick = sendMessage;
 input.addEventListener("keydown", e => {
   if (e.key === "Enter") sendMessage();
 });
 
-// Function to add a message bubble with animation
+// Function to add a message bubble
 function addMessage(sender, text, gifUrl = null) {
   const bubble = document.createElement("div");
   bubble.classList.add("message", sender === "You" ? "user" : "ai");
 
   const textEl = document.createElement("div");
-  // JARVIS just speaks text; no prepending name
   textEl.textContent = text;
   bubble.appendChild(textEl);
 
@@ -82,11 +116,9 @@ function addMessage(sender, text, gifUrl = null) {
     img.style.marginTop = "10px";
     img.style.borderRadius = "12px";
     img.style.maxHeight = "250px";
-    img.style.width = "auto";
     bubble.appendChild(img);
   }
 
-  // Floating/scale animation
   bubble.style.transform = "scale(0.9)";
   bubble.style.opacity = "0";
   bubble.style.transition = "transform 0.3s ease, opacity 0.3s ease";
@@ -99,7 +131,7 @@ function addMessage(sender, text, gifUrl = null) {
   }, 10);
 }
 
-// Send message
+// Send message to backend
 async function sendMessage() {
   const message = input.value.trim();
   if (!message) return;
@@ -107,26 +139,20 @@ async function sendMessage() {
   addMessage("You", message);
   input.value = "";
 
-  // Custom responses first
-  let customReply = null;
-  let customGif = null;
-
-  // Multiple patterns for creator/developer
+  // Custom replies
   const creatorPatterns = [/who is your creator/i, /who is your developer/i, /who made you/i];
   const apiPatterns = [/which api/i, /which ai/i, /what api/i];
 
   if (creatorPatterns.some(p => p.test(message))) {
-    customReply = "My creator is SAHAL_PRO ðŸ¤–";
-  } else if (apiPatterns.some(p => p.test(message))) {
-    customReply = "Fully trained by SAHAL_PRO";
+    addMessage("JARVIS", "My creator is SAHAL_PRO 🤖");
+    return;
+  } 
+  if (apiPatterns.some(p => p.test(message))) {
+    addMessage("JARVIS", "Fully trained by SAHAL_PRO");
+    return;
   }
 
-  if (customReply) {
-    addMessage("JARVIS", customReply, customGif);
-    return; // skip backend call
-  }
-
-  // Send to backend if no custom reply
+  // Backend request
   try {
     const res = await fetch("/ask", {
       method: "POST",
