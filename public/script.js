@@ -2,6 +2,13 @@ const chatBox = document.getElementById("chat-box");
 const input = document.getElementById("userInput");
 const sendBtn = document.getElementById("sendBtn");
 
+// Get or ask for user's name
+let userName = localStorage.getItem('jarvisName');
+if (!userName) {
+  userName = prompt("Hi! What should JARVIS call you?");
+  localStorage.setItem('jarvisName', userName);
+}
+
 // Send message on button click or Enter key
 sendBtn.onclick = sendMessage;
 input.addEventListener("keydown", e => {
@@ -14,7 +21,11 @@ function addMessage(sender, text, gifUrl = null) {
   bubble.classList.add("message", sender === "You" ? "user" : "ai");
 
   const textEl = document.createElement("div");
-  textEl.textContent = text;
+  if(sender === "JARVIS") {
+    textEl.textContent = `${userName}: ${text}`;
+  } else {
+    textEl.textContent = text;
+  }
   bubble.appendChild(textEl);
 
   if (gifUrl) {
