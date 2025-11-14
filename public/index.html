@@ -284,27 +284,52 @@
     <a href="image.html" class="image">Image Gen</a>
   </nav>
 
-  <!-- ====== Colorful JARVIS Name Login Box ====== -->
-  <div id="nameBox">
-    <div>
-      <h2>Hi! What should JARVIS call you?</h2>
-      <input id="nameInput" type="text" placeholder="Enter your name">
-      <br>
-      <button id="nameSubmit">Submit</button>
-    </div>
+<!-- ====== Colorful JARVIS Name Login Box ====== -->
+<div id="nameBox" style="
+    position: fixed;
+    top:0; left:0;
+    width:100%;
+    height:100%;
+    background: rgba(0,0,0,0.85); /* dark semi-transparent overlay */
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+">
+  <div style="
+    background: linear-gradient(135deg, #0ff22a, #a0f3ff, #ffaa00);
+    padding: 40px 30px;
+    border-radius: 16px;
+    text-align:center;
+    color:white;
+    min-width: 320px;
+    max-width: 400px;
+    box-shadow: 0 0 20px rgba(0,255,255,0.4), 0 0 40px rgba(255,0,255,0.3);
+  ">
+    <h2 style="margin-bottom:20px;">Hi! What should JARVIS call you?</h2>
+    <input id="nameInput" type="text" placeholder="Enter your name" style="
+      padding:10px 12px;
+      width: 90%;
+      border-radius:8px;
+      border:none;
+      font-size:16px;
+      margin-bottom:15px;
+      text-align:center;
+    ">
+    <br>
+    <button id="nameSubmit" style="
+      padding:10px 24px;
+      border:none;
+      border-radius:8px;
+      background:#00b3ff;
+      color:white;
+      font-weight:bold;
+      cursor:pointer;
+      transition:0.3s;
+    ">Submit</button>
   </div>
+</div>
 
-  <div class="container">
-    <h1 class="title">J A R V I S</h1>
-    <p class="sub"><span></span></p>
-
-    <div id="chat-box" class="chat-box"></div>
-
-    <div class="input-area">
-      <input id="userInput" type="text" placeholder="Type your message..." autocomplete="off">
-      <button id="sendBtn">Send</button>
-    </div>
-  </div>
 
   <script src="script.js"></script>
 </body>
