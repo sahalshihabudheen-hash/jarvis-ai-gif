@@ -240,71 +240,73 @@
   </div>
 
 <script>
-let savedName = localStorage.getItem("jarvisName") || "User";
+document.addEventListener("DOMContentLoaded", () => {
+  let savedName = localStorage.getItem("jarvisName") || "User";
 
-const lines = [
-  "Booting JARVIS Engine...",
-  "Initializing Ultra-Core Systems...",
-  "Loading Neural Processor...",
-  `Hello ${savedName}...`,
-  "Systems Ready!",
-  `Optimizing dashboard for ${savedName}...`,
-  `Preparing smart suggestions for ${savedName}...`,
-  "Activating Colorful UI Mode...",
-  `Welcome back, ${savedName}!`,
-  `Engaging Hyper-Response Mode for ${savedName}...`,
-  "Syncing Cloud Memory...",
-  "Turbo Charging User Interface...",
-  `You look powerful today, ${savedName}!`,
-  "How can I assist you today?"
-];
+  const lines = [
+    "Booting JARVIS Engine...",
+    "Initializing Ultra-Core Systems...",
+    "Loading Neural Processor...",
+    `Hello ${savedName}...`,
+    "Systems Ready!",
+    `Optimizing dashboard for ${savedName}...`,
+    `Preparing smart suggestions for ${savedName}...`,
+    "Activating Colorful UI Mode...",
+    `Welcome back, ${savedName}!`,
+    `Engaging Hyper-Response Mode for ${savedName}...`,
+    "Syncing Cloud Memory...",
+    "Turbo Charging User Interface...",
+    `You look powerful today, ${savedName}!`,
+    "How can I assist you today?"
+  ];
 
-const el = document.getElementById("typeText");
-let i = 0;
+  const el = document.getElementById("typeText");
+  let i = 0;
 
-// Colors for each word
-const colors = ["#00eaff", "#ffffff", "#00ffaa"]; // cyan, white, light blue
+  // Colors that show well on black/blue bg
+  const colors = ["#00ffff", "#00bfff", "#ffffff"]; // bright cyan, sky blue, white
 
-function typeLineWords(line, callback) {
-  el.innerHTML = "";
-  const words = line.split(" ");
-  let w = 0;
+  function typeLineWords(line, callback) {
+    el.innerHTML = "";
+    const words = line.split(" ");
+    let w = 0;
 
-  function typeWord() {
-    if (w >= words.length) {
-      if (callback) callback();
-      return;
+    function typeWord() {
+      if (w >= words.length) {
+        if (callback) callback();
+        return;
+      }
+
+      const span = document.createElement("span");
+      span.textContent = words[w] + " ";
+      span.style.color = colors[w % colors.length];
+      span.style.opacity = "0";
+      span.style.transition = "opacity 0.5s ease";
+      el.appendChild(span);
+
+      // fade in the word
+      requestAnimationFrame(() => {
+        span.style.opacity = "1";
+      });
+
+      w++;
+      setTimeout(typeWord, 400); // delay between words
     }
 
-    const span = document.createElement("span");
-    span.textContent = words[w] + " ";
-    span.style.color = colors[w % colors.length];
-    span.style.opacity = "0";
-    span.style.transition = "opacity 0.5s ease";
-    el.appendChild(span);
-
-    // Fade in the word
-    requestAnimationFrame(() => {
-      span.style.opacity = "1";
-    });
-
-    w++;
-    setTimeout(typeWord, 350); // delay between words
+    typeWord();
   }
 
-  typeWord();
-}
+  function startTyping() {
+    typeLineWords(lines[i], () => {
+      setTimeout(() => {
+        i = (i + 1) % lines.length;
+        startTyping();
+      }, 1500);
+    });
+  }
 
-function startTyping() {
-  typeLineWords(lines[i], () => {
-    setTimeout(() => {
-      i = (i + 1) % lines.length;
-      startTyping();
-    }, 1200);
-  });
-}
-
-startTyping();
+  startTyping();
+});
 </script>
 
 
