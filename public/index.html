@@ -238,7 +238,6 @@
       <button id="sendBtn">Send</button>
     </div>
   </div>
-
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   let savedName = localStorage.getItem("jarvisName") || "User";
@@ -263,8 +262,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const el = document.getElementById("typeText");
   let i = 0;
 
-  // Colors that show well on black/blue bg
-  const colors = ["#00ffff", "#00bfff", "#ffffff"]; // bright cyan, sky blue, white
+  // Neon colors visible on black/blue background
+  const colors = ["#0ff", "#ff6fff", "#fff"]; // cyan, magenta, white
 
   function typeLineWords(line, callback) {
     el.innerHTML = "";
@@ -308,6 +307,7 @@ document.addEventListener("DOMContentLoaded", () => {
   startTyping();
 });
 </script>
+
 
 
 
