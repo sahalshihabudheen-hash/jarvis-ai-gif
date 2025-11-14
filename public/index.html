@@ -243,51 +243,60 @@
 let savedName = localStorage.getItem("jarvisName") || "User";
 
 const lines = [
-  "  Booting JARVIS Engine...",
-  "⚙️ Initializing Ultra-Core Systems...",
-  "💡 Loading Neural Processor...",
-  `🤖 Hello <${savedName}>...`,
-  "✨ Systems Ready!",
-  `🚀 Optimizing dashboard for ${savedName}...`,
-  `🎯 Preparing smart suggestions for ${savedName}...`,
-  "🔮 Activating Colorful UI Mode...",
-  `🌟 Welcome back, ${savedName}!`,
-  `🔥 Engaging Hyper-Response Mode for ${savedName}...`,
-  "🌐 Syncing Cloud Memory...",
-  "⚡ Turbo Charging User Interface...",
-  `💎 You look powerful today, ${savedName}!`,
-  "✨ How can I assist you today?"
+  "Booting JARVIS Engine...",
+  "Initializing Ultra-Core Systems...",
+  "Loading Neural Processor...",
+  `Hello ${savedName}...`,
+  "Systems Ready!",
+  `Optimizing dashboard for ${savedName}...`,
+  `Preparing smart suggestions for ${savedName}...`,
+  "Activating Colorful UI Mode...",
+  `Welcome back, ${savedName}!`,
+  `Engaging Hyper-Response Mode for ${savedName}...`,
+  "Syncing Cloud Memory...",
+  "Turbo Charging User Interface...",
+  `You look powerful today, ${savedName}!`,
+  "How can I assist you today?"
 ];
 
 const el = document.getElementById("typeText");
 let i = 0;
 
-// Subtle neon colors: cyan → white → light blue
-const colors = ["#00eaff", "#ffffff", "#00ffaa"];
+// Colors for each word
+const colors = ["#00eaff", "#ffffff", "#00ffaa"]; // cyan, white, light blue
 
-function typeLine(line, callback) {
+function typeLineWords(line, callback) {
   el.innerHTML = "";
-  let j = 0;
-  let colorIndex = 0;
+  const words = line.split(" ");
+  let w = 0;
 
-  const interval = setInterval(() => {
+  function typeWord() {
+    if (w >= words.length) {
+      if (callback) callback();
+      return;
+    }
+
     const span = document.createElement("span");
-    span.textContent = line[j];
-    span.style.color = colors[colorIndex];
+    span.textContent = words[w] + " ";
+    span.style.color = colors[w % colors.length];
+    span.style.opacity = "0";
+    span.style.transition = "opacity 0.5s ease";
     el.appendChild(span);
 
-    j++;
-    colorIndex = (colorIndex + 1) % colors.length;
+    // Fade in the word
+    requestAnimationFrame(() => {
+      span.style.opacity = "1";
+    });
 
-    if (j >= line.length) {
-      clearInterval(interval);
-      if (callback) callback();
-    }
-  }, 60);
+    w++;
+    setTimeout(typeWord, 350); // delay between words
+  }
+
+  typeWord();
 }
 
 function startTyping() {
-  typeLine(lines[i], () => {
+  typeLineWords(lines[i], () => {
     setTimeout(() => {
       i = (i + 1) % lines.length;
       startTyping();
