@@ -6,7 +6,7 @@ async function loadMusic() {
 
   const ytRegex = /(youtube\.com|youtu\.be)/i;
 
-  // If direct YouTube link
+  // If direct link
   if (ytRegex.test(input)) {
     let videoId = "";
 
@@ -20,26 +20,17 @@ async function loadMusic() {
     return;
   }
 
-  // If search query → fetch first valid video ID
+  // Search via your server
   try {
-    const response = await fetch(
-      "https://corsproxy.io/?" +
-        encodeURIComponent("https://www.youtube.com/results?search_query=" + input)
-    );
+    const res = await fetch(`/api/search?q=${encodeURIComponent(input)}`);
+    const data = await res.json();
 
-    const text = await response.text();
-
-    const match = text.match(/\"videoId\":\"(.*?)\"/);
-
-    if (!match) {
-      alert("Search failed. Try another query.");
+    if (!data.videoId) {
+      alert("Search failed. Try again.");
       return;
     }
 
-    const videoId = match[1];
-
-    player.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
-
+    player.src = `https://www.youtube.com/embed/${data.videoId}?autoplay=1`;
   } catch (err) {
     alert("Search failed. Try again.");
   }
