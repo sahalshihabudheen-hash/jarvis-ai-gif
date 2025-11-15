@@ -1,5 +1,4 @@
-// music.js — Spotify-style UI integration
-// Uses your server /api/search for queries and supports direct YouTube links
+// music.js — Spotify-style UI integration with soundwave
 
 const INPUT_ID = "ytInput";
 const LOAD_BTN_ID = "loadBtn";
@@ -12,16 +11,13 @@ const PROGRESS_FILL_ID = "progressFill";
 
 let currentVideoId = null;
 let isPlaying = false;
+let progressInterval = null;
 
 // helper: extract video id from youtube url
 function extractVideoId(url) {
   if (!url) return null;
-  if (url.includes("youtu.be/")) {
-    return url.split("youtu.be/")[1].split(/[?&]/)[0];
-  }
-  if (url.includes("v=")) {
-    return url.split("v=")[1].split("&")[0];
-  }
+  if (url.includes("youtu.be/")) return url.split("youtu.be/")[1].split(/[?&]/)[0];
+  if (url.includes("v=")) return url.split("v=")[1].split("&")[0];
   const m = url.match(/\/embed\/([A-Za-z0-9_\-]+)/);
   return m ? m[1] : null;
 }
@@ -36,12 +32,11 @@ function setVideoById(vid) {
   if (!vid) return;
 
   currentVideoId = vid;
-  // set iframe
   player.src = `https://www.youtube.com/embed/${vid}?autoplay=1&controls=1&rel=0&modestbranding=1`;
   isPlaying = true;
-  // update cover art (fallback to hqdefault)
+
   cover.src = `https://i.ytimg.com/vi/${vid}/hqdefault.jpg`;
-  // try to fill title/artist via oembed (best-effort)
+
   fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${vid}&format=json`)
     .then(r => r.ok ? r.json() : null)
     .then(data => {
@@ -58,55 +53,92 @@ function setVideoById(vid) {
       artistEl.textContent = "YouTube";
     });
 
-  // update play button icon
   updatePlayButton();
-  // reset progress bar (we don't have precise progress because iframe doesn't expose playback; visual only)
   setProgress(0);
+  startProgressSimulation();
 }
 
-// Update play/pause button UI
+// play/pause toggle (fixed not restarting)
+function togglePlay() {
+  const iframe = document.getElementById(PLAYER_IFRAME_ID);
+  if (!currentVideoId) return;
+
+  const playerPlaying = isPlaying;
+  if (playerPlaying) {
+    // pause by hiding iframe temporarily
+    iframe.style.display = "none";
+    isPlaying = false;
+    updatePlayButton();
+    stopProgressSimulation();
+    stopWaveAnimation();
+  } else {
+    // resume by showing iframe
+    iframe.style.display = "block";
+    isPlaying = true;
+    updatePlayButton();
+    startProgressSimulation();
+    startWaveAnimation();
+  }
+}
+
+// update play button icon
 function updatePlayButton() {
   const btn = document.getElementById(PLAY_BTN_ID);
   btn.textContent = isPlaying ? "⏸" : "▶";
 }
 
-// visual progress (simulated while playing)
-let progressInterval = null;
+// visual progress simulation
 function setProgress(p) {
   document.getElementById(PROGRESS_FILL_ID).style.width = `${Math.max(0, Math.min(100, p))}%`;
 }
+
+// simulated progress
 function startProgressSimulation() {
   clearInterval(progressInterval);
   let val = 0;
   progressInterval = setInterval(() => {
     if (!isPlaying) return;
-    val += 0.7; // simulation speed
+    val += 0.7;
     if (val > 100) val = 0;
     setProgress(val);
   }, 500);
-}
-function stopProgressSimulation() {
-  clearInterval(progressInterval);
+  startWaveAnimation();
 }
 
-// main load function (search or direct link)
+function stopProgressSimulation() {
+  clearInterval(progressInterval);
+  stopWaveAnimation();
+}
+
+// soundwave effect
+let waveInterval = null;
+function startWaveAnimation() {
+  const fill = document.getElementById(PROGRESS_FILL_ID);
+  waveInterval = setInterval(() => {
+    if (!isPlaying) return;
+    fill.style.height = `${8 + Math.random() * 6}px`;
+  }, 150);
+}
+
+function stopWaveAnimation() {
+  const fill = document.getElementById(PROGRESS_FILL_ID);
+  fill.style.height = "8px";
+  clearInterval(waveInterval);
+}
+
+// load song (search or direct)
 async function loadMusic() {
   const raw = document.getElementById(INPUT_ID).value.trim();
   if (!raw) return alert("Type a song name or paste a YouTube link.");
 
-  const iframe = document.getElementById(PLAYER_IFRAME_ID);
-
-  // direct link?
   const isUrl = /(youtube\.com|youtu\.be)/i.test(raw);
   if (isUrl) {
     const vid = extractVideoId(raw);
     if (!vid) return alert("Could not extract video id from link.");
     setVideoById(vid);
-    startProgressSimulation();
     return;
   }
 
-  // treat as search -> call server API you already have
   try {
     const resp = await fetch(`/api/search?q=${encodeURIComponent(raw)}`);
     const data = await resp.json();
@@ -115,67 +147,37 @@ async function loadMusic() {
       return;
     }
     setVideoById(data.videoId);
-    startProgressSimulation();
   } catch (err) {
     console.error("Search error:", err);
     alert("Search failed. Try again.");
   }
 }
 
-// play/pause toggle (since iframe is used, we toggle playback by reloading with autoplay param or stopping)
-function togglePlay() {
-  const iframe = document.getElementById(PLAYER_IFRAME_ID);
-  if (!currentVideoId) return;
-  if (isPlaying) {
-    // pause: replace src with empty then set flag (keeps cover)
-    iframe.src = "";
-    isPlaying = false;
-    updatePlayButton();
-    stopProgressSimulation();
-  } else {
-    // resume: reload iframe
-    iframe.src = `https://www.youtube.com/embed/${currentVideoId}?autoplay=1&controls=1&rel=0&modestbranding=1`;
-    isPlaying = true;
-    updatePlayButton();
-    startProgressSimulation();
-  }
-}
-
-// Next: try to get the next video from youtube search results (best-effort)
-// This calls the same server route but asks for the next result if available.
-// For simplicity we attempt one additional fetch with an appended "official" hint.
+// next song (best effort)
 async function playNext() {
   const raw = document.getElementById(INPUT_ID).value.trim();
   if (!raw) return;
   try {
-    // try slightly modified query for next result
     const resp = await fetch(`/api/search?q=${encodeURIComponent(raw + " official")}`);
     const data = await resp.json();
-    if (data.videoId && data.videoId !== currentVideoId) {
-      setVideoById(data.videoId);
-    } else {
-      alert("No next track found.");
-    }
+    if (data.videoId && data.videoId !== currentVideoId) setVideoById(data.videoId);
+    else alert("No next track found.");
   } catch (err) {
     console.error("Next error:", err);
     alert("Could not load next track.");
   }
 }
 
-// Rewind / Forward: since iframe is sandboxed, we can't access player API without additional lib.
-// We'll provide a rough UX: reload with start time param for forward/rewind (note: not precise).
+// seek forward/back
 function seekBy(seconds) {
   if (!currentVideoId) return;
-  // Use start time param (start=)
-  // Not perfect since we don't know current time; this is a simple UX helper.
   const iframe = document.getElementById(PLAYER_IFRAME_ID);
-  // attempt to jump to seconds
   iframe.src = `https://www.youtube.com/embed/${currentVideoId}?start=${Math.max(0, seconds)}&autoplay=1&controls=1&rel=0&modestbranding=1`;
   isPlaying = true;
   updatePlayButton();
 }
 
-// hookup events once DOM loaded
+// DOM events
 document.addEventListener("DOMContentLoaded", () => {
   const input = document.getElementById(INPUT_ID);
   const loadBtn = document.getElementById(LOAD_BTN_ID);
@@ -185,24 +187,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const rewBtn = document.getElementById("rewBtn");
   const fwdBtn = document.getElementById("fwdBtn");
 
-  if (input) {
-    input.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") loadMusic();
-    });
-  }
-  if (loadBtn) loadBtn.addEventListener("click", loadMusic);
-  if (playBtn) playBtn.addEventListener("click", togglePlay);
-  if (nextBtn) nextBtn.addEventListener("click", playNext);
-  if (prevBtn) prevBtn.addEventListener("click", () => alert("Prev not implemented (use playlist)"));
-  if (rewBtn) rewBtn.addEventListener("click", () => {
-    // rough rewind: start at 0
-    seekBy( Math.max(0, 0) );
-  });
-  if (fwdBtn) fwdBtn.addEventListener("click", () => {
-    // rough forward: jump to 60s
-    seekBy(60);
-  });
+  input?.addEventListener("keydown", e => e.key === "Enter" && loadMusic());
+  loadBtn?.addEventListener("click", loadMusic);
+  playBtn?.addEventListener("click", togglePlay);
+  nextBtn?.addEventListener("click", playNext);
+  prevBtn?.addEventListener("click", () => alert("Prev not implemented (use playlist)"));
+  rewBtn?.addEventListener("click", () => seekBy(0));
+  fwdBtn?.addEventListener("click", () => seekBy(60));
 });
 
-// expose loadMusic as global (HTML uses onclick in some versions)
 window.loadMusic = loadMusic;
