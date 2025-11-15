@@ -95,7 +95,7 @@ function startWelcomeAnimation() {
     setTimeout(() => {
       typeTextColored(welcomeLine, "Welcome to AI Assistant", 60, () => {
         setTimeout(() => {
-          typeTextColored(welcomeLine, "System Ready. Awaiting your commandâ€¦", 60);
+          typeTextColored(welcomeLine, "System Ready. Awaiting your command…", 60);
         }, 2000);
       });
     }, 1500);
@@ -151,7 +151,7 @@ async function sendMessage() {
   const apiPatterns = [/which api/i, /which ai/i, /what api/i];
 
   if (creatorPatterns.some(p => p.test(message))) {
-    addMessage("JARVIS", "My creator is SAHAL_PRO ðŸ¤–");
+    addMessage("JARVIS", "My creator is SAHAL_PRO 🧠");
     return;
   } 
   if (apiPatterns.some(p => p.test(message))) {
@@ -159,7 +159,7 @@ async function sendMessage() {
     return;
   }
 
-  // Backend request
+  // Backend request (JSON2 compatible)
   try {
     const res = await fetch("/ask", {
       method: "POST",
@@ -170,6 +170,6 @@ async function sendMessage() {
     const data = await res.json();
     addMessage("JARVIS", data.reply, data.gif);
   } catch (err) {
-    addMessage("JARVIS", "âš ï¸ Error sending request.", null);
+    addMessage("JARVIS", "⚠️ Error sending request.", null);
   }
 }
