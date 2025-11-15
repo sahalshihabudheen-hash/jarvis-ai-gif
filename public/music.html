@@ -1,146 +1,115 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Music Player — Spotify Style</title>
-  <style>
-    :root{
-      --bg:#0b0f12;
-      --card:#0f1416;
-      --accent:#1db954; /* spotify green */
-      --muted: #9aa6a1;
-      --glass: rgba(255,255,255,0.03);
-    }
-    html,body{height:100%;margin:0;font-family: "Segoe UI", Roboto, Arial, sans-serif;background:var(--bg);color:#e9f2ef}
-    /* background video */
-    #bg-video{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;filter:brightness(40%) saturate(110%)}
-    /* translucent overlay */
-    .overlay{position:fixed;inset:0;background:linear-gradient(180deg, rgba(3,6,7,0.55), rgba(3,6,7,0.75));z-index:-1}
-
-    /* NAVBAR (copied style) */
-    nav{
-      position:fixed;top:0;left:0;width:100%;height:65px;
-      background: rgba(20, 25, 40, 0.35);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(0, 255, 255, 0.06);
-      display:flex;align-items:center;justify-content:center;gap:28px;z-index:10;
-    }
-    nav a{ text-decoration:none;font-weight:600;font-size:16px;padding:10px 20px;border-radius:12px;color:#dff7ef;transition:all .25s;position:relative;overflow:hidden}
-    nav a::before{content:"";position:absolute;inset:0;border-radius:12px;background:linear-gradient(120deg, rgba(0,255,255,0.06), rgba(100,0,255,0.03));opacity:0;transform:scale(.95);transition:all .25s;z-index:-1}
-    nav a:hover::before{opacity:1;transform:scale(1)}
-    nav a.chat{color:#8fefff} nav a.discord{color:#caa8ff} nav a.image{color:#8dffb4} nav a.music{color:var(--accent)}
-
-    /* layout */
-    .wrap{display:grid;grid-template-columns:280px 1fr;gap:28px;padding:100px 48px 48px;align-items:start}
-    /* sidebar */
-    .sidebar{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:14px;padding:18px;box-shadow:0 8px 24px rgba(0,0,0,0.6);height:calc(100vh - 160px);overflow:auto}
-    .logo{display:flex;align-items:center;gap:12px;padding:8px 4px;margin-bottom:18px}
-    .logo .dot{width:44px;height:44px;border-radius:8px;background:linear-gradient(135deg,var(--accent), #6ad1ff);box-shadow:0 6px 18px rgba(27, 185, 82, 0.14)}
-    .logo h3{margin:0;font-size:18px;letter-spacing:0.6px}
-    .playlists{margin-top:10px}
-    .pl-item{padding:10px;border-radius:10px;display:flex;align-items:center;gap:10px;color:var(--muted);cursor:pointer}
-    .pl-item:hover{background:var(--glass);color:#fff}
-
-    /* main card */
-    .main{display:flex;flex-direction:column;gap:18px}
-    .searchbar{display:flex;gap:10px;align-items:center}
-    .searchbar input{
-      flex:1;padding:12px 14px;border-radius:12px;border:none;background:rgba(255,255,255,0.03);color:#fff;font-size:16px;outline:none;
-      box-shadow:0 6px 20px rgba(0,0,0,0.6)
-    }
-    .searchbar button{padding:10px 16px;border-radius:10px;border:none;background:var(--accent);color:#07100a;font-weight:700;cursor:pointer}
-
-    /* player card */
-    .player-card{display:flex;align-items:center;gap:20px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.015));padding:20px;border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,0.6)}
-    .cover{width:220px;height:220px;border-radius:12px;background:#111;flex:0 0 220px;position:relative;overflow:hidden}
-    .cover img{width:100%;height:100%;object-fit:cover;display:block}
-    .meta{flex:1;display:flex;flex-direction:column;gap:12px}
-    .title{font-size:20px;font-weight:700}
-    .sub{color:var(--muted);font-size:14px}
-    .controls{display:flex;align-items:center;gap:14px;margin-top:8px}
-    .btn{width:48px;height:48px;border-radius:50%;display:inline-grid;place-items:center;background:rgba(255,255,255,0.03);border:none;color:#fff;cursor:pointer}
-    .btn.play{width:64px;height:64px;border-radius:50%;background:var(--accent);color:#07100a;font-weight:700;font-size:18px}
-    .progress{margin-top:18px;height:8px;background:rgba(255,255,255,0.04);border-radius:8px;overflow:hidden}
-    .progress > i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--accent), #9cffb8)}
-
-    /* iframe small but present */
-    .hidden-iframe{width:0;height:0;position:absolute;left:-9999px;top:-9999px}
-    /* responsive */
-    @media(max-width:900px){
-      .wrap{grid-template-columns:1fr;padding:120px 20px}
-      .sidebar{display:none}
-      .cover{width:160px;height:160px}
-    }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Music Player — Spotify Style</title>
+<style>
+:root{--bg:#0b0f12;--card:#0f1416;--accent:#1db954;--muted:#9aa6a1;--glass:rgba(255,255,255,0.03);}
+html,body{height:100%;margin:0;font-family:"Segoe UI", Roboto, Arial, sans-serif;background:var(--bg);color:#e9f2ef}
+/* background video */
+#bg-video{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;filter:brightness(40%) saturate(110%)}
+.overlay{position:fixed;inset:0;background:linear-gradient(180deg, rgba(3,6,7,0.55), rgba(3,6,7,0.75));z-index:-1}
+/* navbar */
+nav{position:fixed;top:0;left:0;width:100%;height:65px;background: rgba(20,25,40,0.35);backdrop-filter: blur(20px);border-bottom:1px solid rgba(0,255,255,0.06);display:flex;align-items:center;justify-content:center;gap:28px;z-index:10;}
+nav a{text-decoration:none;font-weight:600;font-size:16px;padding:10px 20px;border-radius:12px;color:#dff7ef;transition:all .25s;position:relative;overflow:hidden}
+nav a::before{content:"";position:absolute;inset:0;border-radius:12px;background:linear-gradient(120deg, rgba(0,255,255,0.06), rgba(100,0,255,0.03));opacity:0;transform:scale(.95);transition:all .25s;z-index:-1}
+nav a:hover::before{opacity:1;transform:scale(1)}
+nav a.chat{color:#8fefff} nav a.discord{color:#caa8ff} nav a.image{color:#8dffb4} nav a.music{color:var(--accent)}
+/* layout */
+.wrap{display:grid;grid-template-columns:280px 1fr;gap:28px;padding:100px 48px 48px;align-items:start}
+.sidebar{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:14px;padding:18px;box-shadow:0 8px 24px rgba(0,0,0,0.6);height:calc(100vh - 160px);overflow:auto}
+.logo{display:flex;align-items:center;gap:12px;padding:8px 4px;margin-bottom:18px}
+.logo .dot{width:44px;height:44px;border-radius:8px;background:linear-gradient(135deg,var(--accent), #6ad1ff);box-shadow:0 6px 18px rgba(27, 185, 82, 0.14)}
+.logo h3{margin:0;font-size:18px;letter-spacing:0.6px}
+.playlists{margin-top:10px}
+.pl-item{padding:10px;border-radius:10px;display:flex;align-items:center;gap:10px;color:var(--muted);cursor:pointer}
+.pl-item:hover{background:var(--glass);color:#fff}
+.main{display:flex;flex-direction:column;gap:18px}
+.searchbar{display:flex;gap:10px;align-items:center}
+.searchbar input{flex:1;padding:12px 14px;border-radius:12px;border:none;background:rgba(255,255,255,0.03);color:#fff;font-size:16px;outline:none;box-shadow:0 6px 20px rgba(0,0,0,0.6)}
+.searchbar button{padding:10px 16px;border-radius:10px;border:none;background:var(--accent);color:#07100a;font-weight:700;cursor:pointer}
+.player-card{display:flex;align-items:center;gap:20px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.015));padding:20px;border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,0.6)}
+.cover{width:220px;height:220px;border-radius:12px;background:#111;flex:0 0 220px;position:relative;overflow:hidden}
+.cover img{width:100%;height:100%;object-fit:cover;display:block}
+.meta{flex:1;display:flex;flex-direction:column;gap:12px}
+.title{font-size:20px;font-weight:700}
+.sub{color:var(--muted);font-size:14px}
+.controls{display:flex;align-items:center;gap:14px;margin-top:8px}
+.btn{width:48px;height:48px;border-radius:50%;display:inline-grid;place-items:center;background:rgba(255,255,255,0.03);border:none;color:#fff;cursor:pointer}
+.btn.play{width:64px;height:64px;border-radius:50%;background:var(--accent);color:#07100a;font-weight:700;font-size:18px}
+.progress{margin-top:18px;height:8px;background:rgba(255,255,255,0.04);border-radius:8px;overflow:hidden}
+.progress > i{display:block;height:8px;width:0%;background:linear-gradient(90deg,var(--accent), #9cffb8);transition:height 0.15s ease}
+.hidden-iframe{width:0;height:0;position:absolute;left:-9999px;top:-9999px}
+@media(max-width:900px){.wrap{grid-template-columns:1fr;padding:120px 20px}.sidebar{display:none}.cover{width:160px;height:160px}}
+</style>
 </head>
 <body>
 
-  <video autoplay muted loop playsinline id="bg-video">
-    <source src="https://files.catbox.moe/0ouh3o.mp4" type="video/mp4">
-  </video>
-  <div class="overlay"></div>
+<video autoplay muted loop playsinline id="bg-video">
+  <source src="https://files.catbox.moe/0ouh3o.mp4" type="video/mp4">
+</video>
+<div class="overlay"></div>
 
-  <nav>
-    <a href="index.html" class="chat">Chat-bot</a>
-    <a href="bots.html" class="discord">Discord Bots</a>
-    <a href="image.html" class="image">Image Gen</a>
-    <a href="music.html" class="music">Music</a>
-  </nav>
+<nav>
+  <a href="index.html" class="chat">Chat-bot</a>
+  <a href="bots.html" class="discord">Discord Bots</a>
+  <a href="image.html" class="image">Image Gen</a>
+  <a href="music.html" class="music">Music</a>
+</nav>
 
-  <div class="wrap">
-    <aside class="sidebar">
-      <div class="logo">
-        <div class="dot"></div>
-        <h3>JARVIS Music</h3>
-      </div>
-
-      <div style="font-weight:700;color:#cfead8;margin:10px 4px">Your Library</div>
-      <div class="playlists">
-        <div class="pl-item">Liked Songs</div>
-        <div class="pl-item">Top Tracks</div>
-        <div class="pl-item">Recently Played</div>
-      </div>
-
-      <div style="height:20px"></div>
-      <div style="font-size:13px;color:var(--muted);padding:8px">Tip: paste a YouTube link or just type a search like <i>alan walker faded</i></div>
-    </aside>
-
-    <main class="main">
-      <div class="searchbar">
-        <input id="ytInput" type="text" placeholder="Search song or paste YouTube link here...">
-        <button id="loadBtn">Search & Play</button>
-      </div>
-
-      <div class="player-card">
-        <div class="cover" id="cover">
-          <img id="coverImg" src="https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg" alt="cover">
-        </div>
-
-        <div class="meta">
-          <div>
-            <div class="title" id="trackTitle">Not Playing</div>
-            <div class="sub" id="trackArtist">Paste a link or search to play</div>
-          </div>
-
-          <div class="controls">
-            <button class="btn" id="prevBtn" title="Previous">⏮</button>
-            <button class="btn" id="rewBtn" title="Rewind 10s">⟲</button>
-            <button class="btn play" id="playBtn" title="Play/Pause">▶</button>
-            <button class="btn" id="fwdBtn" title="Forward 10s">⟳</button>
-            <button class="btn" id="nextBtn" title="Next">⏭</button>
-          </div>
-
-          <div class="progress" id="progressBar"><i id="progressFill"></i></div>
-        </div>
-
-        <!-- iframe must be present/visible per YouTube rules; we keep it invisible but accessible via visually-hidden placement -->
-        <iframe id="ytPlayer" allow="autoplay; encrypted-media" class="hidden-iframe" src=""></iframe>
-      </div>
-
-    </main>
+<div class="wrap">
+<aside class="sidebar">
+  <div class="logo">
+    <div class="dot"></div>
+    <h3>JARVIS Music</h3>
   </div>
 
-  <script src="music.js"></script>
+  <div style="font-weight:700;color:#cfead8;margin:10px 4px">Your Library</div>
+  <div class="playlists">
+    <div class="pl-item">Liked Songs</div>
+    <div class="pl-item">Top Tracks</div>
+    <div class="pl-item">Recently Played</div>
+  </div>
+
+  <div style="height:20px"></div>
+  <div style="font-size:13px;color:var(--muted);padding:8px">Tip: paste a YouTube link or just type a search like <i>alan walker faded</i></div>
+</aside>
+
+<main class="main">
+  <div class="searchbar">
+    <input id="ytInput" type="text" placeholder="Search song or paste YouTube link here...">
+    <button id="loadBtn">Search & Play</button>
+  </div>
+
+  <div class="player-card">
+    <div class="cover" id="cover">
+      <img id="coverImg" src="https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg" alt="cover">
+    </div>
+
+    <div class="meta">
+      <div>
+        <div class="title" id="trackTitle">Not Playing</div>
+        <div class="sub" id="trackArtist">Paste a link or search to play</div>
+      </div>
+
+      <div class="controls">
+        <button class="btn" id="prevBtn" title="Previous">⏮</button>
+        <button class="btn" id="rewBtn" title="Rewind 10s">⟲</button>
+        <button class="btn play" id="playBtn" title="Play/Pause">▶</button>
+        <button class="btn" id="fwdBtn" title="Forward 10s">⟳</button>
+        <button class="btn" id="nextBtn" title="Next">⏭</button>
+      </div>
+
+      <div class="progress" id="progressBar"><i id="progressFill"></i></div>
+    </div>
+
+    <iframe id="ytPlayer" allow="autoplay; encrypted-media" class="hidden-iframe" src=""></iframe>
+  </div>
+
+</main>
+</div>
+
+<script src="music.js"></script>
 </body>
 </html>
