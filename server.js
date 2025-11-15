@@ -55,17 +55,22 @@ app.post("/ask", async (req, res) => {
     } else if (/which api/i.test(question)) {
       aiReply = "No API, fully self trained by SAHAL_PRO";
     } else {
-      // GROQ API normal chat
+      // JSON2 API normal chat
       const response = await axios.post(
-        "https://api.groq.com/openai/v1/chat/completions",
+        "https://api.json2.ai/v1/chat/completions",
         {
-          model: "llama-3.1-8b-instant",
+          model: "gpt-5-mini",
           messages: conversationMemory,
         },
-        { headers: { Authorization: `Bearer ${process.env.GROQ_API}` } }
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.JSON2_API}`,
+            "Content-Type": "application/json",
+          },
+        }
       );
 
-      aiReply = response.data.choices[0]?.message?.content || "Hmm, I don't know 🤔";
+      aiReply = response.data.choices?.[0]?.message?.content || "Hmm, I don't know 🤔";
     }
 
     conversationMemory.push({ role: "assistant", content: aiReply });
