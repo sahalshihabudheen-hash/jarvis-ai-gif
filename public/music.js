@@ -1,4 +1,4 @@
-function loadMusic() {
+async function loadMusic() {
   const input = document.getElementById("ytInput").value.trim();
   const player = document.getElementById("ytPlayer");
 
@@ -8,7 +8,6 @@ function loadMusic() {
   const ytRegex = /(youtube\.com|youtu\.be)/i;
 
   if (ytRegex.test(input)) {
-    // Extract video ID
     let videoId = "";
 
     if (input.includes("youtu.be")) {
@@ -21,7 +20,25 @@ function loadMusic() {
     return;
   }
 
-  // Treat input as a search query
-  const searchQuery = encodeURIComponent(input);
-  player.src = `https://www.youtube.com/embed?listType=search&list=${searchQuery}`;
+  // If not URL → treat as SEARCH query
+  const query = encodeURIComponent(input);
+
+  try {
+    // Free Piped API (no key required)
+    const res = await fetch(`https://piped.video/api/v1/search?q=${query}`);
+
+    const results = await res.json();
+
+    if (!results || results.length === 0) {
+      alert("No results found!");
+      return;
+    }
+
+    // Get first video ID
+    const videoId = results[0].url.replace("/watch?v=", "");
+
+    player.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+  } catch (error) {
+    alert("Search failed. Try again.");
+  }
 }
