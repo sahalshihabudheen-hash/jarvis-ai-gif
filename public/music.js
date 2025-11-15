@@ -1,4 +1,4 @@
-function loadMusic() {
+async function loadMusic() {
   const input = document.getElementById("ytInput").value.trim();
   const player = document.getElementById("ytPlayer");
 
@@ -6,7 +6,7 @@ function loadMusic() {
 
   const ytRegex = /(youtube\.com|youtu\.be)/i;
 
-  // Direct YouTube URL
+  // If direct YouTube link
   if (ytRegex.test(input)) {
     let videoId = "";
 
@@ -20,20 +20,27 @@ function loadMusic() {
     return;
   }
 
-  // Auto-expand weak/blocked searches (like "faded")
-  let search = input;
+  // If search query → fetch first valid video ID
+  try {
+    const response = await fetch(
+      "https://corsproxy.io/?" +
+        encodeURIComponent("https://www.youtube.com/results?search_query=" + input)
+    );
 
-  // If only 1 word → expand the query
-  if (input.split(" ").length === 1) {
-    search = `${input} official music video audio`;
+    const text = await response.text();
+
+    const match = text.match(/\"videoId\":\"(.*?)\"/);
+
+    if (!match) {
+      alert("Search failed. Try another query.");
+      return;
+    }
+
+    const videoId = match[1];
+
+    player.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+
+  } catch (err) {
+    alert("Search failed. Try again.");
   }
-
-  // Special case: if they type "faded"
-  if (input.toLowerCase() === "faded") {
-    search = "alan walker faded official music video";
-  }
-
-  const searchQuery = encodeURIComponent(search);
-
-  player.src = `https://www.youtube.com/embed?autoplay=1&listType=search&list=${searchQuery}`;
 }
