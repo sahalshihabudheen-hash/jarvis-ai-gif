@@ -55,22 +55,17 @@ app.post("/ask", async (req, res) => {
     } else if (/which api/i.test(question)) {
       aiReply = "No API, fully self trained by SAHAL_PRO";
     } else {
-      // JSON2 API normal chat
+      // GROQ API normal chat
       const response = await axios.post(
-        "https://api.json2.ai/v1/chat/completions",
+        "https://api.groq.com/openai/v1/chat/completions",
         {
-          model: "gpt-5-mini",
+          model: "llama-3.1-8b-instant",
           messages: conversationMemory,
         },
-        {
-          headers: {
-            Authorization: `Bearer ${process.env.JSON2_API}`,
-            "Content-Type": "application/json",
-          },
-        }
+        { headers: { Authorization: `Bearer ${process.env.GROQ_API}` } }
       );
 
-      aiReply = response.data.choices?.[0]?.message?.content || "Hmm, I don't know 🤔";
+      aiReply = response.data.choices[0]?.message?.content || "Hmm, I don't know 🤔";
     }
 
     conversationMemory.push({ role: "assistant", content: aiReply });
@@ -124,21 +119,6 @@ app.post("/generate-image", async (req, res) => {
   } catch (err) {
     console.error("❌ Image generation error:", err.message);
     res.status(500).json({ error: "Error generating image" });
-  }
-});
-// ====== VIDEO GENERATION ENDPOINT (mock or real API) ======
-app.post("/generate-video", async (req, res) => {
-  const prompt = req.body.prompt;
-  if (!prompt) return res.status(400).json({ error: "Prompt is required" });
-
-  try {
-    // For now, we return the same test video
-    const videoURL = "https://files.catbox.moe/sx5ph8.mp4";
-
-    res.json({ url: videoURL });
-  } catch (err) {
-    console.error("❌ Video generation error:", err.message);
-    res.status(500).json({ error: "Error generating video" });
   }
 });
 
