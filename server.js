@@ -126,6 +126,21 @@ app.post("/generate-image", async (req, res) => {
     res.status(500).json({ error: "Error generating image" });
   }
 });
+// ====== VIDEO GENERATION ENDPOINT (mock or real API) ======
+app.post("/generate-video", async (req, res) => {
+  const prompt = req.body.prompt;
+  if (!prompt) return res.status(400).json({ error: "Prompt is required" });
+
+  try {
+    // For now, we return the same test video
+    const videoURL = "https://files.catbox.moe/sx5ph8.mp4";
+
+    res.json({ url: videoURL });
+  } catch (err) {
+    console.error("❌ Video generation error:", err.message);
+    res.status(500).json({ error: "Error generating video" });
+  }
+});
 
 // ====== START SERVER ======
 const PORT = process.env.PORT || 3000;
