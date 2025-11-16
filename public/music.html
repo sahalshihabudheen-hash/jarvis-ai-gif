@@ -15,7 +15,6 @@
     html,body{height:100%;margin:0;font-family: "Segoe UI", Roboto, Arial, sans-serif;background:var(--bg);color:#e9f2ef}
     /* background video */
     #bg-video{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;filter:brightness(40%) saturate(110%)}
-    /* translucent overlay */
     .overlay{position:fixed;inset:0;background:linear-gradient(180deg, rgba(3,6,7,0.55), rgba(3,6,7,0.75));z-index:-1}
 
     /* ====== Futuristic Glass NovaBar ====== */
@@ -30,13 +29,36 @@
       border-bottom: 1px solid rgba(0, 255, 255, 0.15);
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 35px;
+      justify-content: space-between;
+      padding: 0 20px;
       z-index: 10;
       box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
     }
 
-    nav a {
+    /* Hamburger */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      cursor: pointer;
+      gap: 6px;
+    }
+    .hamburger span {
+      width: 25px;
+      height: 3px;
+      background: #e3f9ff;
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+
+    nav ul {
+      display: flex;
+      gap: 35px;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    nav ul li a {
       text-decoration: none;
       font-weight: 600;
       font-size: 17px;
@@ -49,7 +71,7 @@
       overflow: hidden;
     }
 
-    nav a::before {
+    nav ul li a::before {
       content: "";
       position: absolute;
       inset: 0;
@@ -62,26 +84,21 @@
       box-shadow: 0 0 8px rgba(0,255,255,0.25);
     }
 
-    nav a:hover::before {
+    nav ul li a:hover::before {
       opacity: 1;
       transform: scale(1);
     }
 
-    nav a:hover {
-      color: #fff;
-      text-shadow: 0 0 4px #00ffff;
-      transform: translateY(-2px);
-    }
-    nav a.chat { color: #00eaff; }           /* Chat-bot */
-    nav a.discord { color: #a377ff; }        /* Discord Bots */
-    nav a.image { color: #39ff14; }          /* Image Gen */
-    nav a.music { color: #1db954; }          /* Music */
-    nav a.video { color: #ff6b00; }          /* Video Gen */
-    nav a.home { color: #ff3bff; }           /* Home Automation */
+    nav ul li a:hover { color:#fff; text-shadow:0 0 4px #00ffff; transform:translateY(-2px);}
+    nav ul li a.chat { color: #00eaff; }           
+    nav ul li a.discord { color: #a377ff; }        
+    nav ul li a.image { color: #39ff14; }          
+    nav ul li a.music { color: #1db954; }          
+    nav ul li a.video { color: #ff6b00; }          
+    nav ul li a.home { color: #ff3bff; }
 
-    /* layout */
+    /* wrap / layout */
     .wrap{display:grid;grid-template-columns:280px 1fr;gap:28px;padding:100px 48px 48px;align-items:start}
-    /* sidebar */
     .sidebar{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:14px;padding:18px;box-shadow:0 8px 24px rgba(0,0,0,0.6);height:calc(100vh - 160px);overflow:auto}
     .logo{display:flex;align-items:center;gap:12px;padding:8px 4px;margin-bottom:18px}
     .logo .dot{width:44px;height:44px;border-radius:8px;background:linear-gradient(135deg,var(--accent), #6ad1ff);box-shadow:0 6px 18px rgba(27, 185, 82, 0.14)}
@@ -90,7 +107,6 @@
     .pl-item{padding:10px;border-radius:10px;display:flex;align-items:center;gap:10px;color:var(--muted);cursor:pointer}
     .pl-item:hover{background:var(--glass);color:#fff}
 
-    /* main card */
     .main{display:flex;flex-direction:column;gap:18px}
     .searchbar{display:flex;gap:10px;align-items:center}
     .searchbar input{
@@ -99,7 +115,6 @@
     }
     .searchbar button{padding:10px 16px;border-radius:10px;border:none;background:var(--accent);color:#07100a;font-weight:700;cursor:pointer}
 
-    /* player card */
     .player-card{display:flex;align-items:center;gap:20px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.015));padding:20px;border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,0.6)}
     .cover{width:220px;height:220px;border-radius:12px;background:#111;flex:0 0 220px;position:relative;overflow:hidden}
     .cover img{width:100%;height:100%;object-fit:cover;display:block}
@@ -113,21 +128,21 @@
     .progress{height:8px;background:rgba(255,255,255,0.04);border-radius:8px;overflow:hidden}
     .progress > i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--accent), #9cffb8)}
 
-    /* soundwave */
     .wave-container{display:flex;align-items:flex-end;gap:2px;height:30px}
     .wave-bar{width:3px;background:var(--accent);border-radius:2px;height:8px;animation:wave 0.5s infinite;animation-play-state:paused;--scale:1;}
-    @keyframes wave{
-      0%{height:8px}
-      50%{height:calc(8px + 15px * var(--scale))}
-      100%{height:8px}
-    }
+    @keyframes wave{0%{height:8px}50%{height:calc(8px + 15px * var(--scale))}100%{height:8px}}
 
-    /* iframe hidden */
     .hidden-iframe{width:0;height:0;position:absolute;left:-9999px;top:-9999px}
+
+    /* RESPONSIVE */
     @media(max-width:900px){
       .wrap{grid-template-columns:1fr;padding:120px 20px}
       .sidebar{display:none}
       .cover{width:160px;height:160px}
+      nav ul{position:absolute;top:65px;right:0;background:rgba(20,25,40,0.95);backdrop-filter:blur(20px);flex-direction:column;width:200px;transform:translateX(100%);transition:0.3s;gap:0;}
+      nav ul li{border-bottom:1px solid rgba(0,255,255,0.1);}
+      nav ul.show{transform:translateX(0);}
+      .hamburger{display:flex;}
     }
   </style>
 </head>
@@ -139,12 +154,19 @@
   <div class="overlay"></div>
 
   <nav>
-    <a href="index.html" class="chat">Chat-bot</a>
-    <a href="bots.html" class="discord">Discord Bots</a>
-    <a href="image.html" class="image">Image Gen</a>
-    <a href="music.html" class="music">Music</a>
-    <a href="video.html" class="video">Video Gen</a>
-    <a href="home-automation.html" class="home">Home Automation</a>
+    <div class="hamburger" id="hamburger">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+    <ul id="navLinks">
+      <li><a href="index.html" class="chat">Chat-bot</a></li>
+      <li><a href="bots.html" class="discord">Discord Bots</a></li>
+      <li><a href="image.html" class="image">Image Gen</a></li>
+      <li><a href="music.html" class="music">Music</a></li>
+      <li><a href="video.html" class="video">Video Gen</a></li>
+      <li><a href="home-automation.html" class="home">Home Automation</a></li>
+    </ul>
   </nav>
 
   <div class="wrap">
@@ -196,10 +218,17 @@
 
         <iframe id="ytPlayer" allow="autoplay; encrypted-media" class="hidden-iframe" src=""></iframe>
       </div>
-
     </main>
   </div>
 
   <script src="music.js"></script>
+  <script>
+    const hamburger = document.getElementById('hamburger');
+    const navLinks = document.getElementById('navLinks');
+
+    hamburger.addEventListener('click', () => {
+      navLinks.classList.toggle('show');
+    });
+  </script>
 </body>
 </html>
