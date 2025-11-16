@@ -1,329 +1,285 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Discord Bots</title>
-  <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      width: 100%;
-      font-family: 'Segoe UI', sans-serif;
-      overflow-x: hidden;
-      color: #fff;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Discord Bots</title>
+<style>
+  body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    font-family: 'Segoe UI', sans-serif;
+    overflow: hidden;
+    color: #fff;
+    background: transparent;
+  }
 
-    /* Background video setup */
-    #bg-video {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      z-index: -1;
-      filter: brightness(180%) contrast(120%);
-    }
+  #bg-video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -1;
+    filter: brightness(60%);
+  }
 
-    /* Slight overlay */
-    .overlay {
-      position: fixed;
-      inset: 0;
-      background: linear-gradient(180deg, rgba(3,6,7,0.2), rgba(3,6,7,0.3));
-      z-index: -1;
-    }
+  nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(20,25,40,0.35);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(0,255,255,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 20px;
+    z-index: 10;
+    box-shadow: 0 0 15px rgba(0,255,255,0.15);
+    height: 65px;
+  }
 
-    /* Navbar */
-    nav {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 65px;
-      background: rgba(20,25,40,0.35);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(0, 255, 255, 0.15);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0 20px;
-      z-index: 10;
-      box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
-    }
+  .nav-links {
+    display: flex;
+    gap: 35px;
+    align-items: center;
+    justify-content: center;
+  }
 
-    nav ul {
-      display: flex;
-      gap: 35px;
-      list-style: none;
-      margin: 0;
-      padding: 0;
-    }
+  nav a {
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 17px;
+    padding: 10px 24px;
+    border-radius: 12px;
+    color: #dffaff;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
 
-    nav ul li a {
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 17px;
-      padding: 10px 24px;
-      border-radius: 12px;
-      color: #e3f9ff;
-      letter-spacing: 0.5px;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    }
+  nav a::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    background: linear-gradient(120deg, rgba(0,255,255,0.6), rgba(100,0,255,0.5));
+    opacity: 0;
+    transform: scale(0.9);
+    transition: all 0.3s ease;
+    z-index: -1;
+    box-shadow: 0 0 12px rgba(0,255,255,0.4);
+  }
 
-    nav ul li a::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      border-radius: 12px;
-      background: linear-gradient(120deg, rgba(0,255,255,0.3), rgba(100,0,255,0.25));
-      opacity: 0;
-      transform: scale(0.9);
-      transition: all 0.3s ease;
-      z-index: -1;
-      box-shadow: 0 0 8px rgba(0,255,255,0.25);
-    }
+  nav a:hover::before { opacity: 1; transform: scale(1); }
+  nav a:hover { color: #fff; text-shadow: 0 0 8px #00ffff; transform: translateY(-2px); }
 
-    nav ul li a:hover::before {
-      opacity: 1;
-      transform: scale(1);
-    }
+  nav a.chat { color: #00eaff; }
+  nav a.discord { color: #a377ff; }
+  nav a.image { color: #39ff14; }
+  nav a.music { color: #1db954; }
+  nav a.video { color: #ff6b00; }
+  nav a.home { color: #ff3bff; }
 
-    nav ul li a:hover {
-      color: #fff;
-      text-shadow: 0 0 4px #00ffff;
-      transform: translateY(-2px);
-    }
+  /* Hamburger */
+  .hamburger {
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+    gap: 5px;
+    position: absolute;
+    left: 24px;
+  }
 
-    nav ul li a.chat { color: #00eaff; }           
-    nav ul li a.discord { color: #a377ff; }        
-    nav ul li a.image { color: #39ff14; }          
-    nav ul li a.music { color: #1db954; }          
-    nav ul li a.video { color: #ff6b00; }          
-    nav ul li a.home { color: #ff3bff; }           
+  .hamburger div {
+    width: 28px;
+    height: 3px;
+    background: #e3f9ff;
+    border-radius: 2px;
+    transition: all 0.4s ease;
+  }
 
-    /* Hamburger */
-    .hamburger {
+  .hamburger.toggle div:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+  }
+  .hamburger.toggle div:nth-child(2) { opacity: 0; }
+  .hamburger.toggle div:nth-child(3) {
+    transform: rotate(-45deg) translate(6px, -6px);
+  }
+
+  .content {
+    padding-top: 90px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .bots-title {
+    font-size: 36px;
+    font-weight: 700;
+    color: #00eaff;
+    margin-bottom: 30px;
+    text-shadow: 0 0 12px #00eaff;
+    text-align: center;
+  }
+
+  .bots-wrapper {
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 1100px;
+    padding: 30px;
+  }
+
+  .bot-card {
+    background: rgba(20,24,32,0.9);
+    border-radius: 14px;
+    padding: 28px;
+    width: 260px;
+    box-shadow: 0 0 18px rgba(0,0,0,0.6);
+    transition: 0.3s;
+    border: 1px solid #2a2f3a;
+    position: relative;
+    text-align: center;
+  }
+
+  .bot-card.boss {
+    transform: scale(1.25);
+    border: 2px solid #00d0ff;
+    box-shadow: 0 0 25px rgba(0,255,255,0.5);
+  }
+
+  .bot-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 30px rgba(0,255,255,0.35);
+  }
+
+  .bot-card img {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    border: 3px solid #00d0ff;
+    margin-bottom: 15px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .status-dot {
+    width: 14px;
+    height: 14px;
+    background: #00ff4c;
+    border-radius: 50%;
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    box-shadow: 0 0 8px #00ff4c;
+  }
+
+  .bot-card h2 { margin: 8px 0; font-weight: 600; }
+  .bot-card p { font-size: 14px; opacity: 0.85; margin-bottom: 20px; }
+
+  .join-btn {
+    background: #00d0ff;
+    color: black;
+    padding: 10px 14px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: 0.25s;
+    display: block;
+  }
+
+  .join-btn:hover { background: #00a6d4; }
+
+  @media screen and (max-width: 768px) {
+    nav { justify-content: flex-start; padding-left: 24px; }
+    .hamburger { display: flex; }
+    .nav-links {
       display: none;
       flex-direction: column;
-      cursor: pointer;
-      gap: 6px;
-      margin-right: auto;
-    }
-    .hamburger span {
-      width: 25px;
-      height: 3px;
-      background: #e3f9ff;
-      border-radius: 2px;
-      transition: all 0.3s ease;
-    }
-    .hamburger.toggle span:nth-child(1) {
-      transform: rotate(45deg) translate(5px, 5px);
-    }
-    .hamburger.toggle span:nth-child(2) {
-      opacity: 0;
-    }
-    .hamburger.toggle span:nth-child(3) {
-      transform: rotate(-45deg) translate(6px, -6px);
-    }
-
-    /* Content */
-    .content {
-      padding-top: 90px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .bots-title {
-      font-size: 36px;
-      font-weight: 700;
-      color: #00eaff;
-      margin-bottom: 30px;
-      text-shadow: 0 0 12px #00eaff;
+      gap: 10px;
+      width: 100%;
       text-align: center;
+      position: fixed;
+      top: 65px;
+      left: 0;
+      background: rgba(20,25,40,0.95);
+      backdrop-filter: blur(20px);
+      padding: 15px 0;
+      z-index: 9;
     }
-
-    .bots-wrapper {
-      display: flex;
-      gap: 40px;
-      flex-wrap: wrap;
-      justify-content: center;
-      max-width: 1100px;
-      padding: 30px;
-    }
-
-    .bot-card {
-      background: rgba(20,24,32,0.9);
-      border-radius: 14px;
-      padding: 28px;
-      width: 260px;
-      box-shadow: 0 0 18px rgba(0, 0, 0, 0.6);
-      transition: 0.3s;
-      border: 1px solid #2a2f3a;
-      position: relative;
-      text-align: center;
-    }
-
-    .bot-card.boss {
-      transform: scale(1.25);
-      border: 2px solid #00d0ff;
-      box-shadow: 0 0 25px rgba(0, 255, 255, 0.5);
-    }
-
-    .bot-card:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 30px rgba(0, 255, 255, 0.35);
-    }
-
-    .bot-card img {
-      width: 90px;
-      height: 90px;
-      border-radius: 50%;
-      border: 3px solid #00d0ff;
-      margin-bottom: 15px;
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .status-dot {
-      width: 14px;
-      height: 14px;
-      background: #00ff4c;
-      border-radius: 50%;
-      position: absolute;
-      top: 18px;
-      right: 18px;
-      box-shadow: 0 0 8px #00ff4c;
-    }
-
-    .bot-card h2 {
-      margin: 8px 0;
-      font-weight: 600;
-    }
-
-    .bot-card p {
-      font-size: 14px;
-      opacity: 0.85;
-      margin-bottom: 20px;
-    }
-
-    .join-btn {
-      background: #00d0ff;
-      color: black;
-      padding: 10px 14px;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: 600;
-      transition: 0.25s;
-      display: block;
-    }
-
-    .join-btn:hover {
-      background: #00a6d4;
-    }
-
-    /* Mobile Responsive */
-    @media screen and (max-width: 900px) {
-      nav ul {
-        position: absolute;
-        top: 65px;
-        right: 0;
-        background: rgba(20,25,40,0.95);
-        flex-direction: column;
-        width: 200px;
-        transform: translateX(100%);
-        transition: 0.3s;
-        gap: 0;
-      }
-      nav ul.show {
-        transform: translateX(0);
-      }
-      nav ul li {
-        border-bottom: 1px solid rgba(0,255,255,0.1);
-      }
-      .hamburger {
-        display: flex;
-      }
-    }
-
-    @media screen and (max-width: 768px) {
-      .bots-title { font-size: 28px; }
-      .bot-card { width: 45%; padding: 20px; }
-    }
-
-    @media screen and (max-width: 480px) {
-      .bots-title { font-size: 22px; }
-      nav a { font-size: 12px; padding: 6px 12px; }
-      .bot-card { width: 90%; padding: 15px; }
-    }
-  </style>
+    .nav-links.nav-active { display: flex; }
+  }
+</style>
 </head>
 <body>
 
-  <video autoplay muted loop playsinline id="bg-video">
-    <source src="https://files.catbox.moe/lq3los.mp4" type="video/mp4">
-  </video>
-  <div class="overlay"></div>
+<video autoplay muted loop playsinline id="bg-video">
+  <source src="https://files.catbox.moe/lq3los.mp4" type="video/mp4">
+</video>
 
-  <nav>
-    <div class="hamburger" id="hamburger">
-      <span></span>
-      <span></span>
-      <span></span>
+<nav>
+  <div class="hamburger" id="hamburger">
+    <div></div>
+    <div></div>
+    <div></div>
+  </div>
+  <div class="nav-links" id="nav-links">
+    <a href="index.html" class="chat">Chat-bot</a>
+    <a href="bots.html" class="discord">Discord Bots</a>
+    <a href="image.html" class="image">Image Gen</a>
+    <a href="music.html" class="music">Music</a>
+    <a href="video.html" class="video">Video Gen</a>
+    <a href="home-automation.html" class="home">Home Automation</a>
+  </div>
+</nav>
+
+<div class="content">
+  <div class="bots-title">OUR BOTS</div>
+  <div class="bots-wrapper">
+    <div class="bot-card">
+      <div class="status-dot"></div>
+      <img src="https://i.postimg.cc/j5qbRQVS/Screenshot-2025-11-11-at-19-50-32-2767-Discord-ALAN.png">
+      <h2>NYRA MUSIC</h2>
+      <p>Best music bot powered by Lavalink.</p>
+      <a class="join-btn" href="https://discord.gg/uqbSrkwEVN" target="_blank">Invite / Join Server</a>
     </div>
-    <ul id="navLinks">
-      <li><a href="index.html" class="chat">Chat-bot</a></li>
-      <li><a href="bots.html" class="discord">Discord Bots</a></li>
-      <li><a href="image.html" class="image">Image Gen</a></li>
-      <li><a href="music.html" class="music">Music</a></li>
-      <li><a href="video.html" class="video">Video Gen</a></li>
-      <li><a href="home-automation.html" class="home">Home Automation</a></li>
-    </ul>
-  </nav>
 
-  <div class="content">
-    <div class="bots-title">OUR BOTS</div>
-    <div class="bots-wrapper">
-      <div class="bot-card">
-        <div class="status-dot"></div>
-        <img src="https://i.postimg.cc/j5qbRQVS/Screenshot-2025-11-11-at-19-50-32-2767-Discord-ALAN.png">
-        <h2>NYRA MUSIC</h2>
-        <p>Best music bot powered by Lavalink.</p>
-        <a class="join-btn" href="https://discord.gg/uqbSrkwEVN" target="_blank">Invite / Join Server</a>
-      </div>
+    <div class="bot-card boss">
+      <div class="status-dot"></div>
+      <img src="https://i.postimg.cc/T3X2ZbPP/Screenshot-2025-10-22-at-11-55-52-Chat-GPT-Smart-Fast-Free-AI-Chat.png">
+      <h2>JARVIS</h2>
+      <p>Smart AI — Fast responses. Built to assist.</p>
+      <a class="join-btn" href="https://discord.gg/pPGV4FAnWz" target="_blank">Invite / Join Server</a>
+    </div>
 
-      <div class="bot-card boss">
-        <div class="status-dot"></div>
-        <img src="https://i.postimg.cc/T3X2ZbPP/Screenshot-2025-10-22-at-11-55-52-Chat-GPT-Smart-Fast-Free-AI-Chat.png">
-        <h2>JARVIS</h2>
-        <p>Smart AI — Fast responses. Built to assist.</p>
-        <a class="join-btn" href="https://discord.gg/pPGV4FAnWz" target="_blank">Invite / Join Server</a>
-      </div>
-
-      <div class="bot-card">
-        <div class="status-dot"></div>
-        <img src="https://i.postimg.cc/Jn15ByHM/Screenshot-2025-11-16-at-11-38-19-(2890)-Discord-𝗧𝗿𝗼𝗹𝗹-𝗙𝗮𝗰𝗲𝘇.png">
-        <h2>BAZOOKA</h2>
-        <p>Fun and chaos — always joking.</p>
-        <a class="join-btn" href="https://discord.gg/gfd6jSPVvp" target="_blank">Invite / Join Server</a>
-      </div>
+    <div class="bot-card">
+      <div class="status-dot"></div>
+      <img src="https://i.postimg.cc/Jn15ByHM/Screenshot-2025-11-16-at-11-38-19-(2890)-Discord-𝗧𝗿𝗼𝗹𝗹-𝗙𝗮𝗰𝗲𝘇.png">
+      <h2>BAZOOKA</h2>
+      <p>Fun and chaos — always joking.</p>
+      <a class="join-btn" href="https://discord.gg/gfd6jSPVvp" target="_blank">Invite / Join Server</a>
     </div>
   </div>
+</div>
 
-  <script>
-    const hamburger = document.getElementById("hamburger");
-    const navLinks = document.getElementById("navLinks");
+<script>
+  const hamburger = document.getElementById("hamburger");
+  const navLinks = document.getElementById("nav-links");
 
-    hamburger.addEventListener("click", () => {
-      navLinks.classList.toggle("show");
-      hamburger.classList.toggle("toggle");
-    });
-  </script>
+  hamburger.addEventListener("click", () => {
+    navLinks.classList.toggle("nav-active");
+    hamburger.classList.toggle("toggle");
+  });
+</script>
 
 </body>
 </html>
