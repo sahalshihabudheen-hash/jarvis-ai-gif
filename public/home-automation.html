@@ -113,6 +113,36 @@
       0%, 50%, 100% { opacity: 1; }
       25%, 75% { opacity: 0; }
     }
+
+    /* ======== MOBILE RESPONSIVE STYLES ======== */
+    @media screen and (max-width: 768px) {
+      nav {
+        flex-direction: column;
+        height: auto;
+        padding: 10px 0;
+        gap: 10px;
+      }
+
+      nav a {
+        font-size: 14px;
+        padding: 8px 16px;
+      }
+
+      .center {
+        font-size: 36px;
+      }
+    }
+
+    @media screen and (max-width: 480px) {
+      nav a {
+        font-size: 12px;
+        padding: 6px 12px;
+      }
+
+      .center {
+        font-size: 26px;
+      }
+    }
   </style>
 </head>
 <body>
