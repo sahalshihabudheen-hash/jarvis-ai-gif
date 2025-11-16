@@ -15,7 +15,7 @@
       color: #fff;
     }
 
-    /* Background video setup (from image.html) */
+    /* Background video setup */
     #bg-video {
       position: fixed;
       top: 0;
@@ -27,7 +27,6 @@
       filter: brightness(70%);
     }
 
-    /* Overlay to darken the video */
     .overlay {
       position: fixed;
       inset: 0;
@@ -35,7 +34,7 @@
       z-index: -1;
     }
 
-    /* Navbar copied from image.html */
+    /* Navbar */
     nav {
       position: fixed;
       top: 0;
@@ -104,20 +103,15 @@
       text-align: center;
     }
 
-    .typing {
-      border-right: 4px solid #1db954;
-      white-space: nowrap;
-      overflow: hidden;
-      animation: typing 2s steps(12, end) infinite, blink 0.75s step-end infinite;
-    }
-
-    @keyframes typing {
-      0%, 50%, 100% { width: 0; }
-      25%, 75% { width: 12ch; } /* "Coming Soon" has 12 characters */
+    #cursor {
+      display: inline-block;
+      margin-left: 2px;
+      animation: blink 0.7s infinite;
     }
 
     @keyframes blink {
-      50% { border-color: transparent; }
+      0%, 50%, 100% { opacity: 1; }
+      25%, 75% { opacity: 0; }
     }
   </style>
 </head>
@@ -138,8 +132,24 @@
   </nav>
 
   <div class="center">
-    <span class="typing">Coming Soon</span>
+    <span id="typing"></span><span id="cursor">|</span>
   </div>
+
+  <script>
+    const text = "Coming Soon";
+    const typingEl = document.getElementById("typing");
+    let index = 0;
+
+    function type() {
+      if (index < text.length) {
+        typingEl.textContent += text[index];
+        index++;
+        setTimeout(type, 150);
+      }
+    }
+
+    window.onload = type;
+  </script>
 
 </body>
 </html>
