@@ -43,6 +43,7 @@
       gap: 35px;
       z-index: 10;
       box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
+      flex-wrap: wrap;
     }
 
     nav a {
@@ -82,13 +83,12 @@
       transform: translateY(-2px);
     }
 
-nav a.chat { color: #00eaff; }           /* Chat-bot */
-nav a.discord { color: #a377ff; }        /* Discord Bots */
-nav a.image { color: #39ff14; }          /* Image Gen */
-nav a.music { color: #1db954; }          /* Music */
-nav a.video { color: #ff6b00; }          /* Video Gen */
-nav a.home { color: #ff3bff; }           /* Home Automation */
-
+    nav a.chat { color: #00eaff; }           
+    nav a.discord { color: #a377ff; }        
+    nav a.image { color: #39ff14; }          
+    nav a.music { color: #1db954; }          
+    nav a.video { color: #ff6b00; }          
+    nav a.home { color: #ff3bff; }           
 
     /* ===== Page Content (soft colors) ===== */
     .container {
@@ -116,7 +116,6 @@ nav a.home { color: #ff3bff; }           /* Home Automation */
       text-shadow: 0 0 6px rgba(0, 238, 255, 0.3);
       animation: glowPulse 4s infinite alternate;
     }
-
 
     @keyframes glowPulse {
       0% { text-shadow: 0 0 10px #00b3ff, 0 0 15px #a86bff, 0 0 20px #ffaa40; }
@@ -196,6 +195,53 @@ nav a.home { color: #ff3bff; }           /* Home Automation */
       display: none;
       animation: glowPulse 3s infinite alternate;
     }
+
+    /* ===== MOBILE RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      nav {
+        gap: 12px;
+        height: auto;
+        padding: 10px 0;
+      }
+
+      nav a {
+        padding: 8px 12px;
+        font-size: 14px;
+      }
+
+      h1 {
+        font-size: 32px;
+      }
+
+      .input-area {
+        flex-direction: column;
+        width: 90%;
+      }
+
+      button {
+        width: 100%;
+      }
+
+      #generatedImage {
+        max-width: 90%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 26px;
+      }
+
+      #promptInput {
+        font-size: 14px;
+        padding: 10px 12px;
+      }
+
+      button {
+        font-size: 14px;
+        padding: 10px 12px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -212,7 +258,6 @@ nav a.home { color: #ff3bff; }           /* Home Automation */
   <a href="video.html" class="video">Video Gen</a>
   <a href="home-automation.html" class="home">Home Automation</a>
 </nav>
-
 
   <div class="container">
     <h1>🧠 Image Generator</h1>
