@@ -122,7 +122,7 @@
     transform: rotate(-45deg) translate(6px, -6px);
   }
 
-  /* ===== Page Content (soft colors) ===== */
+  /* ===== Page Content ===== */
   .container {
     margin-top: 120px;
     display: flex;
@@ -228,32 +228,27 @@
     animation: glowPulse 3s infinite alternate;
   }
 
-  /* ===== MOBILE RESPONSIVE ===== */
+  /* ===== MOBILE RESPONSIVE (SLIDING MENU) ===== */
   @media (max-width: 768px) {
-    nav {
-      gap: 12px;
-      height: auto;
-      padding: 10px 0;
-    }
     .hamburger { display: flex; }
 
     .nav-links {
-      display: none;
-      flex-direction: column;
-      width: 100%;
-      text-align: center;
-      background: rgba(20, 25, 40, 0.95);
-      padding: 10px 0;
       position: fixed;
-      top: 65px;
-      left: 0;
-      z-index: 9;
+      top: 0;
+      left: -100%;
+      height: 100vh;
+      width: 250px;
+      flex-direction: column;
+      gap: 20px;
+      padding-top: 80px;
+      background: rgba(20,25,40,0.95);
+      transition: left 0.3s ease;
+      z-index: 99;
     }
-    .nav-links.active { display: flex; }
+    .nav-links.active { left: 0; }
+    nav a { font-size: 16px; padding: 10px 20px; }
 
-    nav a { padding: 8px 12px; font-size: 14px; }
-
-    h1 { font-size: 32px; }
+    .container { margin-top: 100px; }
     .input-area { flex-direction: column; width: 90%; }
     button { width: 100%; }
     #generatedImage { max-width: 90%; }
