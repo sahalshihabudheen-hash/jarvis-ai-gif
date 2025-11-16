@@ -1,363 +1,351 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JARVIS AI - Image Generator</title>
-  <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      width: 100%;
-      font-family: 'Segoe UI', sans-serif;
-      overflow-x: hidden;
-      color: #fff;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS AI - Image Generator</title>
+<style>
+  body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    font-family: 'Segoe UI', sans-serif;
+    overflow-x: hidden;
+    color: #fff;
+  }
 
-    /* Background video setup */
-    #bg-video {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      z-index: -1;
-      filter: brightness(70%);
-    }
+  /* Background video setup */
+  #bg-video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -1;
+    filter: brightness(70%);
+  }
 
-    /* ====== Futuristic Glass NovaBar ====== */
+  /* ====== Futuristic Glass NovaBar ====== */
+  nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 65px;
+    background: rgba(20, 25, 40, 0.35);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(0, 255, 255, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 35px;
+    z-index: 10;
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
+    flex-wrap: wrap;
+    padding: 0 20px;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 35px;
+  }
+
+  nav a {
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 17px;
+    padding: 10px 24px;
+    border-radius: 12px;
+    color: #e3f9ff;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  nav a::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    background: linear-gradient(120deg, rgba(0,255,255,0.3), rgba(100,0,255,0.25));
+    opacity: 0;
+    transform: scale(0.9);
+    transition: all 0.3s ease;
+    z-index: -1;
+    box-shadow: 0 0 8px rgba(0,255,255,0.25);
+  }
+
+  nav a:hover::before {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  nav a:hover {
+    color: #fff;
+    text-shadow: 0 0 4px #00ffff;
+    transform: translateY(-2px);
+  }
+
+  nav a.chat { color: #00eaff; }           
+  nav a.discord { color: #a377ff; }        
+  nav a.image { color: #39ff14; }          
+  nav a.music { color: #1db954; }          
+  nav a.video { color: #ff6b00; }          
+  nav a.home { color: #ff3bff; }           
+
+  /* ===== Hamburger Menu Styles ===== */
+  .hamburger {
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+    gap: 5px;
+    position: absolute;
+    left: 20px;
+  }
+  .hamburger div {
+    width: 28px;
+    height: 3px;
+    background-color: #00ffff;
+    border-radius: 3px;
+    transition: all 0.3s ease;
+  }
+  .hamburger.toggle div:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+  }
+  .hamburger.toggle div:nth-child(2) {
+    opacity: 0;
+  }
+  .hamburger.toggle div:nth-child(3) {
+    transform: rotate(-45deg) translate(6px, -6px);
+  }
+
+  /* ===== Page Content (soft colors) ===== */
+  .container {
+    margin-top: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    animation: fadeIn 1s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  h1 {
+    font-size: 42px;
+    margin-bottom: 25px;
+    background: linear-gradient(90deg, #00eaff, #8f7fff);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 6px rgba(0, 238, 255, 0.3);
+    animation: glowPulse 4s infinite alternate;
+  }
+
+  @keyframes glowPulse {
+    0% { text-shadow: 0 0 10px #00b3ff, 0 0 15px #a86bff, 0 0 20px #ffaa40; }
+    100% { text-shadow: 0 0 15px #a86bff, 0 0 20px #ffaa40, 0 0 25px #00b3ff; }
+  }
+
+  .input-area {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    width: 80%;
+    max-width: 600px;
+  }
+
+  #promptInput {
+    flex: 1;
+    padding: 12px 15px;
+    border-radius: 14px;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    box-shadow: 0 0 8px rgba(0,255,255,0.25);
+    transition: 0.3s;
+  }
+
+  #promptInput:focus {
+    box-shadow: 0 0 12px #a86bff, 0 0 20px #ffaa40;
+    transform: scale(1.02);
+  }
+
+  button {
+    padding: 12px 18px;
+    border-radius: 14px;
+    border: none;
+    background: linear-gradient(90deg, #00c6ff, #a86bff, #ffaa40);
+    background-size: 200%;
+    color: #000;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 0 0 10px rgba(255,255,255,0.15);
+  }
+
+  button:hover {
+    background-position: right center;
+    color: #fff;
+    text-shadow: 0 0 6px #fff;
+    box-shadow: 0 0 15px #a86bff, 0 0 25px #00c6ff;
+    transform: scale(1.05);
+  }
+
+  #output {
+    margin-top: 20px;
+    animation: fadeIn 1s ease-in-out;
+  }
+
+  #generatedImage {
+    max-width: 80%;
+    border-radius: 15px;
+    margin-top: 25px;
+    box-shadow: 0 0 15px #00b3ff, 0 0 25px #a86bff, 0 0 35px #ffaa40;
+    display: none;
+    animation: imagePop 1s ease-in-out;
+  }
+
+  @keyframes imagePop {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  #loading {
+    font-size: 18px;
+    color: #fff;
+    text-shadow: 0 0 8px #00b3ff, 0 0 12px #a86bff;
+    display: none;
+    animation: glowPulse 3s infinite alternate;
+  }
+
+  /* ===== MOBILE RESPONSIVE ===== */
+  @media (max-width: 768px) {
     nav {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 65px;
-      background: rgba(20, 25, 40, 0.35);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(0, 255, 255, 0.15);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 35px;
-      z-index: 10;
-      box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
-      flex-wrap: wrap;
-      padding: 0 20px;
+      gap: 12px;
+      height: auto;
+      padding: 10px 0;
     }
+    .hamburger { display: flex; }
 
     .nav-links {
-      display: flex;
-      gap: 35px;
-    }
-
-    nav a {
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 17px;
-      padding: 10px 24px;
-      border-radius: 12px;
-      color: #e3f9ff;
-      letter-spacing: 0.5px;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    }
-
-    nav a::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      border-radius: 12px;
-      background: linear-gradient(120deg, rgba(0,255,255,0.3), rgba(100,0,255,0.25));
-      opacity: 0;
-      transform: scale(0.9);
-      transition: all 0.3s ease;
-      z-index: -1;
-      box-shadow: 0 0 8px rgba(0,255,255,0.25);
-    }
-
-    nav a:hover::before {
-      opacity: 1;
-      transform: scale(1);
-    }
-
-    nav a:hover {
-      color: #fff;
-      text-shadow: 0 0 4px #00ffff;
-      transform: translateY(-2px);
-    }
-
-    nav a.chat { color: #00eaff; }           
-    nav a.discord { color: #a377ff; }        
-    nav a.image { color: #39ff14; }          
-    nav a.music { color: #1db954; }          
-    nav a.video { color: #ff6b00; }          
-    nav a.home { color: #ff3bff; }           
-
-    /* ===== Hamburger Menu Styles ===== */
-    .hamburger {
       display: none;
       flex-direction: column;
-      cursor: pointer;
-      gap: 5px;
-      margin-right: auto; /* push hamburger to left */
-    }
-    .hamburger div {
-      width: 25px;
-      height: 3px;
-      background-color: #00ffff;
-      border-radius: 3px;
-      transition: all 0.3s ease;
-    }
-    /* Hamburger animation to X */
-    .hamburger.toggle div:nth-child(1) {
-      transform: rotate(45deg) translate(5px, 5px);
-    }
-    .hamburger.toggle div:nth-child(2) {
-      opacity: 0;
-    }
-    .hamburger.toggle div:nth-child(3) {
-      transform: rotate(-45deg) translate(6px, -6px);
-    }
-
-    /* ===== Page Content (soft colors) ===== */
-    .container {
-      margin-top: 120px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      width: 100%;
       text-align: center;
-      padding: 20px;
-      animation: fadeIn 1s ease-in-out;
+      background: rgba(20, 25, 40, 0.95);
+      padding: 10px 0;
+      position: fixed;
+      top: 65px;
+      left: 0;
+      z-index: 9;
     }
+    .nav-links.active { display: flex; }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    nav a { padding: 8px 12px; font-size: 14px; }
 
-    h1 {
-      font-size: 42px;
-      margin-bottom: 25px;
-      background: linear-gradient(90deg, #00eaff, #8f7fff);
-      background-clip: text;
-      -webkit-background-clip: text;
-      color: transparent;
-      text-shadow: 0 0 6px rgba(0, 238, 255, 0.3);
-      animation: glowPulse 4s infinite alternate;
-    }
+    h1 { font-size: 32px; }
+    .input-area { flex-direction: column; width: 90%; }
+    button { width: 100%; }
+    #generatedImage { max-width: 90%; }
+  }
 
-    @keyframes glowPulse {
-      0% { text-shadow: 0 0 10px #00b3ff, 0 0 15px #a86bff, 0 0 20px #ffaa40; }
-      100% { text-shadow: 0 0 15px #a86bff, 0 0 20px #ffaa40, 0 0 25px #00b3ff; }
-    }
-
-    .input-area {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-      width: 80%;
-      max-width: 600px;
-    }
-
-    #promptInput {
-      flex: 1;
-      padding: 12px 15px;
-      border-radius: 14px;
-      border: none;
-      outline: none;
-      font-size: 16px;
-      background: rgba(0, 0, 0, 0.6);
-      color: #fff;
-      box-shadow: 0 0 8px rgba(0,255,255,0.25);
-      transition: 0.3s;
-    }
-
-    #promptInput:focus {
-      box-shadow: 0 0 12px #a86bff, 0 0 20px #ffaa40;
-      transform: scale(1.02);
-    }
-
-    button {
-      padding: 12px 18px;
-      border-radius: 14px;
-      border: none;
-      background: linear-gradient(90deg, #00c6ff, #a86bff, #ffaa40);
-      background-size: 200%;
-      color: #000;
-      font-weight: bold;
-      cursor: pointer;
-      transition: 0.3s;
-      box-shadow: 0 0 10px rgba(255,255,255,0.15);
-    }
-
-    button:hover {
-      background-position: right center;
-      color: #fff;
-      text-shadow: 0 0 6px #fff;
-      box-shadow: 0 0 15px #a86bff, 0 0 25px #00c6ff;
-      transform: scale(1.05);
-    }
-
-    #output {
-      margin-top: 20px;
-      animation: fadeIn 1s ease-in-out;
-    }
-
-    #generatedImage {
-      max-width: 80%;
-      border-radius: 15px;
-      margin-top: 25px;
-      box-shadow: 0 0 15px #00b3ff, 0 0 25px #a86bff, 0 0 35px #ffaa40;
-      display: none;
-      animation: imagePop 1s ease-in-out;
-    }
-
-    @keyframes imagePop {
-      from { opacity: 0; transform: scale(0.9); }
-      to { opacity: 1; transform: scale(1); }
-    }
-
-    #loading {
-      font-size: 18px;
-      color: #fff;
-      text-shadow: 0 0 8px #00b3ff, 0 0 12px #a86bff;
-      display: none;
-      animation: glowPulse 3s infinite alternate;
-    }
-
-    /* ===== MOBILE RESPONSIVE ===== */
-    @media (max-width: 768px) {
-      nav {
-        gap: 12px;
-        height: auto;
-        padding: 10px 0;
-      }
-      .hamburger { display: flex; }
-
-      .nav-links {
-        display: none;
-        flex-direction: column;
-        width: 100%;
-        text-align: center;
-        background: rgba(20, 25, 40, 0.85);
-        padding: 10px 0;
-      }
-      .nav-links.active { display: flex; }
-
-      nav a {
-        padding: 8px 12px;
-        font-size: 14px;
-      }
-
-      h1 {
-        font-size: 32px;
-      }
-
-      .input-area {
-        flex-direction: column;
-        width: 90%;
-      }
-
-      button { width: 100%; }
-
-      #generatedImage { max-width: 90%; }
-    }
-
-    @media (max-width: 480px) {
-      h1 { font-size: 26px; }
-      #promptInput { font-size: 14px; padding: 10px 12px; }
-      button { font-size: 14px; padding: 10px 12px; }
-    }
-  </style>
+  @media (max-width: 480px) {
+    h1 { font-size: 26px; }
+    #promptInput { font-size: 14px; padding: 10px 12px; }
+    button { font-size: 14px; padding: 10px 12px; }
+  }
+</style>
 </head>
 <body>
 
-  <video autoplay muted loop playsinline id="bg-video">
-    <source src="https://files.catbox.moe/0ouh3o.mp4" type="video/mp4">
-  </video>
+<video autoplay muted loop playsinline id="bg-video">
+  <source src="https://files.catbox.moe/0ouh3o.mp4" type="video/mp4">
+</video>
 
-  <!-- ===== NAVBAR WITH HAMBURGER ===== -->
-  <nav>
-    <div class="hamburger" id="hamburger">
-      <div></div>
-      <div></div>
-      <div></div>
-    </div>
-    <div class="nav-links" id="nav-links">
-      <a href="index.html" class="chat">Chat-bot</a>
-      <a href="bots.html" class="discord">Discord Bots</a>
-      <a href="image.html" class="image">Image Gen</a>
-      <a href="music.html" class="music">Music</a>
-      <a href="video.html" class="video">Video Gen</a>
-      <a href="home-automation.html" class="home">Home Automation</a>
-    </div>
-  </nav>
+<nav>
+  <div class="hamburger" id="hamburger">
+    <div></div>
+    <div></div>
+    <div></div>
+  </div>
+  <div class="nav-links" id="nav-links">
+    <a href="index.html" class="chat">Chat-bot</a>
+    <a href="bots.html" class="discord">Discord Bots</a>
+    <a href="image.html" class="image">Image Gen</a>
+    <a href="music.html" class="music">Music</a>
+    <a href="video.html" class="video">Video Gen</a>
+    <a href="home-automation.html" class="home">Home Automation</a>
+  </div>
+</nav>
 
-  <div class="container">
-    <h1>🧠 Image Generator</h1>
+<div class="container">
+  <h1>🧠 Image Generator</h1>
 
-    <div class="input-area">
-      <input id="promptInput" type="text" placeholder="Describe the image you want to create...">
-      <button id="generateBtn">Generate</button>
-    </div>
-
-    <div id="output">
-      <p id="loading">⏳ Generating image... Please wait...</p>
-      <img id="generatedImage" src="" alt="Generated Image">
-    </div>
+  <div class="input-area">
+    <input id="promptInput" type="text" placeholder="Describe the image you want to create...">
+    <button id="generateBtn">Generate</button>
   </div>
 
-  <script>
-    const input = document.getElementById("promptInput");
-    const generateBtn = document.getElementById("generateBtn");
-    const imageEl = document.getElementById("generatedImage");
-    const loadingText = document.getElementById("loading");
+  <div id="output">
+    <p id="loading">⏳ Generating image... Please wait...</p>
+    <img id="generatedImage" src="" alt="Generated Image">
+  </div>
+</div>
 
-    generateBtn.onclick = generateImage;
-    input.addEventListener("keydown", e => {
-      if (e.key === "Enter") generateImage();
-    });
+<script>
+  // Hamburger toggle
+  const hamburger = document.getElementById("hamburger");
+  const navLinks = document.getElementById("nav-links");
+  hamburger.addEventListener("click", () => {
+    navLinks.classList.toggle("active");
+    hamburger.classList.toggle("toggle");
+  });
 
-    async function generateImage() {
-      const prompt = input.value.trim();
-      if (!prompt) return alert("Please enter a description!");
+  // Image generation logic
+  const input = document.getElementById("promptInput");
+  const generateBtn = document.getElementById("generateBtn");
+  const imageEl = document.getElementById("generatedImage");
+  const loadingText = document.getElementById("loading");
 
-      imageEl.style.display = "none";
-      loadingText.style.display = "block";
+  generateBtn.onclick = generateImage;
+  input.addEventListener("keydown", e => { if(e.key === "Enter") generateImage(); });
 
-      try {
-        const res = await fetch("/generate-image", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt })
-        });
+  async function generateImage() {
+    const prompt = input.value.trim();
+    if(!prompt) return alert("Please enter a description!");
+    imageEl.style.display = "none";
+    loadingText.style.display = "block";
 
-        const data = await res.json();
+    try {
+      const res = await fetch("/generate-image", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({prompt})
+      });
+      const data = await res.json();
 
-        if (data.imageURL) {
-          imageEl.src = data.imageURL;
-          imageEl.style.display = "block";
-        } else {
-          alert("❌ Failed to generate image: " + (data.error || "Unknown error"));
-        }
-      } catch (err) {
-        alert("⚠️ Error connecting to the server.");
-      } finally {
-        loadingText.style.display = "none";
+      if(data.imageURL){
+        imageEl.src = data.imageURL;
+        imageEl.style.display = "block";
+      } else {
+        alert("❌ Failed to generate image: "+(data.error||"Unknown error"));
       }
+    } catch(err){
+      alert("⚠️ Error connecting to the server.");
+    } finally {
+      loadingText.style.display = "none";
     }
-
-    // ===== Hamburger toggle script =====
-    const hamburger = document.getElementById("hamburger");
-    const navLinks = document.getElementById("nav-links");
-
-    hamburger.addEventListener("click", () => {
-      navLinks.classList.toggle("active");
-      hamburger.classList.toggle("toggle");
-    });
-  </script>
+  }
+</script>
 </body>
 </html>
