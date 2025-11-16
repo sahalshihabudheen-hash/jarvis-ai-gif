@@ -44,6 +44,12 @@
       z-index: 10;
       box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
       flex-wrap: wrap;
+      padding: 0 20px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 35px;
     }
 
     nav a {
@@ -96,6 +102,7 @@
       flex-direction: column;
       cursor: pointer;
       gap: 5px;
+      margin-left: auto; /* push hamburger to right */
     }
     .hamburger div {
       width: 25px;
@@ -113,12 +120,6 @@
     }
     .hamburger.toggle div:nth-child(3) {
       transform: rotate(-45deg) translate(6px, -6px);
-    }
-
-    /* Nav links container */
-    .nav-links {
-      display: flex;
-      gap: 35px;
     }
 
     /* ===== Page Content (soft colors) ===== */
@@ -280,11 +281,6 @@
 
   <!-- ===== NAVBAR WITH HAMBURGER ===== -->
   <nav>
-    <div class="hamburger" id="hamburger">
-      <div></div>
-      <div></div>
-      <div></div>
-    </div>
     <div class="nav-links" id="nav-links">
       <a href="index.html" class="chat">Chat-bot</a>
       <a href="bots.html" class="discord">Discord Bots</a>
@@ -292,6 +288,11 @@
       <a href="music.html" class="music">Music</a>
       <a href="video.html" class="video">Video Gen</a>
       <a href="home-automation.html" class="home">Home Automation</a>
+    </div>
+    <div class="hamburger" id="hamburger">
+      <div></div>
+      <div></div>
+      <div></div>
     </div>
   </nav>
 
