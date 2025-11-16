@@ -42,6 +42,13 @@
       gap: 35px;
       z-index: 10;
       box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
+      flex-wrap: wrap;
+    }
+
+    /* Nav links container */
+    .nav-links {
+      display: flex;
+      gap: 35px;
     }
 
     nav a {
@@ -87,6 +94,30 @@
     nav a.music { color: #1db954; }          
     nav a.video { color: #ff6b00; }          
     nav a.home { color: #ff3bff; }           
+
+    /* ===== Hamburger Menu Styles ===== */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      cursor: pointer;
+      gap: 5px;
+    }
+    .hamburger div {
+      width: 25px;
+      height: 3px;
+      background-color: #00ffff;
+      border-radius: 3px;
+      transition: all 0.3s ease;
+    }
+    .hamburger.toggle div:nth-child(1) {
+      transform: rotate(45deg) translate(5px, 5px);
+    }
+    .hamburger.toggle div:nth-child(2) {
+      opacity: 0;
+    }
+    .hamburger.toggle div:nth-child(3) {
+      transform: rotate(-45deg) translate(6px, -6px);
+    }
 
     .content {
       padding-top: 80px;
@@ -182,49 +213,34 @@
       background: #00a6d4;
     }
 
-    /* ======== MOBILE RESPONSIVE STYLES ======== */
+    /* ===== Mobile Responsive ===== */
     @media screen and (max-width: 768px) {
-      nav {
+      .hamburger { display: flex; }
+      .nav-links {
+        display: none;
         flex-direction: column;
-        height: auto;
+        width: 100%;
+        text-align: center;
+        background: rgba(20, 25, 40, 0.85);
         padding: 10px 0;
-        gap: 10px;
       }
+      .nav-links.active { display: flex; }
 
-      nav a {
-        font-size: 14px;
-        padding: 8px 16px;
-      }
+      nav { flex-wrap: wrap; height: auto; gap: 10px; padding: 10px 0; }
 
-      .bots-title {
-        font-size: 28px;
-      }
+      nav a { font-size: 14px; padding: 8px 16px; }
 
-      .bots-wrapper {
-        gap: 20px;
-        padding: 20px;
-      }
+      .bots-title { font-size: 28px; }
 
-      .bot-card {
-        width: 45%;
-        padding: 20px;
-      }
+      .bots-wrapper { gap: 20px; padding: 20px; }
+
+      .bot-card { width: 45%; padding: 20px; }
     }
 
     @media screen and (max-width: 480px) {
-      .bots-title {
-        font-size: 22px;
-      }
-
-      nav a {
-        font-size: 12px;
-        padding: 6px 12px;
-      }
-
-      .bot-card {
-        width: 90%;
-        padding: 15px;
-      }
+      .bots-title { font-size: 22px; }
+      nav a { font-size: 12px; padding: 6px 12px; }
+      .bot-card { width: 90%; padding: 15px; }
     }
   </style>
 </head>
@@ -235,19 +251,25 @@
     <source src="https://files.catbox.moe/lq3los.mp4" type="video/mp4">
   </video>
 
-  <!-- NovaBar / Neon Navbar -->
+  <!-- Navbar with Hamburger -->
   <nav>
-    <a href="index.html" class="chat">Chat-bot</a>
-    <a href="bots.html" class="discord">Discord Bots</a>
-    <a href="image.html" class="image">Image Gen</a>
-    <a href="music.html" class="music">Music</a>
-    <a href="video.html" class="video">Video Gen</a>
-    <a href="home-automation.html" class="home">Home Automation</a>
+    <div class="hamburger" id="hamburger">
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+    <div class="nav-links" id="nav-links">
+      <a href="index.html" class="chat">Chat-bot</a>
+      <a href="bots.html" class="discord">Discord Bots</a>
+      <a href="image.html" class="image">Image Gen</a>
+      <a href="music.html" class="music">Music</a>
+      <a href="video.html" class="video">Video Gen</a>
+      <a href="home-automation.html" class="home">Home Automation</a>
+    </div>
   </nav>
 
   <div class="content">
     <div class="bots-title">OUR BOTS</div>
-
     <div class="bots-wrapper">
       <div class="bot-card">
         <div class="status-dot"></div>
@@ -274,6 +296,16 @@
       </div>
     </div>
   </div>
+
+  <script>
+    const hamburger = document.getElementById("hamburger");
+    const navLinks = document.getElementById("nav-links");
+
+    hamburger.addEventListener("click", () => {
+      navLinks.classList.toggle("active");
+      hamburger.classList.toggle("toggle");
+    });
+  </script>
 
 </body>
 </html>
