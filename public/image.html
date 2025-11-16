@@ -102,7 +102,7 @@
       flex-direction: column;
       cursor: pointer;
       gap: 5px;
-      margin-left: auto; /* push hamburger to right */
+      margin-right: auto; /* push hamburger to left */
     }
     .hamburger div {
       width: 25px;
@@ -281,6 +281,11 @@
 
   <!-- ===== NAVBAR WITH HAMBURGER ===== -->
   <nav>
+    <div class="hamburger" id="hamburger">
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
     <div class="nav-links" id="nav-links">
       <a href="index.html" class="chat">Chat-bot</a>
       <a href="bots.html" class="discord">Discord Bots</a>
@@ -288,11 +293,6 @@
       <a href="music.html" class="music">Music</a>
       <a href="video.html" class="video">Video Gen</a>
       <a href="home-automation.html" class="home">Home Automation</a>
-    </div>
-    <div class="hamburger" id="hamburger">
-      <div></div>
-      <div></div>
-      <div></div>
     </div>
   </nav>
 
