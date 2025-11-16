@@ -151,7 +151,7 @@ async function sendMessage() {
   const apiPatterns = [/which api/i, /which ai/i, /what api/i];
 
   if (creatorPatterns.some(p => p.test(message))) {
-    addMessage("JARVIS", "My creator is SAHAL_PRO ðŸ¤–");
+    addMessage("JARVIS", "My creator is SAHAL_PRO");
     return;
   } 
   if (apiPatterns.some(p => p.test(message))) {
