@@ -49,6 +49,7 @@
       gap: 35px;
       z-index: 10;
       box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
+      padding: 0 20px;
     }
 
     nav a {
@@ -77,11 +78,7 @@
       box-shadow: 0 0 8px rgba(0,255,255,0.25);
     }
 
-    nav a:hover::before {
-      opacity: 1;
-      transform: scale(1);
-    }
-
+    nav a:hover::before { opacity: 1; transform: scale(1); }
     nav a:hover { color: #fff; text-shadow: 0 0 4px #00ffff; transform: translateY(-2px); }
     nav a.chat { color: #00eaff; }
     nav a.discord { color: #a377ff; }
@@ -108,15 +105,9 @@
       transition: all 0.4s ease;
     }
 
-    .hamburger.toggle div:nth-child(1) {
-      transform: rotate(45deg) translate(5px, 5px);
-    }
-    .hamburger.toggle div:nth-child(2) {
-      opacity: 0;
-    }
-    .hamburger.toggle div:nth-child(3) {
-      transform: rotate(-45deg) translate(6px, -6px);
-    }
+    .hamburger.toggle div:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+    .hamburger.toggle div:nth-child(2) { opacity: 0; }
+    .hamburger.toggle div:nth-child(3) { transform: rotate(-45deg) translate(6px, -6px); }
 
     .nav-links {
       display: flex;
@@ -170,10 +161,7 @@
       25%, 75% { opacity: 0; }
     }
 
-    @media screen and (max-width: 480px) {
-      .center { font-size: 26px; }
-    }
-
+    @media screen and (max-width: 480px) { .center { font-size: 26px; } }
   </style>
 </head>
 <body>
