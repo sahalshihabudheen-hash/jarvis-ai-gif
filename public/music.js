@@ -13,45 +13,6 @@ let currentVideoId = null;
 let isPlaying = false;
 let progressInterval = null;
 let waveBars = [];
-let player; // YouTube IFrame API player
-
-// Load YouTube IFrame API
-const tag = document.createElement('script');
-tag.src = "https://www.youtube.com/iframe_api";
-document.head.appendChild(tag);
-
-// Create player once API is ready
-function onYouTubeIframeAPIReady() {
-  player = new YT.Player(PLAYER_IFRAME_ID, {
-    height: '0',
-    width: '0',
-    videoId: '',
-    playerVars: {
-      autoplay: 0,
-      controls: 1,
-      rel: 0,
-      modestbranding: 1
-    },
-    events: {
-      onStateChange: onPlayerStateChange
-    }
-  });
-}
-
-// Detect play/pause
-function onPlayerStateChange(event) {
-  if(event.data === YT.PlayerState.PLAYING) {
-    isPlaying = true;
-    updatePlayButton();
-    startProgressSimulation();
-    startWaveAnimation();
-  } else if(event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
-    isPlaying = false;
-    updatePlayButton();
-    stopProgressSimulation();
-    stopWaveAnimation();
-  }
-}
 
 // Helper to extract YouTube video ID
 function extractVideoId(url) {
@@ -64,14 +25,16 @@ function extractVideoId(url) {
 
 // Set video
 function setVideoById(vid) {
+  const player = document.getElementById(PLAYER_IFRAME_ID);
   const cover = document.getElementById(COVER_IMG_ID);
   const titleEl = document.getElementById(TITLE_ID);
   const artistEl = document.getElementById(ARTIST_ID);
 
-  if (!vid || !player) return;
+  if (!vid) return;
   currentVideoId = vid;
-  player.loadVideoById(vid);
-  
+  player.src = `https://www.youtube.com/embed/${vid}?autoplay=1&controls=1&rel=0&modestbranding=1`;
+  isPlaying = true;
+
   cover.src = `https://i.ytimg.com/vi/${vid}/hqdefault.jpg`;
 
   fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${vid}&format=json`)
@@ -81,17 +44,28 @@ function setVideoById(vid) {
       artistEl.textContent = data?.author_name || "YouTube";
     }).catch(_ => { titleEl.textContent = `Video: ${vid}`; artistEl.textContent = "YouTube"; });
 
+  updatePlayButton();
   setProgress(0);
-  initWaveBars();
+  startProgressSimulation();
+  startWaveAnimation();
 }
 
 // Play/pause toggle
 function togglePlay() {
-  if (!player || !currentVideoId) return;
+  const iframe = document.getElementById(PLAYER_IFRAME_ID);
+  if (!currentVideoId) return;
   if (isPlaying) {
-    player.pauseVideo();
+    iframe.src = "";
+    isPlaying = false;
+    updatePlayButton();
+    stopProgressSimulation();
+    stopWaveAnimation();
   } else {
-    player.playVideo();
+    iframe.src = `https://www.youtube.com/embed/${currentVideoId}?autoplay=1&controls=1&rel=0&modestbranding=1`;
+    isPlaying = true;
+    updatePlayButton();
+    startProgressSimulation();
+    startWaveAnimation();
   }
 }
 
@@ -103,11 +77,12 @@ function updatePlayButton() {
 function setProgress(p) { document.getElementById(PROGRESS_FILL_ID).style.width = `${Math.max(0,Math.min(100,p))}%`; }
 function startProgressSimulation() {
   clearInterval(progressInterval);
+  let val = 0;
   progressInterval = setInterval(() => {
-    if (!isPlaying || !player) return;
-    const duration = player.getDuration();
-    const current = player.getCurrentTime();
-    if(duration) setProgress((current / duration) * 100);
+    if (!isPlaying) return;
+    val += 0.7;
+    if (val > 100) val = 0;
+    setProgress(val);
   },500);
 }
 function stopProgressSimulation() { clearInterval(progressInterval); }
