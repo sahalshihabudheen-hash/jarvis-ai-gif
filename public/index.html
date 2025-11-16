@@ -73,13 +73,12 @@
     nav a:hover::before { opacity: 1; transform: scale(1); }
     nav a:hover { color: #fff; text-shadow: 0 0 8px #00ffff; transform: translateY(-2px); }
 
-nav a.chat { color: #00eaff; }           /* Chat-bot */
-nav a.discord { color: #a377ff; }        /* Discord Bots */
-nav a.image { color: #39ff14; }          /* Image Gen */
-nav a.music { color: #1db954; }          /* Music */
-nav a.video { color: #ff6b00; }          /* Video Gen */
-nav a.home { color: #ff3bff; }           /* Home Automation */
-
+    nav a.chat { color: #00eaff; }
+    nav a.discord { color: #a377ff; }
+    nav a.image { color: #39ff14; }
+    nav a.music { color: #1db954; }
+    nav a.video { color: #ff6b00; }
+    nav a.home { color: #ff3bff; }
 
     .container {
       position: absolute;
@@ -217,6 +216,57 @@ nav a.home { color: #ff3bff; }           /* Home Automation */
       50% { box-shadow: 0 0 12px #00eaff, 0 0 20px #00eaff; }
       100% { box-shadow: 0 0 5px #00eaff, 0 0 10px #00eaff; }
     }
+
+    /* ======== MOBILE RESPONSIVE STYLES ======== */
+    @media screen and (max-width: 768px) {
+      nav {
+        flex-direction: column;
+        height: auto;
+        padding: 10px 0;
+        gap: 10px;
+      }
+
+      nav a {
+        font-size: 14px;
+        padding: 8px 16px;
+      }
+
+      .title {
+        font-size: 28px;
+      }
+
+      .sub {
+        font-size: 14px;
+      }
+
+      .input-area {
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .input-area button {
+        width: 100%;
+      }
+
+      .chat-box {
+        max-height: 50vh;
+      }
+    }
+
+    @media screen and (max-width: 480px) {
+      .title {
+        font-size: 22px;
+      }
+
+      .sub {
+        font-size: 12px;
+      }
+
+      nav a {
+        font-size: 12px;
+        padding: 6px 12px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -225,15 +275,14 @@ nav a.home { color: #ff3bff; }           /* Home Automation */
     <source src="https://files.catbox.moe/sx5ph8.mp4" type="video/mp4">
   </video>
 
-<nav>
-  <a href="index.html" class="chat">Chat-bot</a>
-  <a href="bots.html" class="discord">Discord Bots</a>
-  <a href="image.html" class="image">Image Gen</a>
-  <a href="music.html" class="music">Music</a>
-  <a href="video.html" class="video">Video Gen</a>
-  <a href="home-automation.html" class="home">Home Automation</a>
-</nav>
-
+  <nav>
+    <a href="index.html" class="chat">Chat-bot</a>
+    <a href="bots.html" class="discord">Discord Bots</a>
+    <a href="image.html" class="image">Image Gen</a>
+    <a href="music.html" class="music">Music</a>
+    <a href="video.html" class="video">Video Gen</a>
+    <a href="home-automation.html" class="home">Home Automation</a>
+  </nav>
 
   <div class="container">
     <h1 class="title">J A R V I S</h1>
@@ -246,63 +295,58 @@ nav a.home { color: #ff3bff; }           /* Home Automation */
       <button id="sendBtn">Send</button>
     </div>
   </div>
+
   <script>
-document.addEventListener("DOMContentLoaded", () => {
-  let savedName = localStorage.getItem("jarvisName") || "User";
+    document.addEventListener("DOMContentLoaded", () => {
+      let savedName = localStorage.getItem("jarvisName") || "User";
 
-  const lines = [
-    `Hello ${savedName}, I am JARVIS, your AI Assistant.`,
-    "I can manage your tasks and schedules efficiently.",
-    "I can provide real-time information and answers.",
-    "I can help you generate images and creative content.",
-    "I can connect with your favorite apps and bots.",
-    "I can optimize your workflow and give smart suggestions.",
-    "I can remind you of important events and deadlines.",
-    "I can analyze data and provide quick summaries.",
-    "I can chat and assist you with daily commands.",
-    `How can I help you today, ${savedName}?`
-  ];
+      const lines = [
+        `Hello ${savedName}, I am JARVIS, your AI Assistant.`,
+        "I can manage your tasks and schedules efficiently.",
+        "I can provide real-time information and answers.",
+        "I can help you generate images and creative content.",
+        "I can connect with your favorite apps and bots.",
+        "I can optimize your workflow and give smart suggestions.",
+        "I can remind you of important events and deadlines.",
+        "I can analyze data and provide quick summaries.",
+        "I can chat and assist you with daily commands.",
+        `How can I help you today, ${savedName}?`
+      ];
 
-  const el = document.getElementById("typeText");
-  let lineIndex = 0;
+      const el = document.getElementById("typeText");
+      let lineIndex = 0;
+      const lineColors = ["#ff3b3b", "#39ff14", "#ff8c00"];
+      let colorIndex = 0;
 
-  // Colors for lines (one color per line)
-  const lineColors = ["#ff3b3b", "#39ff14", "#ff8c00"]; // neon red, green, orange
-  let colorIndex = 0;
-
-  function typeLine(line, color, callback) {
-    el.innerHTML = "";
-    let charIndex = 0;
-
-    function typeChar() {
-      if (charIndex < line.length) {
-        el.innerHTML += `<span style="color: ${color}; text-shadow: 0 0 5px ${color}, 0 0 10px ${color};">${line[charIndex]}</span>`;
-        charIndex++;
-        setTimeout(typeChar, 50);
-      } else {
-        if (callback) callback();
+      function typeLine(line, color, callback) {
+        el.innerHTML = "";
+        let charIndex = 0;
+        function typeChar() {
+          if (charIndex < line.length) {
+            el.innerHTML += `<span style="color: ${color}; text-shadow: 0 0 5px ${color}, 0 0 10px ${color};">${line[charIndex]}</span>`;
+            charIndex++;
+            setTimeout(typeChar, 50);
+          } else {
+            if (callback) callback();
+          }
+        }
+        typeChar();
       }
-    }
 
-    typeChar();
-  }
+      function startTyping() {
+        const color = lineColors[colorIndex % lineColors.length];
+        typeLine(lines[lineIndex], color, () => {
+          setTimeout(() => {
+            lineIndex = (lineIndex + 1) % lines.length;
+            colorIndex++;
+            startTyping();
+          }, 1500);
+        });
+      }
 
-  function startTyping() {
-    const color = lineColors[colorIndex % lineColors.length];
-    typeLine(lines[lineIndex], color, () => {
-      setTimeout(() => {
-        lineIndex = (lineIndex + 1) % lines.length;
-        colorIndex++;
-        startTyping();
-      }, 1500);
+      startTyping();
     });
-  }
-
-  startTyping();
-});
-</script>
-
-
+  </script>
 
   <script src="script.js"></script>
 </body>
