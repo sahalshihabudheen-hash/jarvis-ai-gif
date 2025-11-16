@@ -1,218 +1,228 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Video Gen — Coming Soon</title>
-  <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      width: 100%;
-      font-family: 'Segoe UI', sans-serif;
-      overflow-x: hidden;
-      color: #fff;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS AI - Video Generator</title>
+<style>
+  body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    font-family: 'Segoe UI', sans-serif;
+    overflow: hidden;
+    color: #fff;
+    background: transparent;
+  }
 
-    /* Background video */
-    #bg-video {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      z-index: -1;
-      filter: brightness(70%);
-    }
+  /* Background video */
+  #bg-video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -1;
+    filter: brightness(60%);
+  }
 
-    .overlay {
-      position: fixed;
-      inset: 0;
-      background: linear-gradient(180deg, rgba(3,6,7,0.55), rgba(3,6,7,0.75));
-      z-index: -1;
-    }
+  nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(20, 25, 40, 0.35);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 20px;
+    z-index: 10;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.15);
+    height: 65px;
+  }
 
-    /* Navbar */
-    nav {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 65px;
-      background: rgba(20, 25, 40, 0.35);
-      backdrop-filter: blur(20px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 35px;
-      z-index: 10;
-      box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
-      padding: 0 20px;
-    }
+  .nav-links {
+    display: flex;
+    gap: 35px;
+    align-items: center;
+    justify-content: center;
+  }
 
-    nav a {
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 17px;
-      padding: 10px 24px;
-      border-radius: 12px;
-      color: #e3f9ff;
-      letter-spacing: 0.5px;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    }
+  nav a {
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 17px;
+    padding: 10px 24px;
+    border-radius: 12px;
+    color: #dffaff;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
 
-    nav a::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      border-radius: 12px;
-      background: linear-gradient(120deg, rgba(0,255,255,0.3), rgba(100,0,255,0.25));
-      opacity: 0;
-      transform: scale(0.9);
-      transition: all 0.3s ease;
-      z-index: -1;
-      box-shadow: 0 0 8px rgba(0,255,255,0.25);
-    }
+  nav a::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    background: linear-gradient(120deg, rgba(0,255,255,0.6), rgba(100,0,255,0.5));
+    opacity: 0;
+    transform: scale(0.9);
+    transition: all 0.3s ease;
+    z-index: -1;
+    box-shadow: 0 0 12px rgba(0,255,255,0.4);
+  }
 
-    nav a:hover::before { opacity: 1; transform: scale(1); }
-    nav a:hover { color: #fff; text-shadow: 0 0 4px #00ffff; transform: translateY(-2px); }
-    nav a.chat { color: #00eaff; }
-    nav a.discord { color: #a377ff; }
-    nav a.image { color: #39ff14; }
-    nav a.music { color: #1db954; }
-    nav a.video { color: #ff6b00; }
-    nav a.home { color: #ff3bff; }
+  nav a:hover::before { opacity: 1; transform: scale(1); }
+  nav a:hover { color: #fff; text-shadow: 0 0 8px #00ffff; transform: translateY(-2px); }
 
-    /* Hamburger */
-    .hamburger {
+  nav a.chat { color: #00eaff; }
+  nav a.discord { color: #a377ff; }
+  nav a.image { color: #39ff14; }
+  nav a.music { color: #1db954; }
+  nav a.video { color: #ff6b00; }
+  nav a.home { color: #ff3bff; }
+
+  /* Hamburger */
+  .hamburger {
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+    gap: 5px;
+    position: absolute;
+    left: 20px;
+  }
+
+  .hamburger div {
+    width: 28px;
+    height: 3px;
+    background: #e3f9ff;
+    border-radius: 2px;
+    transition: all 0.4s ease;
+  }
+
+  .hamburger.toggle div:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+  .hamburger.toggle div:nth-child(2) { opacity: 0; }
+  .hamburger.toggle div:nth-child(3) { transform: rotate(-45deg) translate(6px, -6px); }
+
+  /* Centered typing animation */
+  .container {
+    position: absolute;
+    top: 65px;
+    left: 0;
+    width: 100%;
+    height: calc(100% - 65px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    flex-direction: column;
+    padding: 20px;
+  }
+
+  #typing {
+    font-size: 48px;
+    font-weight: 700;
+    background: linear-gradient(90deg, #00ffaa, #00eaff, #a86bff);
+    -webkit-background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 10px #00ffaa, 0 0 20px #00eaff;
+    animation: glowText 2s infinite alternate;
+  }
+
+  #cursor {
+    display: inline-block;
+    margin-left: 2px;
+    animation: blink 0.7s infinite;
+    color: #fff;
+  }
+
+  @keyframes glowText {
+    0% { text-shadow: 0 0 5px #00ffaa, 0 0 15px #00eaff; }
+    50% { text-shadow: 0 0 15px #00ffaa, 0 0 25px #00eaff; }
+    100% { text-shadow: 0 0 5px #00ffaa, 0 0 15px #00eaff; }
+  }
+
+  @keyframes blink {
+    0%,50%,100% { opacity: 1; }
+    25%,75% { opacity: 0; }
+  }
+
+  /* Mobile menu */
+  @media screen and (max-width: 768px) {
+    nav { justify-content: flex-start; padding-left: 20px; }
+    .hamburger { display: flex; }
+    .nav-links {
       display: none;
       flex-direction: column;
-      cursor: pointer;
-      gap: 5px;
-      position: absolute;
-      right: 24px;
-    }
-
-    .hamburger div {
-      width: 28px;
-      height: 3px;
-      background: #e3f9ff;
-      border-radius: 2px;
-      transition: all 0.4s ease;
-    }
-
-    .hamburger.toggle div:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
-    .hamburger.toggle div:nth-child(2) { opacity: 0; }
-    .hamburger.toggle div:nth-child(3) { transform: rotate(-45deg) translate(6px, -6px); }
-
-    .nav-links {
-      display: flex;
-      gap: 35px;
-      align-items: center;
-      justify-content: center;
-    }
-
-    /* Mobile menu */
-    @media screen and (max-width: 768px) {
-      nav { justify-content: flex-start; padding-left: 24px; }
-      .hamburger { display: flex; }
-      .nav-links {
-        display: none;
-        flex-direction: column;
-        gap: 10px;
-        width: 100%;
-        text-align: center;
-        position: fixed;
-        top: 65px;
-        left: 0;
-        background: rgba(20,25,40,0.95);
-        backdrop-filter: blur(20px);
-        padding: 15px 0;
-        z-index: 9;
-      }
-      .nav-links.nav-active { display: flex; }
-    }
-
-    /* Centered typing animation */
-    .center {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 48px;
-      font-weight: 700;
-      color: #fff;
+      gap: 10px;
+      width: 100%;
       text-align: center;
-      padding: 0 10px;
+      position: fixed;
+      top: 65px;
+      left: 0;
+      background: rgba(20,25,40,0.95);
+      backdrop-filter: blur(20px);
+      padding: 15px 0;
+      z-index: 9;
     }
+    .nav-links.nav-active { display: flex; }
+  }
 
-    #cursor {
-      display: inline-block;
-      margin-left: 2px;
-      animation: blink 0.7s infinite;
-    }
-
-    @keyframes blink {
-      0%, 50%, 100% { opacity: 1; }
-      25%, 75% { opacity: 0; }
-    }
-
-    @media screen and (max-width: 480px) { .center { font-size: 26px; } }
-  </style>
+  @media screen and (max-width: 480px) { #typing { font-size: 26px; } }
+</style>
 </head>
 <body>
 
-  <video autoplay muted loop playsinline id="bg-video">
-    <source src="https://files.catbox.moe/0ouh3o.mp4" type="video/mp4">
-  </video>
-  <div class="overlay"></div>
+<video autoplay muted loop playsinline id="bg-video">
+  <source src="https://files.catbox.moe/0ouh3o.mp4" type="video/mp4">
+</video>
 
-  <nav>
-    <div class="nav-links">
-      <a href="index.html" class="chat">Chat-bot</a>
-      <a href="bots.html" class="discord">Discord Bots</a>
-      <a href="image.html" class="image">Image Gen</a>
-      <a href="music.html" class="music">Music</a>
-      <a href="video.html" class="video">Video Gen</a>
-      <a href="home-automation.html" class="home">Home Automation</a>
-    </div>
-    <div class="hamburger">
-      <div></div>
-      <div></div>
-      <div></div>
-    </div>
-  </nav>
-
-  <div class="center">
-    <span id="typing"></span><span id="cursor">|</span>
+<nav>
+  <div class="hamburger" id="hamburger">
+    <div></div>
+    <div></div>
+    <div></div>
   </div>
+  <div class="nav-links" id="nav-links">
+    <a href="index.html" class="chat">Chat-bot</a>
+    <a href="bots.html" class="discord">Discord Bots</a>
+    <a href="image.html" class="image">Image Gen</a>
+    <a href="music.html" class="music">Music</a>
+    <a href="video.html" class="video">Video Gen</a>
+    <a href="home-automation.html" class="home">Home Automation</a>
+  </div>
+</nav>
 
-  <script>
-    // Typing effect
-    const text = "Coming Soon";
-    const typingEl = document.getElementById("typing");
-    let index = 0;
-    function type() {
-      if (index < text.length) {
-        typingEl.textContent += text[index];
-        index++;
-        setTimeout(type, 150);
-      }
+<div class="container">
+  <span id="typing"></span><span id="cursor">|</span>
+</div>
+
+<script>
+  const hamburger = document.getElementById("hamburger");
+  const navLinks = document.getElementById("nav-links");
+  hamburger.addEventListener("click", () => {
+    navLinks.classList.toggle("nav-active");
+    hamburger.classList.toggle("toggle");
+  });
+
+  const text = "Coming Soon";
+  const typingEl = document.getElementById("typing");
+  let index = 0;
+  function type() {
+    if (index < text.length) {
+      typingEl.textContent += text[index];
+      index++;
+      setTimeout(type, 150);
     }
-    window.onload = type;
-
-    // Hamburger toggle
-    const hamburger = document.querySelector('.hamburger');
-    const navLinks = document.querySelector('.nav-links');
-    hamburger.addEventListener('click', () => {
-      navLinks.classList.toggle('nav-active');
-      hamburger.classList.toggle('toggle');
-    });
-  </script>
+  }
+  window.onload = type;
+</script>
 
 </body>
 </html>
