@@ -26,7 +26,7 @@
       z-index: -1;
     }
 
- /* ====== Futuristic Glass NovaBar ====== */
+    /* ====== Futuristic Glass NovaBar ====== */
     nav {
       position: fixed;
       top: 0;
@@ -81,13 +81,12 @@
       transform: translateY(-2px);
     }
 
-nav a.chat { color: #00eaff; }           /* Chat-bot */
-nav a.discord { color: #a377ff; }        /* Discord Bots */
-nav a.image { color: #39ff14; }          /* Image Gen */
-nav a.music { color: #1db954; }          /* Music */
-nav a.video { color: #ff6b00; }          /* Video Gen */
-nav a.home { color: #ff3bff; }           /* Home Automation */
-
+    nav a.chat { color: #00eaff; }           
+    nav a.discord { color: #a377ff; }        
+    nav a.image { color: #39ff14; }          
+    nav a.music { color: #1db954; }          
+    nav a.video { color: #ff6b00; }          
+    nav a.home { color: #ff3bff; }           
 
     .content {
       padding-top: 80px;
@@ -102,6 +101,7 @@ nav a.home { color: #ff3bff; }           /* Home Automation */
       color: #00eaff;
       margin-bottom: 30px;
       text-shadow: 0 0 12px #00eaff;
+      text-align: center;
     }
 
     .bots-wrapper {
@@ -181,6 +181,51 @@ nav a.home { color: #ff3bff; }           /* Home Automation */
     .join-btn:hover {
       background: #00a6d4;
     }
+
+    /* ======== MOBILE RESPONSIVE STYLES ======== */
+    @media screen and (max-width: 768px) {
+      nav {
+        flex-direction: column;
+        height: auto;
+        padding: 10px 0;
+        gap: 10px;
+      }
+
+      nav a {
+        font-size: 14px;
+        padding: 8px 16px;
+      }
+
+      .bots-title {
+        font-size: 28px;
+      }
+
+      .bots-wrapper {
+        gap: 20px;
+        padding: 20px;
+      }
+
+      .bot-card {
+        width: 45%;
+        padding: 20px;
+      }
+    }
+
+    @media screen and (max-width: 480px) {
+      .bots-title {
+        font-size: 22px;
+      }
+
+      nav a {
+        font-size: 12px;
+        padding: 6px 12px;
+      }
+
+      .bot-card {
+        width: 90%;
+        padding: 15px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -191,15 +236,14 @@ nav a.home { color: #ff3bff; }           /* Home Automation */
   </video>
 
   <!-- NovaBar / Neon Navbar -->
-<nav>
-  <a href="index.html" class="chat">Chat-bot</a>
-  <a href="bots.html" class="discord">Discord Bots</a>
-  <a href="image.html" class="image">Image Gen</a>
-  <a href="music.html" class="music">Music</a>
-  <a href="video.html" class="video">Video Gen</a>
-  <a href="home-automation.html" class="home">Home Automation</a>
-</nav>
-
+  <nav>
+    <a href="index.html" class="chat">Chat-bot</a>
+    <a href="bots.html" class="discord">Discord Bots</a>
+    <a href="image.html" class="image">Image Gen</a>
+    <a href="music.html" class="music">Music</a>
+    <a href="video.html" class="video">Video Gen</a>
+    <a href="home-automation.html" class="home">Home Automation</a>
+  </nav>
 
   <div class="content">
     <div class="bots-title">OUR BOTS</div>
@@ -217,7 +261,7 @@ nav a.home { color: #ff3bff; }           /* Home Automation */
         <div class="status-dot"></div>
         <img src="https://i.postimg.cc/T3X2ZbPP/Screenshot-2025-10-22-at-11-55-52-Chat-GPT-Smart-Fast-Free-AI-Chat.png">
         <h2>JARVIS</h2>
-        <p>Smart AI â€” Fast responses. Built to assist.</p>
+        <p>Smart AI — Fast responses. Built to assist.</p>
         <a class="join-btn" href="https://discord.gg/pPGV4FAnWz" target="_blank">Invite / Join Server</a>
       </div>
 
@@ -225,7 +269,7 @@ nav a.home { color: #ff3bff; }           /* Home Automation */
         <div class="status-dot"></div>
         <img src="https://i.postimg.cc/vmpdV1Nd/Screenshot-2025-11-11-at-20-25-19-2769-Discord-ð—§ð—¿ð—¼ð—¹ð—¹-ð—™ð—®ð—°ð—²ð˜‡.png">
         <h2>BAZZOKA</h2>
-        <p>Fun and chaos â€” always joking.</p>
+        <p>Fun and chaos — always joking.</p>
         <a class="join-btn" href="https://discord.gg/gfd6jSPVvp" target="_blank">Invite / Join Server</a>
       </div>
     </div>
