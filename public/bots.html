@@ -46,7 +46,7 @@
       border-bottom: 1px solid rgba(0, 255, 255, 0.15);
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: center; /* centered links */
       padding: 0 20px;
       z-index: 10;
       box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
@@ -110,6 +110,7 @@
       flex-direction: column;
       cursor: pointer;
       gap: 6px;
+      margin-right: auto; /* keep left on desktop */
     }
     .hamburger span {
       width: 25px;
@@ -163,6 +164,7 @@
       transition: 0.3s;
       border: 1px solid #2a2f3a;
       position: relative;
+      text-align: center; /* center content inside card */
     }
 
     .bot-card.boss {
@@ -182,6 +184,9 @@
       border-radius: 50%;
       border: 3px solid #00d0ff;
       margin-bottom: 15px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     .status-dot {
@@ -255,16 +260,6 @@
       nav a { font-size: 12px; padding: 6px 12px; }
       .bot-card { width: 90%; padding: 15px; }
     }
-
-    /* ===== CENTER NAVBAR LINKS ON DESKTOP ===== */
-    @media screen and (min-width: 769px) {
-      nav {
-        justify-content: center;
-      }
-      .hamburger {
-        margin-right: auto;
-      }
-    }
   </style>
 </head>
 <body>
@@ -312,9 +307,9 @@
       <div class="bot-card">
         <div class="status-dot"></div>
         <img src="https://i.postimg.cc/vmpdV1Nd/Screenshot-2025-11-11-at-20-25-19-2769-Discord-ð—§ð—¿ð—¼ð—¹ð—¹-ð—™ð—®ð—°ð—²ð˜‡.png">
-        <h2>BAZZOKA</h2>
+        <h2>BAZOOKA</h2>
         <p>Fun and chaos — always joking.</p>
-        <a class="join-btn" href="https://discord.gg/gfd6jSPVvp" target="_blank">Invite / Join Server</a>
+        <a class="join-btn" href="https://i.postimg.cc/Jn15ByHM/Screenshot-2025-11-16-at-11-38-19-(2890)-Discord-𝗧𝗿𝗼𝗹𝗹-𝗙𝗮𝗰𝗲𝘇.png" target="_blank">Invite / Join Server</a>
       </div>
     </div>
   </div>
