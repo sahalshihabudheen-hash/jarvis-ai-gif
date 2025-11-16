@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home Automation — Coming Soon</title>
+  <style>
+    :root{
+      --accent:#1db954;
+      --muted:#9aa6a1;
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: "Segoe UI", Roboto, Arial, sans-serif;
+      color: #e9f2ef;
+      overflow: hidden;
+      background: #0b0f12;
+    }
+
+    /* Background video setup */
+    #bg-video {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -1;
+      filter: brightness(70%);
+    } 
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(3,6,7,0.55), rgba(3,6,7,0.75));
+      z-index: -1;
+    }
+
+    /* Navbar copied from music.html */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 65px;
+      background: rgba(20, 25, 40, 0.35);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(0, 255, 255, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 35px;
+      z-index: 10;
+      box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
+    }
+
+    nav a {
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 17px;
+      padding: 10px 24px;
+      border-radius: 12px;
+      color: #e3f9ff;
+      letter-spacing: 0.5px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    nav a::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 12px;
+      background: linear-gradient(120deg, rgba(0,255,255,0.3), rgba(100,0,255,0.25));
+      opacity: 0;
+      transform: scale(0.9);
+      transition: all 0.3s ease;
+      z-index: -1;
+      box-shadow: 0 0 8px rgba(0,255,255,0.25);
+    }
+
+    nav a:hover::before {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    nav a:hover { color: #fff; text-shadow: 0 0 4px #00ffff; transform: translateY(-2px); }
+    nav a.chat { color: #00eaff; }
+    nav a.discord { color: #a377ff; }
+    nav a.image { color: #39ff14; }
+    nav a.music { color: #1db954; }
+    nav a.video { color: #ff6b00; }
+    nav a.home { color: #ff3bff; }
+
+    /* Centered typing animation */
+    .center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 48px;
+      font-weight: 700;
+      color: #fff;
+      text-align: center;
+    }
+
+    .typing {
+      border-right: 4px solid var(--accent);
+      white-space: nowrap;
+      overflow: hidden;
+      animation: typing 2s steps(12, end) infinite, blink 0.75s step-end infinite;
+    }
+
+    @keyframes typing {
+      0%, 50%, 100% { width: 0; }
+      25%, 75% { width: 12ch; } /* "Coming Soon" has 12 characters */
+    }
+
+    @keyframes blink {
+      50% { border-color: transparent; }
+    }
+  </style>
+</head>
+<body>
+
+  <video autoplay muted loop playsinline id="bg-video">
+    <source src="https://files.catbox.moe/0ouh3o.mp4" type="video/mp4">
+  </video>
+  <div class="overlay"></div>
+
+  <nav>
+    <a href="index.html" class="chat">Chat-bot</a>
+    <a href="bots.html" class="discord">Discord Bots</a>
+    <a href="image.html" class="image">Image Gen</a>
+    <a href="music.html" class="music">Music</a>
+    <a href="video.html" class="video">Video Gen</a>
+    <a href="home-automation.html" class="home">Home Automation</a>
+  </nav>
+
+  <div class="center">
+    <span class="typing">Coming Soon</span>
+  </div>
+
+</body>
+</html>
