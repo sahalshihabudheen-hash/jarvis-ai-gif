@@ -28,12 +28,11 @@
       background: rgba(20,25,40,0.35);
       backdrop-filter: blur(20px);
       display: flex;
-      justify-content: center;
+      justify-content: center; /* Center navbar on desktop */
       align-items: center;
       padding: 0 20px;
       z-index: 10;
       box-shadow: 0 0 10px rgba(0,255,255,0.1);
-      gap: 35px;
     }
 
     nav ul {
@@ -100,6 +99,15 @@
       background: #e3f9ff;
       border-radius: 2px;
       transition: all 0.3s ease;
+    }
+    .hamburger.toggle span:nth-child(1) {
+      transform: rotate(45deg) translate(5px, 5px);
+    }
+    .hamburger.toggle span:nth-child(2) {
+      opacity: 0;
+    }
+    .hamburger.toggle span:nth-child(3) {
+      transform: rotate(-45deg) translate(6px, -6px);
     }
 
     /* Layout */
@@ -230,6 +238,7 @@
 
     hamburger.addEventListener('click', () => {
       navLinks.classList.toggle('show');
+      hamburger.classList.toggle('toggle');
     });
   </script>
 </body>
