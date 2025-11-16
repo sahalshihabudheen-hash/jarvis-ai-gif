@@ -44,11 +44,18 @@
       background: rgba(20, 25, 40, 0.35);
       backdrop-filter: blur(20px);
       display: flex;
+      justify-content: center; /* Center navbar on desktop */
       align-items: center;
-      justify-content: center;
-      gap: 35px;
       z-index: 10;
       box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
+      gap: 35px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 35px;
+      align-items: center;
+      justify-content: center;
     }
 
     nav a {
@@ -116,13 +123,6 @@
     }
     .hamburger.toggle div:nth-child(3) {
       transform: rotate(-45deg) translate(6px, -6px);
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 35px;
-      align-items: center;
-      justify-content: center;
     }
 
     /* Mobile menu */
