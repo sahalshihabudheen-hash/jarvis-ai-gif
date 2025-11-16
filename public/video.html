@@ -46,17 +46,24 @@
       border-bottom: 1px solid rgba(0, 255, 255, 0.15);
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 35px;
+      justify-content: space-between;
+      padding: 0 24px;
       z-index: 10;
       box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
+    }
+
+    nav .logo { font-weight: 700; font-size: 18px; color: #e3f9ff; }
+
+    nav .nav-links {
+      display: flex;
+      gap: 20px;
     }
 
     nav a {
       text-decoration: none;
       font-weight: 600;
       font-size: 17px;
-      padding: 10px 24px;
+      padding: 10px 16px;
       border-radius: 12px;
       color: #e3f9ff;
       letter-spacing: 0.5px;
@@ -91,6 +98,35 @@
     nav a.video { color: #ff6b00; }
     nav a.home { color: #ff3bff; }
 
+    /* Hamburger */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      cursor: pointer;
+      gap: 5px;
+    }
+
+    .hamburger div {
+      width: 28px;
+      height: 3px;
+      background: #e3f9ff;
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+
+    .nav-active {
+      display: flex !important;
+      flex-direction: column;
+      position: fixed;
+      top: 65px;
+      left: 0;
+      width: 100%;
+      background: rgba(20,25,40,0.9);
+      backdrop-filter: blur(20px);
+      padding: 15px 0;
+      z-index: 9;
+    }
+
     /* Centered typing animation */
     .center {
       position: absolute;
@@ -101,6 +137,7 @@
       font-weight: 700;
       color: #fff;
       text-align: center;
+      padding: 0 10px;
     }
 
     #cursor {
@@ -113,6 +150,18 @@
       0%, 50%, 100% { opacity: 1; }
       25%, 75% { opacity: 0; }
     }
+
+    /* ======== MOBILE RESPONSIVE STYLES ======== */
+    @media screen and (max-width: 768px) {
+      .nav-links { display: none; gap: 10px; }
+      .hamburger { display: flex; }
+      .center { font-size: 32px; }
+    }
+
+    @media screen and (max-width: 480px) {
+      nav { padding: 0 12px; }
+      .center { font-size: 26px; }
+    }
   </style>
 </head>
 <body>
@@ -123,12 +172,20 @@
   <div class="overlay"></div>
 
   <nav>
-    <a href="index.html" class="chat">Chat-bot</a>
-    <a href="bots.html" class="discord">Discord Bots</a>
-    <a href="image.html" class="image">Image Gen</a>
-    <a href="music.html" class="music">Music</a>
-    <a href="video.html" class="video">Video Gen</a>
-    <a href="home-automation.html" class="home">Home Automation</a>
+    <div class="logo">Video Gen</div>
+    <div class="nav-links">
+      <a href="index.html" class="chat">Chat-bot</a>
+      <a href="bots.html" class="discord">Discord Bots</a>
+      <a href="image.html" class="image">Image Gen</a>
+      <a href="music.html" class="music">Music</a>
+      <a href="video.html" class="video">Video Gen</a>
+      <a href="home-automation.html" class="home">Home Automation</a>
+    </div>
+    <div class="hamburger">
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
   </nav>
 
   <div class="center">
@@ -136,19 +193,27 @@
   </div>
 
   <script>
+    // Typing effect
     const text = "Coming Soon";
     const typingEl = document.getElementById("typing");
     let index = 0;
-
     function type() {
       if (index < text.length) {
         typingEl.textContent += text[index];
         index++;
-        setTimeout(type, 150); // typing speed
+        setTimeout(type, 150);
       }
     }
-
     window.onload = type;
+
+    // Hamburger toggle
+    const hamburger = document.querySelector('.hamburger');
+    const navLinks = document.querySelector('.nav-links');
+
+    hamburger.addEventListener('click', () => {
+      navLinks.classList.toggle('nav-active');
+      hamburger.classList.toggle('toggle');
+    });
   </script>
 
 </body>
