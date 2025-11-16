@@ -24,13 +24,14 @@
       height: 100%;
       object-fit: cover;
       z-index: -1;
-      filter: brightness(150%);
+      filter: brightness(180%) contrast(120%);
     }
 
+    /* Slight overlay to keep design intact */
     .overlay {
       position: fixed;
       inset: 0;
-      background: linear-gradient(180deg, rgba(3,6,7,0.55), rgba(3,6,7,0.75));
+      background: linear-gradient(180deg, rgba(3,6,7,0.2), rgba(3,6,7,0.3));
       z-index: -1;
     }
 
@@ -46,7 +47,7 @@
       border-bottom: 1px solid rgba(0, 255, 255, 0.15);
       display: flex;
       align-items: center;
-      justify-content: center; /* centered links */
+      justify-content: center;
       padding: 0 20px;
       z-index: 10;
       box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
@@ -110,7 +111,7 @@
       flex-direction: column;
       cursor: pointer;
       gap: 6px;
-      margin-right: auto; /* keep left on desktop */
+      margin-right: auto;
     }
     .hamburger span {
       width: 25px;
@@ -164,7 +165,7 @@
       transition: 0.3s;
       border: 1px solid #2a2f3a;
       position: relative;
-      text-align: center; /* center content inside card */
+      text-align: center;
     }
 
     .bot-card.boss {
