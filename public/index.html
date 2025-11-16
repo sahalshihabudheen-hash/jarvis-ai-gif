@@ -85,19 +85,39 @@
   nav a.video { color: #ff6b00; }
   nav a.home { color: #ff3bff; }
 
+  /* Hamburger */
   .hamburger {
     display: none;
     flex-direction: column;
     cursor: pointer;
     gap: 5px;
+    position: absolute;
+    right: 24px;
   }
 
   .hamburger div {
-    width: 25px;
+    width: 28px;
     height: 3px;
-    background-color: #00ffff;
-    border-radius: 3px;
-    transition: all 0.3s ease;
+    background: #e3f9ff;
+    border-radius: 2px;
+    transition: all 0.4s ease;
+  }
+
+  .hamburger.toggle div:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+  }
+  .hamburger.toggle div:nth-child(2) {
+    opacity: 0;
+  }
+  .hamburger.toggle div:nth-child(3) {
+    transform: rotate(-45deg) translate(6px, -6px);
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 35px;
+    align-items: center;
+    justify-content: center;
   }
 
   .container {
@@ -228,31 +248,28 @@
     100% { box-shadow: 0 0 5px #00eaff, 0 0 10px #00eaff; }
   }
 
-  /* ===== MOBILE STYLES ===== */
+  /* Mobile menu */
   @media screen and (max-width: 768px) {
+    nav { justify-content: flex-start; padding-left: 24px; }
+    .hamburger { display: flex; }
     .nav-links {
       display: none;
       flex-direction: column;
+      gap: 10px;
       width: 100%;
       text-align: center;
-      background: rgba(20, 25, 40, 0.85);
+      position: fixed;
+      top: 65px;
+      left: 0;
+      background: rgba(20,25,40,0.95);
       backdrop-filter: blur(20px);
-      border-top: 1px solid rgba(0,255,255,0.2);
-      padding: 10px 0;
+      padding: 15px 0;
+      z-index: 9;
     }
-
-    .nav-links.active { display: flex; }
-
-    .hamburger { display: flex; }
+    .nav-links.nav-active { display: flex; }
   }
 
-  @media screen and (max-width: 480px) {
-    .title { font-size: 22px; }
-    .sub { font-size: 12px; }
-    nav a { font-size: 12px; padding: 6px 12px; }
-  }
-
-  /* ===== CENTER NAVBAR LINKS FOR DESKTOP ===== */
+  /* CENTER NAVBAR LINKS FOR DESKTOP */
   @media screen and (min-width: 769px) {
     nav {
       justify-content: center;
@@ -301,12 +318,13 @@
   const hamburger = document.getElementById("hamburger");
   const navLinks = document.getElementById("nav-links");
 
+  // FIXED: Use correct class for mobile menu
   hamburger.addEventListener("click", () => {
-    navLinks.classList.toggle("active");
+    navLinks.classList.toggle("nav-active");
     hamburger.classList.toggle("toggle");
   });
 
-  // Typing animation script
+  // Typing animation
   document.addEventListener("DOMContentLoaded", () => {
     let savedName = localStorage.getItem("jarvisName") || "User";
     const lines = [
