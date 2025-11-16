@@ -27,7 +27,7 @@
       filter: brightness(70%);
     }
 
-     /* ====== Futuristic Glass NovaBar ====== */
+    /* ====== Futuristic Glass NovaBar ====== */
     nav {
       position: fixed;
       top: 0;
@@ -89,6 +89,37 @@
     nav a.music { color: #1db954; }          
     nav a.video { color: #ff6b00; }          
     nav a.home { color: #ff3bff; }           
+
+    /* ===== Hamburger Menu Styles ===== */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      cursor: pointer;
+      gap: 5px;
+    }
+    .hamburger div {
+      width: 25px;
+      height: 3px;
+      background-color: #00ffff;
+      border-radius: 3px;
+      transition: all 0.3s ease;
+    }
+    /* Hamburger animation to X */
+    .hamburger.toggle div:nth-child(1) {
+      transform: rotate(45deg) translate(5px, 5px);
+    }
+    .hamburger.toggle div:nth-child(2) {
+      opacity: 0;
+    }
+    .hamburger.toggle div:nth-child(3) {
+      transform: rotate(-45deg) translate(6px, -6px);
+    }
+
+    /* Nav links container */
+    .nav-links {
+      display: flex;
+      gap: 35px;
+    }
 
     /* ===== Page Content (soft colors) ===== */
     .container {
@@ -203,6 +234,17 @@
         height: auto;
         padding: 10px 0;
       }
+      .hamburger { display: flex; }
+
+      .nav-links {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        text-align: center;
+        background: rgba(20, 25, 40, 0.85);
+        padding: 10px 0;
+      }
+      .nav-links.active { display: flex; }
 
       nav a {
         padding: 8px 12px;
@@ -218,29 +260,15 @@
         width: 90%;
       }
 
-      button {
-        width: 100%;
-      }
+      button { width: 100%; }
 
-      #generatedImage {
-        max-width: 90%;
-      }
+      #generatedImage { max-width: 90%; }
     }
 
     @media (max-width: 480px) {
-      h1 {
-        font-size: 26px;
-      }
-
-      #promptInput {
-        font-size: 14px;
-        padding: 10px 12px;
-      }
-
-      button {
-        font-size: 14px;
-        padding: 10px 12px;
-      }
+      h1 { font-size: 26px; }
+      #promptInput { font-size: 14px; padding: 10px 12px; }
+      button { font-size: 14px; padding: 10px 12px; }
     }
   </style>
 </head>
@@ -250,14 +278,22 @@
     <source src="https://files.catbox.moe/0ouh3o.mp4" type="video/mp4">
   </video>
 
-<nav>
-  <a href="index.html" class="chat">Chat-bot</a>
-  <a href="bots.html" class="discord">Discord Bots</a>
-  <a href="image.html" class="image">Image Gen</a>
-  <a href="music.html" class="music">Music</a>
-  <a href="video.html" class="video">Video Gen</a>
-  <a href="home-automation.html" class="home">Home Automation</a>
-</nav>
+  <!-- ===== NAVBAR WITH HAMBURGER ===== -->
+  <nav>
+    <div class="hamburger" id="hamburger">
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+    <div class="nav-links" id="nav-links">
+      <a href="index.html" class="chat">Chat-bot</a>
+      <a href="bots.html" class="discord">Discord Bots</a>
+      <a href="image.html" class="image">Image Gen</a>
+      <a href="music.html" class="music">Music</a>
+      <a href="video.html" class="video">Video Gen</a>
+      <a href="home-automation.html" class="home">Home Automation</a>
+    </div>
+  </nav>
 
   <div class="container">
     <h1>🧠 Image Generator</h1>
@@ -312,6 +348,15 @@
         loadingText.style.display = "none";
       }
     }
+
+    // ===== Hamburger toggle script =====
+    const hamburger = document.getElementById("hamburger");
+    const navLinks = document.getElementById("nav-links");
+
+    hamburger.addEventListener("click", () => {
+      navLinks.classList.toggle("active");
+      hamburger.classList.toggle("toggle");
+    });
   </script>
 </body>
 </html>
