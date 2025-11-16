@@ -11,7 +11,8 @@
     height: 100%;
     width: 100%;
     font-family: 'Segoe UI', sans-serif;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto; /* allow vertical scroll */
     color: #fff;
     background: transparent;
   }
@@ -25,6 +26,13 @@
     object-fit: cover;
     z-index: -1;
     filter: brightness(60%);
+  }
+
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(3,6,7,0.2), rgba(3,6,7,0.3));
+    z-index: -1;
   }
 
   nav {
@@ -199,6 +207,7 @@
 
   .join-btn:hover { background: #00a6d4; }
 
+  /* Mobile menu */
   @media screen and (max-width: 768px) {
     nav { justify-content: flex-start; padding-left: 24px; }
     .hamburger { display: flex; }
@@ -218,6 +227,11 @@
     }
     .nav-links.nav-active { display: flex; }
   }
+
+  @media screen and (max-width: 480px) {
+    .bots-title { font-size: 22px; }
+    .bot-card { width: 90%; padding: 15px; }
+  }
 </style>
 </head>
 <body>
@@ -225,6 +239,7 @@
 <video autoplay muted loop playsinline id="bg-video">
   <source src="https://files.catbox.moe/lq3los.mp4" type="video/mp4">
 </video>
+<div class="overlay"></div>
 
 <nav>
   <div class="hamburger" id="hamburger">
