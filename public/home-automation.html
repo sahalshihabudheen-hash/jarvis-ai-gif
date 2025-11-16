@@ -5,21 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Home Automation — Coming Soon</title>
   <style>
-    :root{
-      --accent:#1db954;
-      --muted:#9aa6a1;
-    }
-    html, body {
+    body, html {
       margin: 0;
       padding: 0;
       height: 100%;
-      font-family: "Segoe UI", Roboto, Arial, sans-serif;
-      color: #e9f2ef;
-      overflow: hidden;
-      background: #0b0f12;
+      width: 100%;
+      font-family: 'Segoe UI', sans-serif;
+      overflow-x: hidden;
+      color: #fff;
     }
 
-    /* Background video setup */
+    /* Background video setup (from image.html) */
     #bg-video {
       position: fixed;
       top: 0;
@@ -29,8 +25,9 @@
       object-fit: cover;
       z-index: -1;
       filter: brightness(70%);
-    } 
+    }
 
+    /* Overlay to darken the video */
     .overlay {
       position: fixed;
       inset: 0;
@@ -38,7 +35,7 @@
       z-index: -1;
     }
 
-    /* Navbar copied from music.html */
+    /* Navbar copied from image.html */
     nav {
       position: fixed;
       top: 0;
@@ -108,7 +105,7 @@
     }
 
     .typing {
-      border-right: 4px solid var(--accent);
+      border-right: 4px solid #1db954;
       white-space: nowrap;
       overflow: hidden;
       animation: typing 2s steps(12, end) infinite, blink 0.75s step-end infinite;
