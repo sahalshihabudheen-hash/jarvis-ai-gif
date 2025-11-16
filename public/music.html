@@ -8,46 +8,32 @@
     :root{
       --bg:#0b0f12;
       --card:#0f1416;
-      --accent:#1db954; /* spotify green */
+      --accent:#1db954;
       --muted: #9aa6a1;
       --glass: rgba(255,255,255,0.03);
     }
-    html,body{height:100%;margin:0;font-family: "Segoe UI", Roboto, Arial, sans-serif;background:var(--bg);color:#e9f2ef}
-    /* background video */
+    html,body{height:100%;margin:0;font-family:"Segoe UI", Roboto, Arial, sans-serif;background:var(--bg);color:#e9f2ef}
+
+    /* Background video */
     #bg-video{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;filter:brightness(40%) saturate(110%)}
     .overlay{position:fixed;inset:0;background:linear-gradient(180deg, rgba(3,6,7,0.55), rgba(3,6,7,0.75));z-index:-1}
 
-    /* ====== Futuristic Glass NovaBar ====== */
+    /* ===== Navbar ===== */
     nav {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 65px;
-      background: rgba(20, 25, 40, 0.35);
+      background: rgba(20,25,40,0.35);
       backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(0, 255, 255, 0.15);
       display: flex;
+      justify-content: center;
       align-items: center;
-      justify-content: space-between;
       padding: 0 20px;
       z-index: 10;
-      box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
-    }
-
-    /* Hamburger */
-    .hamburger {
-      display: none;
-      flex-direction: column;
-      cursor: pointer;
-      gap: 6px;
-    }
-    .hamburger span {
-      width: 25px;
-      height: 3px;
-      background: #e3f9ff;
-      border-radius: 2px;
-      transition: all 0.3s ease;
+      box-shadow: 0 0 10px rgba(0,255,255,0.1);
+      gap: 35px;
     }
 
     nav ul {
@@ -56,6 +42,8 @@
       list-style: none;
       margin: 0;
       padding: 0;
+      justify-content: center;
+      align-items: center;
     }
 
     nav ul li a {
@@ -90,18 +78,35 @@
     }
 
     nav ul li a:hover { color:#fff; text-shadow:0 0 4px #00ffff; transform:translateY(-2px);}
-    nav ul li a.chat { color: #00eaff; }           
-    nav ul li a.discord { color: #a377ff; }        
-    nav ul li a.image { color: #39ff14; }          
-    nav ul li a.music { color: #1db954; }          
-    nav ul li a.video { color: #ff6b00; }          
+    nav ul li a.chat { color: #00eaff; }
+    nav ul li a.discord { color: #a377ff; }
+    nav ul li a.image { color: #39ff14; }
+    nav ul li a.music { color: #1db954; }
+    nav ul li a.video { color: #ff6b00; }
     nav ul li a.home { color: #ff3bff; }
 
-    /* wrap / layout */
+    /* Hamburger */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      cursor: pointer;
+      gap: 6px;
+      position: absolute;
+      right: 20px;
+    }
+    .hamburger span {
+      width: 25px;
+      height: 3px;
+      background: #e3f9ff;
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+
+    /* Layout */
     .wrap{display:grid;grid-template-columns:280px 1fr;gap:28px;padding:100px 48px 48px;align-items:start}
     .sidebar{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:14px;padding:18px;box-shadow:0 8px 24px rgba(0,0,0,0.6);height:calc(100vh - 160px);overflow:auto}
     .logo{display:flex;align-items:center;gap:12px;padding:8px 4px;margin-bottom:18px}
-    .logo .dot{width:44px;height:44px;border-radius:8px;background:linear-gradient(135deg,var(--accent), #6ad1ff);box-shadow:0 6px 18px rgba(27, 185, 82, 0.14)}
+    .logo .dot{width:44px;height:44px;border-radius:8px;background:linear-gradient(135deg,var(--accent), #6ad1ff);box-shadow:0 6px 18px rgba(27,185,82,0.14)}
     .logo h3{margin:0;font-size:18px;letter-spacing:0.6px}
     .playlists{margin-top:10px}
     .pl-item{padding:10px;border-radius:10px;display:flex;align-items:center;gap:10px;color:var(--muted);cursor:pointer}
@@ -109,10 +114,7 @@
 
     .main{display:flex;flex-direction:column;gap:18px}
     .searchbar{display:flex;gap:10px;align-items:center}
-    .searchbar input{
-      flex:1;padding:12px 14px;border-radius:12px;border:none;background:rgba(255,255,255,0.03);color:#fff;font-size:16px;outline:none;
-      box-shadow:0 6px 20px rgba(0,0,0,0.6)
-    }
+    .searchbar input{flex:1;padding:12px 14px;border-radius:12px;border:none;background:rgba(255,255,255,0.03);color:#fff;font-size:16px;outline:none;box-shadow:0 6px 20px rgba(0,0,0,0.6)}
     .searchbar button{padding:10px 16px;border-radius:10px;border:none;background:var(--accent);color:#07100a;font-weight:700;cursor:pointer}
 
     .player-card{display:flex;align-items:center;gap:20px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.015));padding:20px;border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,0.6)}
@@ -127,11 +129,9 @@
     .progress-container{display:flex;flex-direction:column;gap:4px;margin-top:12px}
     .progress{height:8px;background:rgba(255,255,255,0.04);border-radius:8px;overflow:hidden}
     .progress > i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--accent), #9cffb8)}
-
     .wave-container{display:flex;align-items:flex-end;gap:2px;height:30px}
     .wave-bar{width:3px;background:var(--accent);border-radius:2px;height:8px;animation:wave 0.5s infinite;animation-play-state:paused;--scale:1;}
     @keyframes wave{0%{height:8px}50%{height:calc(8px + 15px * var(--scale))}100%{height:8px}}
-
     .hidden-iframe{width:0;height:0;position:absolute;left:-9999px;top:-9999px}
 
     /* RESPONSIVE */
@@ -139,6 +139,8 @@
       .wrap{grid-template-columns:1fr;padding:120px 20px}
       .sidebar{display:none}
       .cover{width:160px;height:160px}
+
+      nav{justify-content:flex-start;gap:0;}
       nav ul{position:absolute;top:65px;right:0;background:rgba(20,25,40,0.95);backdrop-filter:blur(20px);flex-direction:column;width:200px;transform:translateX(100%);transition:0.3s;gap:0;}
       nav ul li{border-bottom:1px solid rgba(0,255,255,0.1);}
       nav ul.show{transform:translateX(0);}
