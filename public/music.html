@@ -11,7 +11,7 @@
     --panel:#0e1618;
     --muted:#9aa6a1;
     --glass: rgba(255,255,255,0.03);
-    --accent:#1db954;
+    --accent:#1d7bff; /* JARVIS Blue */
     --accent-2:#1d7bff;
     --card-shadow: 0 10px 30px rgba(2,6,10,0.6);
     --text:#e9f2ef;
@@ -71,7 +71,7 @@
   .btn{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.03);border:none;color:#fff;display:grid;place-items:center;cursor:pointer}
   .btn.play{width:56px;height:56px;background:var(--accent);color:#071018;font-weight:800;font-size:18px}
   .progress{width:420px;height:8px;background:rgba(255,255,255,0.03);border-radius:8px;overflow:hidden;margin-left:20px}
-  .progress > i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--accent), #9cffb8)}
+  .progress > i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--accent), #9cffff)}
 
   .wave-container{display:flex;align-items:flex-end;gap:4px;height:30px}
   .wave-bar{width:4px;background:var(--accent);border-radius:2px;height:8px;animation:wave 0.6s infinite;animation-play-state:paused;--scale:1}
@@ -146,7 +146,6 @@
     </div>
 
     <div id="songGrid" class="song-grid" aria-live="polite">
-      <!-- Famous songs (Industry Baby removed) -->
       <div class="song-card" data-id="fHI8X4OXluQ" data-title="Blinding Lights" data-artist="The Weeknd" data-cover="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg">
         <img class="song-cover" src="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg" alt="">
         <div class="song-meta"><div class="title">Blinding Lights</div><div class="artist muted">The Weeknd</div></div>
@@ -176,8 +175,6 @@
         <div class="song-meta"><div class="title">Unholy</div><div class="artist muted">Sam Smith</div></div>
         <button class="add-to-pl-btn">+</button>
       </div>
-
-      <!-- more cards are appended by JS (phonk samples) -->
     </div>
   </main>
 
@@ -190,7 +187,6 @@
           <img id="coverImg" src="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg" style="width:100%;height:100%;object-fit:cover">
         </div>
         <div>
-          <!-- main now-playing IDs (used by JS) -->
           <div id="trackTitle" style="font-weight:700">Not Playing</div>
           <div id="trackArtist" class="muted">Paste a link or search to play</div>
         </div>
@@ -202,7 +198,6 @@
       </div>
     </div>
 
-    <!-- hidden iframe -->
     <iframe id="ytPlayer" style="display:none" allow="autoplay"></iframe>
   </aside>
 </div>
@@ -212,7 +207,6 @@
   <div class="player-left">
     <div class="player-cover"><img id="miniCover" src="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg" alt=""></div>
     <div class="player-meta">
-      <!-- mini display uses distinct ids to avoid conflicts; JS updates both -->
       <div id="miniTrackTitle" class="title">Not Playing</div>
       <div id="miniTrackArtist" class="muted small">—</div>
     </div>
@@ -236,11 +230,8 @@
   </div>
 </div>
 
-<!-- include updated JS -->
 <script src="music.js"></script>
-
 <script>
-// hamburger mobile toggle
 const hamburger = document.getElementById("hamburger");
 const navLinks = document.getElementById("navLinks");
 const sidebar = document.getElementById("sidebar");
