@@ -11,49 +11,39 @@
     --panel:#0e1618;
     --muted:#9aa6a1;
     --glass: rgba(255,255,255,0.03);
-    --accent:#1db954; /* spotify green */
-    --accent-2:#1d7bff; /* blue fallback */
+    --accent:#1db954;
+    --accent-2:#1d7bff;
     --card-shadow: 0 10px 30px rgba(2,6,10,0.6);
     --text:#e9f2ef;
   }
 
-  html,body{height:100%;margin:0;font-family:Inter, "Segoe UI", Roboto, Arial, sans-serif;background:linear-gradient(180deg,#071017 0%, #041014 100%);color:var(--text);-webkit-font-smoothing:antialiased}
-  /* NAVBAR (uses user's original structure visually) */
+  html,body{height:100%;margin:0;font-family:Inter, "Segoe UI", Roboto, Arial, sans-serif;
+    background:linear-gradient(180deg,#071017 0%, #041014 100%);
+    color:var(--text);-webkit-font-smoothing:antialiased}
+
+  /* NAV */
   nav{
     position:fixed;top:0;left:0;right:0;height:64px;display:flex;align-items:center;padding:0 20px;z-index:40;
-    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.12));backdrop-filter: blur(8px);border-bottom:1px solid rgba(255,255,255,0.02);
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.12));
+    backdrop-filter: blur(8px);border-bottom:1px solid rgba(255,255,255,0.02);
   }
   nav .nav-left{display:flex;gap:14px;align-items:center}
-  .nav-left .logo{display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));box-shadow:var(--card-shadow)}
-  .nav-left .dot{width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,var(--accent-2), #6ad1ff);display:flex;align-items:center;justify-content:center;font-weight:800;color:#031017}
-  .nav-left h1{font-size:15px;margin:0}
-  .nav-right{margin-left:auto;display:flex;align-items:center;gap:12px;color:var(--muted);font-size:13px}
-
-  /* desktop nav links (centered like user's original) */
+  .logo{display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));box-shadow:var(--card-shadow)}
+  .dot{width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,var(--accent-2), #6ad1ff);display:flex;align-items:center;justify-content:center;font-weight:800;color:#031017}
   #navLinks { display:flex; gap:28px; list-style:none; margin:0; padding:0; position:absolute; left:50%; transform:translateX(-50%); align-items:center; }
   #navLinks li a { color:#dffaff; text-decoration:none; padding:8px 14px; font-weight:600; border-radius:10px }
-  #navLinks li a.music { color:var(--accent) }
 
-  /* hamburger (mobile) */
   .hamburger{display:none; flex-direction:column; gap:6px; cursor:pointer; position:absolute; right:20px}
   .hamburger span{width:26px;height:3px;border-radius:2px;background:#e3f9ff;display:block}
-  .hamburger.toggle span:nth-child(1){transform:rotate(45deg) translate(5px,5px)}
-  .hamburger.toggle span:nth-child(2){opacity:0}
-  .hamburger.toggle span:nth-child(3){transform:rotate(-45deg) translate(6px,-6px)}
 
-  /* layout: sidebar + main + right (right used for compact info) */
+  /* layout */
   .page { display:grid; grid-template-columns: 220px 1fr 320px; gap:22px; padding:100px 28px 140px; min-height:calc(100vh - 140px) }
-  /* left sidebar */
   .sidebar { background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:12px; padding:16px; box-shadow:var(--card-shadow); height:calc(100vh - 140px); position:sticky; top:80px; overflow:auto }
-  .sidebar h3{margin:0 0 12px 0}
   .nav-item{display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;color:var(--muted);cursor:pointer}
-  .nav-item:hover{background:var(--glass); color:var(--text)}
   .playlist-list{margin-top:12px;display:flex;flex-direction:column;gap:8px}
   .pl-btn{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.02);color:var(--muted);cursor:pointer}
-  .pl-btn:hover{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); color:var(--text)}
-  #createPlaylistBtn{margin-top:12px;padding:10px;border-radius:10px;border:none;background:var(--accent);color:#071018;font-weight:700;cursor:pointer;width:100%}
 
-  /* main content */
+  /* main */
   .main { display:flex;flex-direction:column; gap:20px }
   .hero { display:flex; justify-content:space-between; align-items:center; gap:16px }
   .hero .title { font-size:24px; font-weight:800 }
@@ -70,18 +60,14 @@
   .song-meta .artist{font-size:13px;color:var(--muted);margin-top:4px}
   .add-to-pl-btn{position:absolute;top:8px;right:8px;width:34px;height:34px;border-radius:8px;border:none;background:rgba(0,0,0,0.45);color:#fff;font-weight:700;cursor:pointer}
 
-  /* right panel: playlist details & recommendations */
+  /* right panel */
   .right-panel { background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:16px;box-shadow:var(--card-shadow); height:calc(100vh - 140px); position:sticky; top:80px; overflow:auto }
   .right-panel h4{margin:0 0 10px 0}
 
-  /* bottom player (sticky) */
+  /* bottom player */
   .player-bar{position:fixed;left:0;right:0;bottom:0;height:96px;background:#071017;border-top:1px solid rgba(255,255,255,0.02);display:flex;align-items:center;gap:20px;padding:10px 24px;z-index:60}
   .player-left{display:flex;align-items:center;gap:12px}
   .player-cover{width:64px;height:64px;border-radius:6px;overflow:hidden;background:#0b0f12}
-  .player-cover img{width:100%;height:100%;object-fit:cover}
-  .player-meta{display:flex;flex-direction:column}
-  .player-meta .title{font-weight:700}
-  .player-controls{display:flex;align-items:center;gap:10px}
   .btn{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.03);border:none;color:#fff;display:grid;place-items:center;cursor:pointer}
   .btn.play{width:56px;height:56px;background:var(--accent);color:#071018;font-weight:800;font-size:18px}
   .progress{width:420px;height:8px;background:rgba(255,255,255,0.03);border-radius:8px;overflow:hidden;margin-left:20px}
@@ -91,7 +77,6 @@
   .wave-bar{width:4px;background:var(--accent);border-radius:2px;height:8px;animation:wave 0.6s infinite;animation-play-state:paused;--scale:1}
   @keyframes wave{0%{height:8px}50%{height:calc(8px + 18px * var(--scale))}100%{height:8px}}
 
-  /* responsive */
   @media(max-width:1100px){ .page{grid-template-columns:200px 1fr} .right-panel{display:none} .progress{display:none} }
   @media(max-width:720px){
     #navLinks{display:none}
@@ -102,7 +87,6 @@
     .player-bar{padding:8px 12px}
   }
 
-  /* small util */
   .muted{color:var(--muted)}
 </style>
 </head>
@@ -111,16 +95,9 @@
 <!-- NAVBAR -->
 <nav>
   <div class="nav-left">
-    <div class="hamburger" id="hamburger">
-      <span></span><span></span><span></span>
-    </div>
-
-    <div class="logo" style="cursor:default">
-      <div class="dot">J</div>
-      <div>
-        <h1 style="font-size:14px;margin:0">JARVIS Music</h1>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px">Your mini-Spotify</div>
-      </div>
+    <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+    <div class="logo" style="cursor:default"><div class="dot">J</div>
+      <div><h1 style="font-size:14px;margin:0">JARVIS Music</h1><div style="font-size:11px;color:var(--muted);margin-top:2px">Your mini-Spotify</div></div>
     </div>
   </div>
 
@@ -133,15 +110,13 @@
     <li><a href="home-automation.html" class="home">Home Automation</a></li>
   </ul>
 
-  <div class="nav-right">
-    <div style="font-size:13px;color:var(--muted)">Logged in</div>
-  </div>
+  <div style="margin-left:auto;display:flex;align-items:center;gap:12px;color:var(--muted);font-size:13px">Logged in</div>
 </nav>
 
-<!-- PAGE GRID -->
+<!-- PAGE -->
 <div class="page">
 
-  <!-- LEFT SIDEBAR -->
+  <!-- LEFT -->
   <aside class="sidebar" id="sidebar">
     <h3>Browse</h3>
     <div class="nav-item">🏠 <strong>Home</strong></div>
@@ -150,11 +125,7 @@
 
     <div style="height:14px"></div>
     <div style="font-size:13px;color:var(--muted);font-weight:700">Playlists</div>
-
-    <div class="playlist-list" id="sidebarPlaylists">
-      <!-- quick playlist buttons injected by JS -->
-    </div>
-
+    <div class="playlist-list" id="sidebarPlaylists"></div>
     <button id="createPlaylistBtn">+ Create Playlist</button>
     <div style="height:12px"></div>
     <div style="font-size:13px;color:var(--muted)">Tip: click a card to play. Use + on a card to add to playlists.</div>
@@ -174,9 +145,8 @@
       </div>
     </div>
 
-    <!-- SONG GRID -->
     <div id="songGrid" class="song-grid" aria-live="polite">
-      <!-- Famous songs included — each card has data-id (YouTube id) and metadata -->
+      <!-- Famous songs (Industry Baby removed) -->
       <div class="song-card" data-id="fHI8X4OXluQ" data-title="Blinding Lights" data-artist="The Weeknd" data-cover="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg">
         <img class="song-cover" src="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg" alt="">
         <div class="song-meta"><div class="title">Blinding Lights</div><div class="artist muted">The Weeknd</div></div>
@@ -201,23 +171,17 @@
         <button class="add-to-pl-btn">+</button>
       </div>
 
-      <div class="song-card" data-id="UTHLKHL_whs" data-title="Industry Baby" data-artist="Lil Nas X" data-cover="https://i.ytimg.com/vi/UTHLKHL_whs/hqdefault.jpg">
-        <img class="song-cover" src="https://i.ytimg.com/vi/UTHLKHL_whs/hqdefault.jpg" alt="">
-        <div class="song-meta"><div class="title">Industry Baby</div><div class="artist muted">Lil Nas X</div></div>
-        <button class="add-to-pl-btn">+</button>
-      </div>
-
       <div class="song-card" data-id="TEpZyoLhK9M" data-title="Unholy" data-artist="Sam Smith" data-cover="https://i.ytimg.com/vi/TEpZyoLhK9M/hqdefault.jpg">
         <img class="song-cover" src="https://i.ytimg.com/vi/TEpZyoLhK9M/hqdefault.jpg" alt="">
         <div class="song-meta"><div class="title">Unholy</div><div class="artist muted">Sam Smith</div></div>
         <button class="add-to-pl-btn">+</button>
       </div>
 
-      <!-- add more famous songs as desired -->
+      <!-- more cards are appended by JS (phonk samples) -->
     </div>
   </main>
 
-  <!-- RIGHT PANEL -->
+  <!-- RIGHT -->
   <aside class="right-panel">
     <h4>Now Playing</h4>
     <div style="display:flex;flex-direction:column;gap:10px">
@@ -226,6 +190,7 @@
           <img id="coverImg" src="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg" style="width:100%;height:100%;object-fit:cover">
         </div>
         <div>
+          <!-- main now-playing IDs (used by JS) -->
           <div id="trackTitle" style="font-weight:700">Not Playing</div>
           <div id="trackArtist" class="muted">Paste a link or search to play</div>
         </div>
@@ -247,8 +212,9 @@
   <div class="player-left">
     <div class="player-cover"><img id="miniCover" src="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg" alt=""></div>
     <div class="player-meta">
-      <div id="trackTitle" class="title">Not Playing</div>
-      <div id="trackArtist" class="muted small">—</div>
+      <!-- mini display uses distinct ids to avoid conflicts; JS updates both -->
+      <div id="miniTrackTitle" class="title">Not Playing</div>
+      <div id="miniTrackArtist" class="muted small">—</div>
     </div>
   </div>
 
@@ -270,17 +236,17 @@
   </div>
 </div>
 
+<!-- include updated JS -->
 <script src="music.js"></script>
 
 <script>
-// hamburger mobile toggle (navLinks slide from right on mobile)
+// hamburger mobile toggle
 const hamburger = document.getElementById("hamburger");
 const navLinks = document.getElementById("navLinks");
 const sidebar = document.getElementById("sidebar");
 hamburger?.addEventListener("click", () => {
   navLinks.classList.toggle("active");
   hamburger.classList.toggle("toggle");
-  // toggle sidebar for mobile
   if (sidebar) sidebar.classList.toggle("open");
 });
 </script>
