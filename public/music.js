@@ -1,9 +1,9 @@
-/* music.js — final consolidated version
+/* music.js — updated safe version
    - Play featured song cards
    - Playlist create/add/remove + persistence (jarvis_playlists)
    - Queue support (next / prev)
    - Wave & progress simulation
-   - Non-destructive, defensive
+   - Safe non-destructive loadMusic() that queues instead of interrupting
 */
 
 const INPUT_ID = "ytInput";
@@ -438,21 +438,72 @@ function highlightCurrentPlayingInGrid(vid) {
   });
 }
 
-/* search/load music */
+/* -----------------------------
+   REPLACED loadMusic() — safe behavior:
+   - If a song is playing, offer to queue instead of interrupting.
+   - If user cancels, do nothing.
+   - If user confirms, append to queue.
+   ----------------------------- */
 async function loadMusic() {
-  const input = document.getElementById(INPUT_ID); if (!input) return alert("Search input not found.");
-  const raw = input.value.trim(); if (!raw) return alert("Type a song name or paste a YouTube link.");
+  const input = document.getElementById(INPUT_ID);
+  if (!input) return alert("Search input not found.");
+  const raw = input.value.trim();
+  if (!raw) return alert("Type a song name or paste a YouTube link.");
+
   const isUrl = /(youtube\.com|youtu\.be)/i.test(raw);
-  if (isUrl) {
-    const vid = extractVideoId(raw); if (!vid) return alert("Could not extract video id from link.");
-    currentQueue = [vid]; currentIndex = 0; setVideoById(vid); return;
+
+  // If a song is currently playing, offer to queue instead of interrupting.
+  if (isPlaying && currentVideoId) {
+    const currentTitleEl = document.getElementById(TITLE_ID);
+    const currentlyPlayingLabel = (currentTitleEl && currentTitleEl.textContent) ? currentTitleEl.textContent : currentVideoId;
+
+    // Ask the user what to do
+    const choice = confirm(
+      `A song is already playing: "${currentlyPlayingLabel}".\n\n` +
+      `Press OK to add the requested track to Up Next (Queue), or Cancel to ignore.`
+    );
+
+    if (!choice) {
+      // User cancelled → don't interrupt playback
+      return;
+    }
+    // If user chose to queue, we'll fall through and append instead of playing immediately.
   }
+
+  if (isUrl) {
+    const vid = extractVideoId(raw);
+    if (!vid) return alert("Could not extract video id from link.");
+    if (isPlaying && currentVideoId) {
+      // append to queue
+      currentQueue.push(vid);
+      alert("Added to Up Next.");
+      return;
+    }
+    // play immediately
+    currentQueue = [vid];
+    currentIndex = 0;
+    setVideoById(vid);
+    return;
+  }
+
+  // Not a URL -> use search endpoint
   try {
     const resp = await fetch(`/api/search?q=${encodeURIComponent(raw)}`);
     const data = await resp.json();
     if (!data.videoId) return alert("Search failed. Try a different query or paste a link.");
-    currentQueue = [data.videoId]; currentIndex = 0; setVideoById(data.videoId);
-  } catch (err) { console.error(err); alert("Search failed. Try again."); }
+
+    if (isPlaying && currentVideoId) {
+      currentQueue.push(data.videoId);
+      alert("Added search result to Up Next (queue).");
+      return;
+    }
+    currentQueue = [data.videoId];
+    currentIndex = 0;
+    setVideoById(data.videoId);
+  } catch (err) {
+    console.error(err);
+    alert("Search failed. Try again.");
+  }
 }
 
 /* init */
