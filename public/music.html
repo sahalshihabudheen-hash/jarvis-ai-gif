@@ -6,88 +6,92 @@
 <title>JARVIS Music — Spotify Style</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --bg:#0b1114;
-    --panel:#0e1618;
-    --muted:#9aa6a1;
-    --glass: rgba(255,255,255,0.03);
-    --accent:#1d7bff; /* JARVIS Blue */
-    --accent-2:#1d7bff;
-    --card-shadow: 0 10px 30px rgba(2,6,10,0.6);
-    --text:#e9f2ef;
-  }
+:root{
+  --bg:#0b1114;
+  --panel:#0e1618;
+  --muted:#9aa6a1;
+  --glass: rgba(255,255,255,0.03);
+  --accent:#1d7bff;
+  --accent-2:#1d7bff;
+  --card-shadow: 0 10px 30px rgba(2,6,10,0.6);
+  --text:#e9f2ef;
+}
 
-  html,body{height:100%;margin:0;font-family:Inter, "Segoe UI", Roboto, Arial, sans-serif;
-    background:linear-gradient(180deg,#071017 0%, #041014 100%);
-    color:var(--text);-webkit-font-smoothing:antialiased}
+html,body{
+  height:100%;
+  margin:0;
+  font-family:Inter, "Segoe UI", Roboto, Arial, sans-serif;
+  background:linear-gradient(180deg,#071017 0%, #041014 100%);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+}
 
-  /* NAV */
-  nav{
-    position:fixed;top:0;left:0;right:0;height:64px;display:flex;align-items:center;padding:0 20px;z-index:40;
-    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.12));
-    backdrop-filter: blur(8px);border-bottom:1px solid rgba(255,255,255,0.02);
-  }
-  nav .nav-left{display:flex;gap:14px;align-items:center}
-  .logo{display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));box-shadow:var(--card-shadow)}
-  .dot{width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,var(--accent-2), #6ad1ff);display:flex;align-items:center;justify-content:center;font-weight:800;color:#031017}
-  #navLinks { display:flex; gap:28px; list-style:none; margin:0; padding:0; position:absolute; left:50%; transform:translateX(-50%); align-items:center; }
-  #navLinks li a { color:#dffaff; text-decoration:none; padding:8px 14px; font-weight:600; border-radius:10px }
+/* NAVBAR */
+nav{
+  position:fixed;top:0;left:0;right:0;height:64px;display:flex;align-items:center;padding:0 20px;z-index:40;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.12));
+  backdrop-filter: blur(8px);border-bottom:1px solid rgba(255,255,255,0.02);
+}
+nav .nav-left{display:flex;gap:14px;align-items:center}
+.logo{display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));box-shadow:var(--card-shadow)}
+.dot{width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,var(--accent-2), #6ad1ff);display:flex;align-items:center;justify-content:center;font-weight:800;color:#031017}
+#navLinks { display:flex; gap:28px; list-style:none; margin:0; padding:0; position:absolute; left:50%; transform:translateX(-50%); align-items:center; }
+#navLinks li a { color:#dffaff; text-decoration:none; padding:8px 14px; font-weight:600; border-radius:10px }
 
-  .hamburger{display:none; flex-direction:column; gap:6px; cursor:pointer; position:absolute; right:20px}
-  .hamburger span{width:26px;height:3px;border-radius:2px;background:#e3f9ff;display:block}
+.hamburger{display:none; flex-direction:column; gap:6px; cursor:pointer; position:absolute; right:20px}
+.hamburger span{width:26px;height:3px;border-radius:2px;background:#e3f9ff;display:block}
 
-  /* layout */
-  .page { display:grid; grid-template-columns: 220px 1fr 320px; gap:22px; padding:100px 28px 140px; min-height:calc(100vh - 140px) }
-  .sidebar { background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:12px; padding:16px; box-shadow:var(--card-shadow); height:calc(100vh - 140px); position:sticky; top:80px; overflow:auto }
-  .nav-item{display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;color:var(--muted);cursor:pointer}
-  .playlist-list{margin-top:12px;display:flex;flex-direction:column;gap:8px}
-  .pl-btn{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.02);color:var(--muted);cursor:pointer}
+/* LAYOUT */
+.page { display:grid; grid-template-columns: 220px 1fr 320px; gap:22px; padding:100px 28px 140px; min-height:calc(100vh - 140px) }
+.sidebar { background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:12px; padding:16px; box-shadow:var(--card-shadow); height:calc(100vh - 140px); position:sticky; top:80px; overflow:auto; transition: transform .28s ease-in-out; }
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;color:var(--muted);cursor:pointer}
+.playlist-list{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+.pl-btn{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.02);color:var(--muted);cursor:pointer}
 
-  /* main */
-  .main { display:flex;flex-direction:column; gap:20px }
-  .hero { display:flex; justify-content:space-between; align-items:center; gap:16px }
-  .hero .title { font-size:24px; font-weight:800 }
-  .searchbar { display:flex; gap:10px; align-items:center; width:480px }
-  .searchbar input{flex:1;padding:10px 12px;border-radius:10px;border:none;background:rgba(255,255,255,0.03);color:var(--text)}
-  .searchbar button{padding:10px 12px;border-radius:10px;border:none;background:var(--accent-2);color:#071018;font-weight:700;cursor:pointer}
+/* MAIN */
+.main { display:flex;flex-direction:column; gap:20px }
+.hero { display:flex; justify-content:space-between; align-items:center; gap:16px }
+.hero .title { font-size:24px; font-weight:800 }
+.searchbar { display:flex; gap:10px; align-items:center; width:480px }
+.searchbar input{flex:1;padding:10px 12px;border-radius:10px;border:none;background:rgba(255,255,255,0.03);color:var(--text);outline:none}
+.searchbar button{padding:10px 12px;border-radius:10px;border:none;background:var(--accent-2);color:#071018;font-weight:700;cursor:pointer}
 
-  .song-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-top:6px}
-  .song-card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:10px;cursor:pointer;position:relative;overflow:hidden;transition:transform .18s,box-shadow .18s}
-  .song-card:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(2,6,10,0.6)}
-  .song-cover{width:100%;height:140px;object-fit:cover;border-radius:8px;display:block}
-  .song-meta{margin-top:8px}
-  .song-meta .title{font-weight:700;font-size:14px;color:var(--text)}
-  .song-meta .artist{font-size:13px;color:var(--muted);margin-top:4px}
-  .add-to-pl-btn{position:absolute;top:8px;right:8px;width:34px;height:34px;border-radius:8px;border:none;background:rgba(0,0,0,0.45);color:#fff;font-weight:700;cursor:pointer}
+.song-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-top:6px}
+.song-card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:10px;cursor:pointer;position:relative;overflow:hidden;transition:transform .18s,box-shadow .18s}
+.song-card:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(2,6,10,0.6)}
+.song-cover{width:100%;height:140px;object-fit:cover;border-radius:8px;display:block}
+.song-meta{margin-top:8px}
+.song-meta .title{font-weight:700;font-size:14px;color:var(--text)}
+.song-meta .artist{font-size:13px;color:var(--muted);margin-top:4px}
+.add-to-pl-btn{position:absolute;top:8px;right:8px;width:34px;height:34px;border-radius:8px;border:none;background:rgba(0,0,0,0.45);color:#fff;font-weight:700;cursor:pointer}
 
-  /* right panel */
-  .right-panel { background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:16px;box-shadow:var(--card-shadow); height:calc(100vh - 140px); position:sticky; top:80px; overflow:auto }
-  .right-panel h4{margin:0 0 10px 0}
+/* RIGHT PANEL */
+.right-panel { background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:16px;box-shadow:var(--card-shadow); height:calc(100vh - 140px); position:sticky; top:80px; overflow:auto }
 
-  /* bottom player */
-  .player-bar{position:fixed;left:0;right:0;bottom:0;height:96px;background:#071017;border-top:1px solid rgba(255,255,255,0.02);display:flex;align-items:center;gap:20px;padding:10px 24px;z-index:60}
-  .player-left{display:flex;align-items:center;gap:12px}
-  .player-cover{width:64px;height:64px;border-radius:6px;overflow:hidden;background:#0b0f12}
-  .btn{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.03);border:none;color:#fff;display:grid;place-items:center;cursor:pointer}
-  .btn.play{width:56px;height:56px;background:var(--accent);color:#071018;font-weight:800;font-size:18px}
-  .progress{width:420px;height:8px;background:rgba(255,255,255,0.03);border-radius:8px;overflow:hidden;margin-left:20px}
-  .progress > i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--accent), #9cffff)}
+/* BOTTOM PLAYER */
+.player-bar{position:fixed;left:0;right:0;bottom:0;height:96px;background:#071017;border-top:1px solid rgba(255,255,255,0.02);display:flex;align-items:center;gap:20px;padding:10px 24px;z-index:60}
+.player-left{display:flex;align-items:center;gap:12px}
+.player-cover{width:64px;height:64px;border-radius:6px;overflow:hidden;background:#0b0f12}
+.btn{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.03);border:none;color:#fff;display:grid;place-items:center;cursor:pointer;font-size:16px}
+.btn.play{width:56px;height:56px;background:var(--accent);color:#071018;font-weight:800;font-size:18px}
+.progress{width:420px;height:8px;background:rgba(255,255,255,0.03);border-radius:8px;overflow:hidden;margin-left:20px}
+.progress > i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--accent), #9cffff)}
 
-  .wave-container{display:flex;align-items:flex-end;gap:4px;height:30px}
-  .wave-bar{width:4px;background:var(--accent);border-radius:2px;height:8px;animation:wave 0.6s infinite;animation-play-state:paused;--scale:1}
-  @keyframes wave{0%{height:8px}50%{height:calc(8px + 18px * var(--scale))}100%{height:8px}}
+.wave-container{display:flex;align-items:flex-end;gap:4px;height:30px}
+.wave-bar{width:4px;background:var(--accent);border-radius:2px;height:8px;animation:wave 0.6s infinite;}
+@keyframes wave{0%{height:8px}50%{height:26px}100%{height:8px}}
 
-  @media(max-width:1100px){ .page{grid-template-columns:200px 1fr} .right-panel{display:none} .progress{display:none} }
-  @media(max-width:720px){
-    #navLinks{display:none}
-    .hamburger{display:flex}
-    .sidebar{position:fixed;left:-260px;top:64px;height:calc(100vh - 64px);z-index:50;transition:transform .28s}
-    .sidebar.open{transform:translateX(260px)}
-    .page{grid-template-columns:1fr;padding:120px 12px 140px}
-    .player-bar{padding:8px 12px}
-  }
+@media(max-width:1100px){ .page{grid-template-columns:200px 1fr} .right-panel{display:none} .progress{display:none} }
+@media(max-width:720px){
+  #navLinks{display:none}
+  .hamburger{display:flex}
+  .sidebar{position:fixed;left:-260px;top:64px;height:calc(100vh - 64px);z-index:50}
+  .sidebar.open{transform:translateX(260px)}
+  .page{grid-template-columns:1fr;padding:120px 12px 140px}
+  .player-bar{padding:8px 12px}
+}
 
-  .muted{color:var(--muted)}
+.muted{color:var(--muted)}
 </style>
 </head>
 <body>
@@ -146,39 +150,51 @@
     </div>
 
     <div id="songGrid" class="song-grid" aria-live="polite">
+      <!-- SONGS: Added many more -->
       <div class="song-card" data-id="fHI8X4OXluQ" data-title="Blinding Lights" data-artist="The Weeknd" data-cover="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg">
-        <img class="song-cover" src="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg" alt="">
+        <img class="song-cover" src="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg" alt="Blinding Lights">
         <div class="song-meta"><div class="title">Blinding Lights</div><div class="artist muted">The Weeknd</div></div>
         <button class="add-to-pl-btn" title="Add to playlist">+</button>
       </div>
-
       <div class="song-card" data-id="34Na4j8AVgA" data-title="Starboy" data-artist="The Weeknd" data-cover="https://i.ytimg.com/vi/34Na4j8AVgA/hqdefault.jpg">
-        <img class="song-cover" src="https://i.ytimg.com/vi/34Na4j8AVgA/hqdefault.jpg" alt="">
+        <img class="song-cover" src="https://i.ytimg.com/vi/34Na4j8AVgA/hqdefault.jpg" alt="Starboy">
         <div class="song-meta"><div class="title">Starboy</div><div class="artist muted">The Weeknd</div></div>
         <button class="add-to-pl-btn">+</button>
       </div>
-
       <div class="song-card" data-id="XXYlFuWEuKI" data-title="Save Your Tears" data-artist="The Weeknd" data-cover="https://i.ytimg.com/vi/XXYlFuWEuKI/hqdefault.jpg">
-        <img class="song-cover" src="https://i.ytimg.com/vi/XXYlFuWEuKI/hqdefault.jpg" alt="">
+        <img class="song-cover" src="https://i.ytimg.com/vi/XXYlFuWEuKI/hqdefault.jpg" alt="Save Your Tears">
         <div class="song-meta"><div class="title">Save Your Tears</div><div class="artist muted">The Weeknd</div></div>
         <button class="add-to-pl-btn">+</button>
       </div>
-
       <div class="song-card" data-id="mRD0-GxqHVo" data-title="Heat Waves" data-artist="Glass Animals" data-cover="https://i.ytimg.com/vi/mRD0-GxqHVo/hqdefault.jpg">
-        <img class="song-cover" src="https://i.ytimg.com/vi/mRD0-GxqHVo/hqdefault.jpg" alt="">
+        <img class="song-cover" src="https://i.ytimg.com/vi/mRD0-GxqHVo/hqdefault.jpg" alt="Heat Waves">
         <div class="song-meta"><div class="title">Heat Waves</div><div class="artist muted">Glass Animals</div></div>
         <button class="add-to-pl-btn">+</button>
       </div>
-
       <div class="song-card" data-id="TEpZyoLhK9M" data-title="Unholy" data-artist="Sam Smith" data-cover="https://i.ytimg.com/vi/TEpZyoLhK9M/hqdefault.jpg">
-        <img class="song-cover" src="https://i.ytimg.com/vi/TEpZyoLhK9M/hqdefault.jpg" alt="">
+        <img class="song-cover" src="https://i.ytimg.com/vi/TEpZyoLhK9M/hqdefault.jpg" alt="Unholy">
         <div class="song-meta"><div class="title">Unholy</div><div class="artist muted">Sam Smith</div></div>
+        <button class="add-to-pl-btn">+</button>
+      </div>
+      <div class="song-card" data-id="3tmd-ClpJxA" data-title="Levitating" data-artist="Dua Lipa" data-cover="https://i.ytimg.com/vi/3tmd-ClpJxA/hqdefault.jpg">
+        <img class="song-cover" src="https://i.ytimg.com/vi/3tmd-ClpJxA/hqdefault.jpg" alt="Levitating">
+        <div class="song-meta"><div class="title">Levitating</div><div class="artist muted">Dua Lipa</div></div>
+        <button class="add-to-pl-btn">+</button>
+      </div>
+      <div class="song-card" data-id="2Vv-BfVoq4g" data-title="Perfect" data-artist="Ed Sheeran" data-cover="https://i.ytimg.com/vi/2Vv-BfVoq4g/hqdefault.jpg">
+        <img class="song-cover" src="https://i.ytimg.com/vi/2Vv-BfVoq4g/hqdefault.jpg" alt="Perfect">
+        <div class="song-meta"><div class="title">Perfect</div><div class="artist muted">Ed Sheeran</div></div>
+        <button class="add-to-pl-btn">+</button>
+      </div>
+      <div class="song-card" data-id="kJQP7kiw5Fk" data-title="Despacito" data-artist="Luis Fonsi" data-cover="https://i.ytimg.com/vi/kJQP7kiw5Fk/hqdefault.jpg">
+        <img class="song-cover" src="https://i.ytimg.com/vi/kJQP7kiw5Fk/hqdefault.jpg" alt="Despacito">
+        <div class="song-meta"><div class="title">Despacito</div><div class="artist muted">Luis Fonsi</div></div>
         <button class="add-to-pl-btn">+</button>
       </div>
     </div>
   </main>
 
-  <!-- RIGHT -->
+  <!-- RIGHT PANEL -->
   <aside class="right-panel">
     <h4>Now Playing</h4>
     <div style="display:flex;flex-direction:column;gap:10px">
@@ -198,48 +214,54 @@
       </div>
     </div>
 
-    <iframe id="ytPlayer" style="display:none" allow="autoplay"></iframe>
+    <iframe id="ytPlayer" style="display:none" allow="autoplay" width="0" height="0"></iframe>
   </aside>
+
 </div>
 
-<!-- BOTTOM PLAYER -->
+<!-- PLAYER -->
 <div class="player-bar">
   <div class="player-left">
-    <div class="player-cover"><img id="miniCover" src="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg" alt=""></div>
-    <div class="player-meta">
-      <div id="miniTrackTitle" class="title">Not Playing</div>
-      <div id="miniTrackArtist" class="muted small">—</div>
+    <img class="player-cover" id="playerCover" src="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg">
+    <div id="waveContainer" class="wave-container">
+      <div class="wave-bar" style="animation-delay:0s"></div>
+      <div class="wave-bar" style="animation-delay:0.1s"></div>
+      <div class="wave-bar" style="animation-delay:0.2s"></div>
+      <div class="wave-bar" style="animation-delay:0.3s"></div>
+      <div class="wave-bar" style="animation-delay:0.4s"></div>
     </div>
   </div>
 
-  <div style="display:flex;flex-direction:column;align-items:center;flex:1">
-    <div class="player-controls">
-      <button class="btn" id="prevBtn">⏮</button>
-      <button class="btn" id="rewBtn" title="Rewind 10s">⟲</button>
-      <button class="btn play" id="playBtn">▶</button>
-      <button class="btn" id="fwdBtn" title="Forward 10s">⟳</button>
-      <button class="btn" id="nextBtn">⏭</button>
-      <div class="progress" style="margin-left:18px"><i id="progressFill"></i></div>
-    </div>
+  <button class="btn prev">⏮️</button>
+  <button class="btn play">▶️</button>
+  <button class="btn next">⏭️</button>
 
-    <div class="wave-container" id="waveContainer" aria-hidden="true" style="margin-top:8px;height:28px"></div>
-  </div>
-
-  <div style="width:220px;display:flex;align-items:center;justify-content:flex-end;gap:12px">
-    <div style="font-size:13px;color:var(--muted)">JARVIS</div>
-  </div>
+  <div class="progress"><i id="progressFill"></i></div>
 </div>
 
-<script src="music.js"></script>
 <script>
-const hamburger = document.getElementById("hamburger");
-const navLinks = document.getElementById("navLinks");
-const sidebar = document.getElementById("sidebar");
-hamburger?.addEventListener("click", () => {
-  navLinks.classList.toggle("active");
-  hamburger.classList.toggle("toggle");
-  if (sidebar) sidebar.classList.toggle("open");
-});
+const hamburger=document.getElementById('hamburger'),sidebar=document.getElementById('sidebar');
+hamburger.addEventListener('click',()=>{sidebar.classList.toggle('open')})
+
+// SONG CARD PLAY
+const songCards=document.querySelectorAll('.song-card');
+const ytPlayer=document.getElementById('ytPlayer');
+const coverImg=document.getElementById('coverImg');
+const trackTitle=document.getElementById('trackTitle');
+const trackArtist=document.getElementById('trackArtist');
+const waveContainer=document.getElementById('waveContainer');
+
+songCards.forEach(card=>{
+  card.addEventListener('click',()=>{
+    let id=card.dataset.id;
+    ytPlayer.src=`https://www.youtube.com/embed/${id}?autoplay=1`;
+    coverImg.src=card.dataset.cover;
+    trackTitle.textContent=card.dataset.title;
+    trackArtist.textContent=card.dataset.artist;
+    waveContainer.style.display='flex';
+  })
+})
 </script>
+
 </body>
 </html>
