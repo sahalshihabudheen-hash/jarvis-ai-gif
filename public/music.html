@@ -1,143 +1,267 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Music Player</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>JARVIS Music — Spotify Style</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 <style>
-body, html {margin:0; padding:0; font-family: 'Segoe UI', sans-serif; background:#0b0f12; color:#fff;}
-#searchContainer {display:flex; justify-content:center; margin:20px;}
-#searchInput {padding:10px 15px; font-size:16px; width:300px; border-radius:10px; border:none; outline:none;}
-#playSearchBtn {padding:10px 15px; margin-left:10px; border:none; border-radius:10px; background:#1db954; color:#fff; cursor:pointer;}
-#songsContainer {display:flex; flex-wrap:wrap; justify-content:center; gap:15px;}
-.song {background:rgba(20,25,40,0.7); width:180px; cursor:pointer; padding:10px; border-radius:10px; text-align:center; transition:0.3s;}
-.song:hover {transform:scale(1.05); box-shadow:0 0 10px #1db954;}
-.song img {width:100%; border-radius:10px; margin-bottom:8px;}
-#playerContainer {position:fixed; bottom:0; width:100%; background:rgba(20,25,40,0.85); display:flex; align-items:center; padding:10px 20px; gap:15px;}
-#playerCover {width:60px; height:60px; border-radius:8px; object-fit:cover;}
-#progressBar {width:100%; height:5px; background:#222; border-radius:5px; cursor:pointer;}
-#progressFill {width:0%; height:100%; background:#1db954; border-radius:5px;}
+:root{
+  --bg:#0b1114;
+  --panel:#0e1618;
+  --muted:#9aa6a1;
+  --glass: rgba(255,255,255,0.03);
+  --accent:#1d7bff;
+  --accent-2:#1d7bff;
+  --card-shadow: 0 10px 30px rgba(2,6,10,0.6);
+  --text:#e9f2ef;
+}
+
+html,body{
+  height:100%;
+  margin:0;
+  font-family:Inter, "Segoe UI", Roboto, Arial, sans-serif;
+  background:linear-gradient(180deg,#071017 0%, #041014 100%);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+}
+
+/* NAVBAR */
+nav{
+  position:fixed;top:0;left:0;right:0;height:64px;display:flex;align-items:center;padding:0 20px;z-index:40;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.12));
+  backdrop-filter: blur(8px);border-bottom:1px solid rgba(255,255,255,0.02);
+}
+nav .nav-left{display:flex;gap:14px;align-items:center}
+.logo{display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));box-shadow:var(--card-shadow)}
+.dot{width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,var(--accent-2), #6ad1ff);display:flex;align-items:center;justify-content:center;font-weight:800;color:#031017}
+#navLinks { display:flex; gap:28px; list-style:none; margin:0; padding:0; position:absolute; left:50%; transform:translateX(-50%); align-items:center; }
+#navLinks li a { color:#dffaff; text-decoration:none; padding:8px 14px; font-weight:600; border-radius:10px }
+
+.hamburger{display:none; flex-direction:column; gap:6px; cursor:pointer; position:absolute; right:20px}
+.hamburger span{width:26px;height:3px;border-radius:2px;background:#e3f9ff;display:block}
+
+/* LAYOUT */
+.page { display:grid; grid-template-columns: 220px 1fr 320px; gap:22px; padding:100px 28px 140px; min-height:calc(100vh - 140px) }
+.sidebar { background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:12px; padding:16px; box-shadow:var(--card-shadow); height:calc(100vh - 140px); position:sticky; top:80px; overflow:auto; transition: transform .28s ease-in-out; }
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;color:var(--muted);cursor:pointer}
+.playlist-list{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+.pl-btn{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.02);color:var(--muted);cursor:pointer}
+
+/* MAIN */
+.main { display:flex;flex-direction:column; gap:20px }
+.hero { display:flex; justify-content:space-between; align-items:center; gap:16px }
+.hero .title { font-size:24px; font-weight:800 }
+.searchbar { display:flex; gap:10px; align-items:center; width:480px }
+.searchbar input{flex:1;padding:10px 12px;border-radius:10px;border:none;background:rgba(255,255,255,0.03);color:var(--text);outline:none}
+.searchbar button{padding:10px 12px;border-radius:10px;border:none;background:var(--accent-2);color:#071018;font-weight:700;cursor:pointer}
+
+.song-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-top:6px}
+.song-card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:10px;cursor:pointer;position:relative;overflow:hidden;transition:transform .18s,box-shadow .18s}
+.song-card:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(2,6,10,0.6)}
+.song-cover{width:100%;height:140px;object-fit:cover;border-radius:8px;display:block}
+.song-meta{margin-top:8px}
+.song-meta .title{font-weight:700;font-size:14px;color:var(--text)}
+.song-meta .artist{font-size:13px;color:var(--muted);margin-top:4px}
+.add-to-pl-btn{position:absolute;top:8px;right:8px;width:34px;height:34px;border-radius:8px;border:none;background:rgba(0,0,0,0.45);color:#fff;font-weight:700;cursor:pointer}
+
+/* RIGHT PANEL */
+.right-panel { background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:16px;box-shadow:var(--card-shadow); height:calc(100vh - 140px); position:sticky; top:80px; overflow:auto }
+
+/* BOTTOM PLAYER */
+.player-bar{position:fixed;left:0;right:0;bottom:0;height:96px;background:#071017;border-top:1px solid rgba(255,255,255,0.02);display:flex;align-items:center;gap:20px;padding:10px 24px;z-index:60}
+.player-left{display:flex;align-items:center;gap:12px}
+.player-cover{width:64px;height:64px;border-radius:6px;overflow:hidden;background:#0b0f12}
+.btn{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.03);border:none;color:#fff;display:grid;place-items:center;cursor:pointer;font-size:16px}
+.btn.play{width:56px;height:56px;background:var(--accent);color:#071018;font-weight:800;font-size:18px}
+.progress{width:420px;height:8px;background:rgba(255,255,255,0.03);border-radius:8px;overflow:hidden;margin-left:20px}
+.progress > i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--accent), #9cffff)}
+
+.wave-container{display:flex;align-items:flex-end;gap:4px;height:30px}
+.wave-bar{width:4px;background:var(--accent);border-radius:2px;height:8px;animation:wave 0.6s infinite;}
+@keyframes wave{0%{height:8px}50%{height:26px}100%{height:8px}}
+
+@media(max-width:1100px){ .page{grid-template-columns:200px 1fr} .right-panel{display:none} .progress{display:none} }
+@media(max-width:720px){
+  #navLinks{display:none}
+  .hamburger{display:flex}
+  .sidebar{position:fixed;left:-260px;top:64px;height:calc(100vh - 64px);z-index:50}
+  .sidebar.open{transform:translateX(260px)}
+  .page{grid-template-columns:1fr;padding:120px 12px 140px}
+  .player-bar{padding:8px 12px}
+}
+
+.muted{color:var(--muted)}
 </style>
 </head>
 <body>
 
-<div id="searchContainer">
-  <input type="text" id="searchInput" placeholder="Search song or artist...">
-  <button id="playSearchBtn">Play</button>
+<!-- NAVBAR -->
+<nav>
+  <div class="nav-left">
+    <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+    <div class="logo" style="cursor:default"><div class="dot">J</div>
+      <div><h1 style="font-size:14px;margin:0">JARVIS Music</h1><div style="font-size:11px;color:var(--muted);margin-top:2px">Your mini-Spotify</div></div>
+    </div>
+  </div>
+
+  <ul id="navLinks">
+    <li><a href="index.html" class="chat">Chat-bot</a></li>
+    <li><a href="bots.html" class="discord">Discord Bots</a></li>
+    <li><a href="image.html" class="image">Image Gen</a></li>
+    <li><a href="music.html" class="music">Music</a></li>
+    <li><a href="video.html" class="video">Video Gen</a></li>
+    <li><a href="home-automation.html" class="home">Home Automation</a></li>
+  </ul>
+
+  <div style="margin-left:auto;display:flex;align-items:center;gap:12px;color:var(--muted);font-size:13px">Logged in</div>
+</nav>
+
+<!-- PAGE -->
+<div class="page">
+
+  <!-- LEFT -->
+  <aside class="sidebar" id="sidebar">
+    <h3>Browse</h3>
+    <div class="nav-item">🏠 <strong>Home</strong></div>
+    <div class="nav-item">🔍 <strong>Search</strong></div>
+    <div class="nav-item">📚 <strong>Your Library</strong></div>
+
+    <div style="height:14px"></div>
+    <div style="font-size:13px;color:var(--muted);font-weight:700">Playlists</div>
+    <div class="playlist-list" id="sidebarPlaylists"></div>
+    <button id="createPlaylistBtn">+ Create Playlist</button>
+    <div style="height:12px"></div>
+    <div style="font-size:13px;color:var(--muted)">Tip: click a card to play. Use + on a card to add to playlists.</div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="hero">
+      <div>
+        <div class="title">Featured</div>
+        <div class="muted small">Popular & trending — click a song to play</div>
+      </div>
+
+      <div class="searchbar">
+        <input id="ytInput" placeholder="Search song or paste YouTube link here...">
+        <button id="loadBtn">Search & Play</button>
+      </div>
+    </div>
+
+    <div id="songGrid" class="song-grid" aria-live="polite">
+      <!-- SONGS: Added many more -->
+      <div class="song-card" data-id="fHI8X4OXluQ" data-title="Blinding Lights" data-artist="The Weeknd" data-cover="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg">
+        <img class="song-cover" src="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg" alt="Blinding Lights">
+        <div class="song-meta"><div class="title">Blinding Lights</div><div class="artist muted">The Weeknd</div></div>
+        <button class="add-to-pl-btn" title="Add to playlist">+</button>
+      </div>
+      <div class="song-card" data-id="34Na4j8AVgA" data-title="Starboy" data-artist="The Weeknd" data-cover="https://i.ytimg.com/vi/34Na4j8AVgA/hqdefault.jpg">
+        <img class="song-cover" src="https://i.ytimg.com/vi/34Na4j8AVgA/hqdefault.jpg" alt="Starboy">
+        <div class="song-meta"><div class="title">Starboy</div><div class="artist muted">The Weeknd</div></div>
+        <button class="add-to-pl-btn">+</button>
+      </div>
+      <div class="song-card" data-id="XXYlFuWEuKI" data-title="Save Your Tears" data-artist="The Weeknd" data-cover="https://i.ytimg.com/vi/XXYlFuWEuKI/hqdefault.jpg">
+        <img class="song-cover" src="https://i.ytimg.com/vi/XXYlFuWEuKI/hqdefault.jpg" alt="Save Your Tears">
+        <div class="song-meta"><div class="title">Save Your Tears</div><div class="artist muted">The Weeknd</div></div>
+        <button class="add-to-pl-btn">+</button>
+      </div>
+      <div class="song-card" data-id="mRD0-GxqHVo" data-title="Heat Waves" data-artist="Glass Animals" data-cover="https://i.ytimg.com/vi/mRD0-GxqHVo/hqdefault.jpg">
+        <img class="song-cover" src="https://i.ytimg.com/vi/mRD0-GxqHVo/hqdefault.jpg" alt="Heat Waves">
+        <div class="song-meta"><div class="title">Heat Waves</div><div class="artist muted">Glass Animals</div></div>
+        <button class="add-to-pl-btn">+</button>
+      </div>
+      <div class="song-card" data-id="TEpZyoLhK9M" data-title="Unholy" data-artist="Sam Smith" data-cover="https://i.ytimg.com/vi/TEpZyoLhK9M/hqdefault.jpg">
+        <img class="song-cover" src="https://i.ytimg.com/vi/TEpZyoLhK9M/hqdefault.jpg" alt="Unholy">
+        <div class="song-meta"><div class="title">Unholy</div><div class="artist muted">Sam Smith</div></div>
+        <button class="add-to-pl-btn">+</button>
+      </div>
+      <div class="song-card" data-id="3tmd-ClpJxA" data-title="Levitating" data-artist="Dua Lipa" data-cover="https://i.ytimg.com/vi/3tmd-ClpJxA/hqdefault.jpg">
+        <img class="song-cover" src="https://i.ytimg.com/vi/3tmd-ClpJxA/hqdefault.jpg" alt="Levitating">
+        <div class="song-meta"><div class="title">Levitating</div><div class="artist muted">Dua Lipa</div></div>
+        <button class="add-to-pl-btn">+</button>
+      </div>
+      <div class="song-card" data-id="2Vv-BfVoq4g" data-title="Perfect" data-artist="Ed Sheeran" data-cover="https://i.ytimg.com/vi/2Vv-BfVoq4g/hqdefault.jpg">
+        <img class="song-cover" src="https://i.ytimg.com/vi/2Vv-BfVoq4g/hqdefault.jpg" alt="Perfect">
+        <div class="song-meta"><div class="title">Perfect</div><div class="artist muted">Ed Sheeran</div></div>
+        <button class="add-to-pl-btn">+</button>
+      </div>
+      <div class="song-card" data-id="kJQP7kiw5Fk" data-title="Despacito" data-artist="Luis Fonsi" data-cover="https://i.ytimg.com/vi/kJQP7kiw5Fk/hqdefault.jpg">
+        <img class="song-cover" src="https://i.ytimg.com/vi/kJQP7kiw5Fk/hqdefault.jpg" alt="Despacito">
+        <div class="song-meta"><div class="title">Despacito</div><div class="artist muted">Luis Fonsi</div></div>
+        <button class="add-to-pl-btn">+</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- RIGHT PANEL -->
+  <aside class="right-panel">
+    <h4>Now Playing</h4>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;gap:10px;align-items:center">
+        <div style="width:56px;height:56px;border-radius:8px;overflow:hidden;background:#0b0f12">
+          <img id="coverImg" src="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg" style="width:100%;height:100%;object-fit:cover">
+        </div>
+        <div>
+          <div id="trackTitle" style="font-weight:700">Not Playing</div>
+          <div id="trackArtist" class="muted">Paste a link or search to play</div>
+        </div>
+      </div>
+
+      <div style="margin-top:8px">
+        <div style="font-weight:700">Your Playlists</div>
+        <div id="playlistArea" style="margin-top:8px"></div>
+      </div>
+    </div>
+
+    <iframe id="ytPlayer" style="display:none" allow="autoplay" width="0" height="0"></iframe>
+  </aside>
+
 </div>
 
-<div id="songsContainer"></div>
-
-<div id="playerContainer">
-  <img id="playerCover" src="" alt="Cover">
-  <div id="playerDetails">
-    <h4 id="playerTitle">Select a song</h4>
-    <p id="playerArtist"></p>
-    <div id="progressBar"><div id="progressFill"></div></div>
+<!-- PLAYER -->
+<div class="player-bar">
+  <div class="player-left">
+    <img class="player-cover" id="playerCover" src="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg">
+    <div id="waveContainer" class="wave-container">
+      <div class="wave-bar" style="animation-delay:0s"></div>
+      <div class="wave-bar" style="animation-delay:0.1s"></div>
+      <div class="wave-bar" style="animation-delay:0.2s"></div>
+      <div class="wave-bar" style="animation-delay:0.3s"></div>
+      <div class="wave-bar" style="animation-delay:0.4s"></div>
+    </div>
   </div>
-  <audio id="audioPlayer"></audio>
+
+  <button class="btn prev">⏮️</button>
+  <button class="btn play">▶️</button>
+  <button class="btn next">⏭️</button>
+
+  <div class="progress"><i id="progressFill"></i></div>
 </div>
 
 <script>
-const songs = [
-  {title:"ivate",artist:"SAHAL",cover:"https://picsum.photos/200?1",src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"},
-  {title:"INTERWORLD - METAMORPHOSIS",artist:"Chill Nation",cover:"https://picsum.photos/200?2",src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"},
-  {title:"Dxrk ダーク - RAVE (Official Audio)",artist:"Dxrk ダーク",cover:"https://picsum.photos/200?3",src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"},
-  {title:"DVRST - Close Eyes (Lyrics)",artist:"The Vibe Guide",cover:"https://picsum.photos/200?4",src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3"},
-  {title:"Imran Khan - Satisfya (Lyrics)",artist:"DamLyrics",cover:"https://picsum.photos/200?5",src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3"},
-  {title:"Ogryzek - EMPIRE (Slowed)",artist:"7clouds Phonk",cover:"https://picsum.photos/200?6",src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3"},
-  {title:"Irokz - FUNK UNIVERSO",artist:"Irokz",cover:"https://picsum.photos/200?7",src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3"},
-  {title:"Ogryzek - AURA (PHONK)",artist:"The Vibe Guide",cover:"https://picsum.photos/200?8",src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3"},
-  {title:"MoonDeity - NEON BLADE",artist:"The Vibe Guide",cover:"https://picsum.photos/200?9",src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"},
-  {title:"Sia - Unstoppable (Lyrics)",artist:"Pizza Music",cover:"https://picsum.photos/200?10",src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"},
-  {title:"DIA DELÍCIA - Nakama, Mc Staff, ΣP",artist:"PHONK 47",cover:"https://picsum.photos/200?11",src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"},
-  {title:"Adele - Skyfall (Official Lyric Video)",artist:"Adele",cover:"https://picsum.photos/200?12",src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3"},
-  {title:"ATLXS - PASSO BEM SOLTO",artist:"phonk",cover:"https://picsum.photos/200?13",src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3"},
-  {title:"Egzod & Maestro Chives - Royalty (Lyrics) ft. Neoni",artist:"Chill Notes",cover:"https://picsum.photos/200?14",src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3"},
-  {title:"KORDHELL - MURDER IN MY MIND",artist:"KORDHELL",cover:"https://picsum.photos/200?15",src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3"},
-  {title:"Coldplay - Hymn For The Weekend (Official Video)",artist:"Coldplay",cover:"https://picsum.photos/200?16",src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3"},
-  {title:"NEONI - Darkside (Lyrics)",artist:"7clouds",cover:"https://picsum.photos/200?17",src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"},
-  {title:"MONTAGEM BAILÃO",artist:"TheGoodVibe",cover:"https://picsum.photos/200?18",src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"},
-  {title:"Jaymes Young - Infinity",artist:"Pizza Music",cover:"https://picsum.photos/200?19",src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"},
-  {title:"Eternxlkz - TOKYO DRIFT FUNK (Official Audio)",artist:"Eternxlkz",cover:"https://picsum.photos/200?20",src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3"},
-  {title:"Martin Garrix & Bebe Rexha - In The Name Of Love (Lyrics)",artist:"7clouds",cover:"https://picsum.photos/200?21",src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3"},
-  {title:"Elley Duhé - Middle of the Night (Lyrics)",artist:"7clouds Latin",cover:"https://picsum.photos/200?22",src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3"},
-  {title:"Luis Fonsi - Despacito (Letra/Lyrics) ft. Daddy Yankee",artist:"Odilon Huamani",cover:"https://picsum.photos/200?23",src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3"},
-  {title:"KORDHELL - FATALITY",artist:"KORDHELL",cover:"https://picsum.photos/200?24",src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3"},
-  {title:"Alan Walker - Faded (Lyrics)",artist:"7clouds",cover:"https://picsum.photos/200?25",src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"},
-  {title:"KORDHELL - LAND OF FIRE",artist:"KORDHELL",cover:"https://picsum.photos/200?26",src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"},
-  {title:"Alan Walker - Darkside (Lyrics) ft. Au/Ra and Tomine Harket",artist:"7clouds",cover:"https://picsum.photos/200?27",src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"},
-  {title:"Imagine Dragons - Bones (Lyrics)",artist:"7clouds",cover:"https://picsum.photos/200?28",src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3"},
-  {title:"g3ox_em - GigaChad Theme (Phonk House Version)",artist:"g3ox_em",cover:"https://picsum.photos/200?29",src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3"},
-  {title:"Lana Del Rey - Summertime Sadness (Lyrics)",artist:"Unique Sound",cover:"https://picsum.photos/200?30",src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3"},
-  {title:"Teya Dora - Dzanum ( Moye Moye ) Lyrics",artist:"Nick Multimusic",cover:"https://picsum.photos/200?31",src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3"},
-  {title:"Boney M - Rasputin (Lyrics)",artist:"7clouds",cover:"https://picsum.photos/200?32",src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3"},
-  {title:"Ogryzek - AURA (super slowed + reverb)",artist:"7clouds Phonk",cover:"https://picsum.photos/200?33",src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"},
-  {title:"AURORA - Runaway (Lyrics)",artist:"Monstafluff Music",cover:"https://picsum.photos/200?34",src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"},
-  {title:"Tauba Tauba - Karan Aujla (Lyrics/English Meaning)",artist:"Punjabi Bars",cover:"https://picsum.photos/200?35",src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"},
-  {title:"JAILER - Hukum Video Song",artist:"Unknown",cover:"https://picsum.photos/200?36",src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3"}
-];
+const hamburger=document.getElementById('hamburger'),sidebar=document.getElementById('sidebar');
+hamburger.addEventListener('click',()=>{sidebar.classList.toggle('open')})
 
-const songsContainer = document.getElementById("songsContainer");
-const searchInput = document.getElementById("searchInput");
-const playSearchBtn = document.getElementById("playSearchBtn");
-const audioPlayer = document.getElementById("audioPlayer");
-const playerCover = document.getElementById("playerCover");
-const playerTitle = document.getElementById("playerTitle");
-const playerArtist = document.getElementById("playerArtist");
-const progressFill = document.getElementById("progressFill");
+// SONG CARD PLAY
+const songCards=document.querySelectorAll('.song-card');
+const ytPlayer=document.getElementById('ytPlayer');
+const coverImg=document.getElementById('coverImg');
+const trackTitle=document.getElementById('trackTitle');
+const trackArtist=document.getElementById('trackArtist');
+const waveContainer=document.getElementById('waveContainer');
 
-let filteredSongs = [...songs]; // current filtered list
-
-function displaySongs(list){
-  songsContainer.innerHTML = "";
-  list.forEach((song,index)=>{
-    const div = document.createElement("div");
-    div.classList.add("song");
-    div.innerHTML = `<img src="${song.cover}" alt="${song.title}">
-                     <h4>${song.title}</h4><p>${song.artist}</p>`;
-    div.addEventListener("click",()=>playSong(song));
-    songsContainer.appendChild(div);
-  });
-}
-
-function playSong(song){
-  audioPlayer.src = song.src;
-  audioPlayer.play();
-  playerCover.src = song.cover;
-  playerTitle.textContent = song.title;
-  playerArtist.textContent = song.artist;
-}
-
-// Update progress bar
-audioPlayer.addEventListener("timeupdate",()=>{
-  if(audioPlayer.duration){
-    progressFill.style.width = (audioPlayer.currentTime/audioPlayer.duration)*100 + "%";
-  }
-});
-
-document.getElementById("progressBar").addEventListener("click",(e)=>{
-  const rect = e.target.getBoundingClientRect();
-  const percent = (e.clientX - rect.left)/rect.width;
-  audioPlayer.currentTime = percent*audioPlayer.duration;
-});
-
-// Search input
-function searchSongs(){
-  const query = searchInput.value.toLowerCase();
-  filteredSongs = songs.filter(s=>s.title.toLowerCase().includes(query) || s.artist.toLowerCase().includes(query));
-  displaySongs(filteredSongs);
-  if(filteredSongs.length>0){
-    playSong(filteredSongs[0]);
-  }
-}
-
-playSearchBtn.addEventListener("click", searchSongs);
-searchInput.addEventListener("keypress", e=>{
-  if(e.key==="Enter") searchSongs();
-});
-
-displaySongs(songs);
+songCards.forEach(card=>{
+  card.addEventListener('click',()=>{
+    let id=card.dataset.id;
+    ytPlayer.src=`https://www.youtube.com/embed/${id}?autoplay=1`;
+    coverImg.src=card.dataset.cover;
+    trackTitle.textContent=card.dataset.title;
+    trackArtist.textContent=card.dataset.artist;
+    waveContainer.style.display='flex';
+  })
+})
 </script>
+
 </body>
 </html>
