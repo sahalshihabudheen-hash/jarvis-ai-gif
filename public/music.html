@@ -3,269 +3,42 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JARVIS AI - Music Player</title>
+<title>Music Player</title>
 <style>
-  body, html {
-    margin: 0;
-    padding: 0;
-    font-family: 'Segoe UI', sans-serif;
-    background: #0b0f12;
-    color: #fff;
-    overflow-x: hidden;
-  }
-
-  /* Background video */
-  #bg-video {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    z-index: -1;
-    filter: brightness(60%);
-  }
-
-  /* Navbar */
-  nav {
-    position: fixed;
-    top: 0;
-    width: 100%;
-    background: rgba(20, 25, 40, 0.35);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(0, 255, 255, 0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 20px;
-    z-index: 10;
-    height: 65px;
-    box-shadow: 0 0 15px rgba(0, 255, 255, 0.15);
-  }
-
-  .nav-links {
-    display: flex;
-    gap: 25px;
-  }
-
-  nav a {
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 16px;
-    padding: 8px 20px;
-    border-radius: 12px;
-    color: #dffaff;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-  }
-
-  nav a::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: 12px;
-    background: linear-gradient(120deg, rgba(0,255,255,0.6), rgba(100,0,255,0.5));
-    opacity: 0;
-    transform: scale(0.9);
-    transition: all 0.3s ease;
-    z-index: -1;
-  }
-
-  nav a:hover::before { opacity: 1; transform: scale(1); }
-  nav a:hover { color: #fff; text-shadow: 0 0 8px #00ffff; }
-
-  .hamburger {
-    display: none;
-    flex-direction: column;
-    cursor: pointer;
-    gap: 5px;
-    position: absolute;
-    left: 20px;
-  }
-
-  .hamburger div {
-    width: 28px;
-    height: 3px;
-    background: #e3f9ff;
-    border-radius: 2px;
-    transition: all 0.4s ease;
-  }
-
-  .hamburger.toggle div:nth-child(1) { transform: rotate(45deg) translate(5px,5px); }
-  .hamburger.toggle div:nth-child(2) { opacity: 0; }
-  .hamburger.toggle div:nth-child(3) { transform: rotate(-45deg) translate(6px,-6px); }
-
-  /* Container */
-  .container {
-    padding: 90px 20px 20px 20px;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
-  /* Search bar */
-  #searchContainer {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
-  }
-
-  #searchInput {
-    padding: 10px 15px;
-    font-size: 16px;
-    width: 80%;
-    max-width: 500px;
-    border-radius: 12px;
-    border: none;
-    outline: none;
-  }
-
-  /* Song list */
-  #songsContainer {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: center;
-  }
-
-  .song {
-    background: rgba(20,25,40,0.7);
-    border-radius: 12px;
-    width: 200px;
-    cursor: pointer;
-    padding: 10px;
-    text-align: center;
-    transition: all 0.3s ease;
-  }
-
-  .song:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 15px #00ffff;
-  }
-
-  .song img {
-    width: 100%;
-    border-radius: 12px;
-    margin-bottom: 10px;
-  }
-
-  .song-info h4 {
-    margin: 0;
-    font-size: 16px;
-    color: #fff;
-  }
-
-  .song-info p {
-    margin: 0;
-    font-size: 14px;
-    color: #a0a0a0;
-  }
-
-  /* Player */
-  #playerContainer {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    background: rgba(20,25,40,0.85);
-    backdrop-filter: blur(10px);
-    display: flex;
-    align-items: center;
-    padding: 10px 20px;
-    gap: 15px;
-    z-index: 10;
-  }
-
-  #playerCover {
-    width: 60px;
-    height: 60px;
-    border-radius: 8px;
-    object-fit: cover;
-  }
-
-  #playerDetails {
-    flex: 1;
-  }
-
-  #playerDetails h4, #playerDetails p {
-    margin: 0;
-    color: #fff;
-  }
-
-  #progressBar {
-    width: 100%;
-    height: 5px;
-    background: #222;
-    border-radius: 5px;
-    margin-top: 5px;
-    cursor: pointer;
-  }
-
-  #progressFill {
-    width: 0;
-    height: 100%;
-    background: #1db954;
-    border-radius: 5px;
-  }
-
-  /* Responsive */
-  @media screen and (max-width: 768px) {
-    .nav-links { display: none; flex-direction: column; gap: 10px; position: fixed; top: 65px; left:0; width: 100%; background: rgba(20,25,40,0.95); padding: 15px 0; z-index:9; }
-    .nav-links.nav-active { display: flex; }
-    .hamburger { display: flex; }
-  }
+body, html {margin:0; padding:0; font-family: 'Segoe UI', sans-serif; background:#0b0f12; color:#fff;}
+#searchContainer {display:flex; justify-content:center; margin:20px;}
+#searchInput {padding:10px 15px; font-size:16px; width:300px; border-radius:10px; border:none; outline:none;}
+#playSearchBtn {padding:10px 15px; margin-left:10px; border:none; border-radius:10px; background:#1db954; color:#fff; cursor:pointer;}
+#songsContainer {display:flex; flex-wrap:wrap; justify-content:center; gap:15px;}
+.song {background:rgba(20,25,40,0.7); width:180px; cursor:pointer; padding:10px; border-radius:10px; text-align:center; transition:0.3s;}
+.song:hover {transform:scale(1.05); box-shadow:0 0 10px #1db954;}
+.song img {width:100%; border-radius:10px; margin-bottom:8px;}
+#playerContainer {position:fixed; bottom:0; width:100%; background:rgba(20,25,40,0.85); display:flex; align-items:center; padding:10px 20px; gap:15px;}
+#playerCover {width:60px; height:60px; border-radius:8px; object-fit:cover;}
+#progressBar {width:100%; height:5px; background:#222; border-radius:5px; cursor:pointer;}
+#progressFill {width:0%; height:100%; background:#1db954; border-radius:5px;}
 </style>
 </head>
 <body>
 
-<video autoplay muted loop playsinline id="bg-video">
-  <source src="https://files.catbox.moe/pn7zq9.mp4" type="video/mp4">
-</video>
-
-<nav>
-  <div class="hamburger" id="hamburger">
-    <div></div>
-    <div></div>
-    <div></div>
-  </div>
-  <div class="nav-links" id="nav-links">
-    <a href="index.html" class="chat">Chat-bot</a>
-    <a href="bots.html" class="discord">Discord Bots</a>
-    <a href="image.html" class="image">Image Gen</a>
-    <a href="music.html" class="music">Music</a>
-    <a href="video.html" class="video">Video Gen</a>
-    <a href="home-automation.html" class="home">Home Automation</a>
-  </div>
-</nav>
-
-<div class="container">
-  <div id="searchContainer">
-    <input type="text" id="searchInput" placeholder="Search song or artist...">
-  </div>
-  <div id="songsContainer"></div>
+<div id="searchContainer">
+  <input type="text" id="searchInput" placeholder="Search song or artist...">
+  <button id="playSearchBtn">Play</button>
 </div>
 
-<!-- Audio Player -->
+<div id="songsContainer"></div>
+
 <div id="playerContainer">
   <img id="playerCover" src="" alt="Cover">
   <div id="playerDetails">
     <h4 id="playerTitle">Select a song</h4>
     <p id="playerArtist"></p>
-    <div id="progressBar">
-      <div id="progressFill"></div>
-    </div>
+    <div id="progressBar"><div id="progressFill"></div></div>
   </div>
   <audio id="audioPlayer"></audio>
 </div>
 
 <script>
-const hamburger = document.getElementById("hamburger");
-const navLinks = document.getElementById("nav-links");
-hamburger.addEventListener("click", () => {
-  navLinks.classList.toggle("nav-active");
-  hamburger.classList.toggle("toggle");
-});
-
-// Songs list
 const songs = [
   {title:"ivate",artist:"SAHAL",cover:"https://picsum.photos/200?1",src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"},
   {title:"INTERWORLD - METAMORPHOSIS",artist:"Chill Nation",cover:"https://picsum.photos/200?2",src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"},
@@ -305,35 +78,30 @@ const songs = [
   {title:"JAILER - Hukum Video Song",artist:"Unknown",cover:"https://picsum.photos/200?36",src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3"}
 ];
 
-// Elements
 const songsContainer = document.getElementById("songsContainer");
 const searchInput = document.getElementById("searchInput");
+const playSearchBtn = document.getElementById("playSearchBtn");
 const audioPlayer = document.getElementById("audioPlayer");
 const playerCover = document.getElementById("playerCover");
 const playerTitle = document.getElementById("playerTitle");
 const playerArtist = document.getElementById("playerArtist");
 const progressFill = document.getElementById("progressFill");
 
-// Display songs
+let filteredSongs = [...songs]; // current filtered list
+
 function displaySongs(list){
   songsContainer.innerHTML = "";
-  list.forEach((song,i)=>{
+  list.forEach((song,index)=>{
     const div = document.createElement("div");
     div.classList.add("song");
-    div.innerHTML = `
-      <img src="${song.cover}" alt="${song.title}">
-      <div class="song-info">
-        <h4>${song.title}</h4>
-        <p>${song.artist}</p>
-      </div>`;
-    div.addEventListener("click",()=>playSong(songs.indexOf(song)));
+    div.innerHTML = `<img src="${song.cover}" alt="${song.title}">
+                     <h4>${song.title}</h4><p>${song.artist}</p>`;
+    div.addEventListener("click",()=>playSong(song));
     songsContainer.appendChild(div);
   });
 }
 
-// Play song
-function playSong(index){
-  const song = songs[index];
+function playSong(song){
   audioPlayer.src = song.src;
   audioPlayer.play();
   playerCover.src = song.cover;
@@ -348,24 +116,28 @@ audioPlayer.addEventListener("timeupdate",()=>{
   }
 });
 
-// Click to seek
 document.getElementById("progressBar").addEventListener("click",(e)=>{
   const rect = e.target.getBoundingClientRect();
   const percent = (e.clientX - rect.left)/rect.width;
   audioPlayer.currentTime = percent*audioPlayer.duration;
 });
 
-// Initial display
-displaySongs(songs);
-
-// Search
-searchInput.addEventListener("input", ()=>{
+// Search input
+function searchSongs(){
   const query = searchInput.value.toLowerCase();
-  const filtered = songs.filter(s=>s.title.toLowerCase().includes(query) || s.artist.toLowerCase().includes(query));
-  displaySongs(filtered);
-  if(filtered.length>0) playSong(songs.indexOf(filtered[0]));
-});
-</script>
+  filteredSongs = songs.filter(s=>s.title.toLowerCase().includes(query) || s.artist.toLowerCase().includes(query));
+  displaySongs(filteredSongs);
+  if(filteredSongs.length>0){
+    playSong(filteredSongs[0]);
+  }
+}
 
+playSearchBtn.addEventListener("click", searchSongs);
+searchInput.addEventListener("keypress", e=>{
+  if(e.key==="Enter") searchSongs();
+});
+
+displaySongs(songs);
+</script>
 </body>
 </html>
