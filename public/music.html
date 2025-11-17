@@ -1,330 +1,309 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Discord Bots — Coming Soon</title>
-  <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      width: 100%;
-      font-family: 'Segoe UI', sans-serif;
-      overflow-x: hidden;
-      scroll-behavior: smooth;
-    }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>JARVIS Music — Spotify Style</title>
 
-    :root{
-      --bg:#0b0f12;
-      --card:#0f1416;
-      --accent:#1db954;
-      --muted: #9aa6a1;
-      --glass: rgba(255,255,255,0.03);
-    }
+<!-- GOOGLE FONT (optional) -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 
-    .navbar {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      padding: 15px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--glass);
-      backdrop-filter: blur(12px);
-      z-index: 99;
-    }
+<style>
+  :root{
+    --bg:#071017;
+    --panel:#0f1720;
+    --muted:#95a0a6;
+    --glass: rgba(255,255,255,0.03);
+    --accent: #1d7bff; /* blue accent you used */
+    --accent-2: #1db954; /* green fallback for playlist badges */
+    --card-shadow: 0 10px 30px rgba(2,6,10,0.6);
+  }
 
-    .logo {
-      color: white;
-      font-size: 18px;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-    }
+  html,body{height:100%;margin:0;font-family:Inter, "Segoe UI", Roboto, Arial, sans-serif;background:
+    radial-gradient(1200px 600px at 10% 10%, rgba(29,123,255,0.06), transparent 6%),
+    linear-gradient(180deg,#04060a 0%, rgba(1,3,5,0.6) 100%);
+    color:#eaf2ef; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+  }
 
-    .hamburger {
-      width: 26px;
-      height: 22px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      cursor: pointer;
-    }
+  /* Background video */
+  #bg-video{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;filter:brightness(30%) saturate(120%);pointer-events:none}
+  .overlay{position:fixed;inset:0;background:linear-gradient(180deg, rgba(3,6,7,0.45), rgba(3,6,7,0.85));z-index:-1;pointer-events:none}
 
-    .hamburger span {
-      display: block;
-      height: 3px;
-      background: white;
-      border-radius: 4px;
-    }
+  /* top nav */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height:64px;
+    display:flex;
+    align-items:center;
+    gap:18px;
+    padding: 0 20px;
+    z-index:30;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.15));
+    border-bottom: 1px solid rgba(255,255,255,0.02);
+    backdrop-filter: blur(8px);
+  }
 
-    .sidebar {
-      position: fixed;
-      top: 0;
-      left: -250px;
-      width: 220px;
-      height: 100%;
-      background: #0f1416;
-      padding: 20px;
-      transition: 0.3s ease;
-      z-index: 100;
-    }
+  .nav-left { display:flex; align-items:center; gap:14px; }
+  .logo {
+    display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:10px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    box-shadow: var(--card-shadow);
+  }
+  .logo .dot{width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,var(--accent), #6ad1ff);display:flex;align-items:center;justify-content:center;font-weight:800;color:#031017}
+  .logo h1{font-size:15px;margin:0;letter-spacing:0.6px}
 
-    .sidebar.open {
-      left: 0;
-    }
+  .nav-right { margin-left:auto; display:flex; align-items:center; gap:10px; }
 
-    .sidebar h3 {
-      color: white;
-      margin-top: 40px;
-      margin-bottom: 20px;
-    }
+  /* hamburger for mobile */
+  .hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer}
+  .hamburger div{width:26px;height:3px;background:#bfe9ff;border-radius:2px}
 
-    .sidebar a {
-      display: block;
-      color: #c2c2c2;
-      text-decoration: none;
-      margin: 12px 0;
-      font-size: 15px;
-    }
+  /* layout */
+  .container { display:grid; grid-template-columns:240px 1fr 360px; gap:22px; padding:100px 28px 28px; align-items:start; min-height:calc(100vh - 140px); }
+  /* left sidebar */
+  .sidebar {
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius:14px; padding:18px; box-shadow: var(--card-shadow); height:calc(100vh - 140px); overflow:auto;
+    position:sticky; top:80px;
+  }
+  .sidebar h3{margin:0 0 12px 0;font-size:15px}
+  .nav-item{display:flex;align-items:center;gap:12px;padding:10px;border-radius:10px;color:var(--muted);cursor:pointer}
+  .nav-item:hover{background:var(--glass);color:#fff}
+  .playlist-list{margin-top:14px;display:flex;flex-direction:column;gap:8px}
+  .pl-btn{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,0.02);color:var(--muted);cursor:pointer}
+  .pl-btn:hover{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));color:#fff}
+  .create-pl{margin-top:12px;padding:10px;border-radius:10px;border:none;background:var(--accent);color:#071018;font-weight:700;cursor:pointer;width:100%}
 
-    video {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      z-index: -1;
-      filter: brightness(50%);
-    }
+  /* main content */
+  main { display:flex; flex-direction:column; gap:20px; }
 
-    .wrap {
-      margin-top: 90px;
-      padding: 20px;
-    }
+  .top-controls { display:flex; gap:14px; align-items:center; }
+  .searchbar { flex:1; display:flex; gap:10px; align-items:center; }
+  .searchbar input { flex:1; padding:12px 14px; border-radius:12px; border:none; background: rgba(255,255,255,0.03); color:#fff; outline:none; font-size:15px }
+  .searchbar button { padding:10px 14px; border-radius:10px; background:var(--accent); color:#071018; border:none; font-weight:700; cursor:pointer }
 
-    .player {
-      background: var(--glass);
-      backdrop-filter: blur(10px);
-      padding: 20px;
-      border-radius: 20px;
-      max-width: 450px;
-      margin: auto;
-      border: 1px solid rgba(255,255,255,0.1);
-    }
+  /* featured grid */
+  .section-title { font-size:18px; font-weight:700; margin:0 0 6px 0 }
+  .song-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap:16px; margin-top:6px }
+  .song-card {
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius:12px; padding:10px; cursor:pointer; position:relative; overflow:hidden; transition:transform .18s, box-shadow .18s;
+  }
+  .song-card:hover { transform: translateY(-6px); box-shadow: 0 18px 40px rgba(2,6,10,0.6) }
+  .song-cover { width:100%; height:140px; object-fit:cover; border-radius:8px; display:block }
+  .song-meta { margin-top:8px; }
+  .song-meta .title { font-weight:700; font-size:14px; color:#eaf2ef }
+  .song-meta .artist { font-size:13px; color:var(--muted); margin-top:4px }
 
-    .cover-img {
-      width: 100%;
-      height: 250px;
-      object-fit: cover;
-      border-radius: 16px;
-      margin-bottom: 15px;
-    }
+  .add-to-pl-btn { position:absolute; top:8px; right:8px; width:34px; height:34px; border-radius:8px; border:none; background:rgba(0,0,0,0.5); color:#fff; font-weight:700; cursor:pointer }
 
-    .title {
-      font-size: 20px;
-      font-weight: 700;
-      color: white;
-    }
+  /* right panel (player + playlists) */
+  .right-panel {
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius:14px; padding:18px; box-shadow: var(--card-shadow); height:calc(100vh - 140px); overflow:auto; position:sticky; top:80px;
+  }
+  .player-card { display:flex; gap:16px; align-items:center; }
+  .cover { width:140px; height:140px; border-radius:12px; overflow:hidden; background:#0b0f12; flex:0 0 140px }
+  .cover img{width:100%;height:100%;object-fit:cover}
+  .meta { flex:1; display:flex; flex-direction:column; gap:6px }
+  .meta .title { font-size:16px; font-weight:800 }
+  .meta .sub { color:var(--muted); font-size:13px }
 
-    .artist {
-      font-size: 14px;
-      color: #b5b5b5;
-      margin-bottom: 10px;
-    }
+  .controls { display:flex; align-items:center; gap:10px; margin-top:10px }
+  .btn { width:44px; height:44px; border-radius:50%; background:rgba(255,255,255,0.03); border:none; display:grid; place-items:center; cursor:pointer; color:#fff }
+  .btn.play { width:56px; height:56px; background:var(--accent); color:#071018; font-weight:800; font-size:18px }
 
-    #playBtn {
-      width: 60px;
-      height: 60px;
-      background: var(--accent);
-      border: none;
-      border-radius: 50%;
-      color: #000;
-      font-size: 22px;
-      margin-top: 10px;
-      cursor: pointer;
-    }
+  .progress { margin-top:12px; height:10px; background:rgba(255,255,255,0.03); border-radius:12px; overflow:hidden }
+  .progress > i { display:block; height:100%; width:0%; background:linear-gradient(90deg,var(--accent), #9cffb8) }
 
-    .progress-bar {
-      width: 100%;
-      height: 6px;
-      background: rgba(255,255,255,0.15);
-      border-radius: 4px;
-      overflow: hidden;
-      margin-top: 12px;
-    }
+  .wave-container { display:flex; align-items:flex-end; gap:4px; height:30px; margin-top:12px; }
+  .wave-bar { width:4px; background:var(--accent); border-radius:2px; height:8px; animation:wave 0.6s infinite; animation-play-state:paused; --scale:1; }
+  @keyframes wave{0%{height:8px}50%{height:calc(8px + 18px * var(--scale))}100%{height:8px}}
 
-    .progress-fill {
-      width: 0%;
-      height: 100%;
-      background: var(--accent);
-    }
+  /* small playlist list inside right panel */
+  .playlist-item { display:flex; align-items:center; justify-content:space-between; padding:8px; border-radius:8px; gap:8px; margin-top:10px; background:transparent; color:var(--muted) }
+  .playlist-item:hover{background:var(--glass); color:#fff}
+  .playlist-item .count { font-size:12px; color:var(--muted) }
 
-    .wave-container {
-      display: flex;
-      align-items: flex-end;
-      gap: 3px;
-      height: 30px;
-      margin-top: 10px;
-    }
+  /* responsive */
+  @media (max-width:1100px){
+    .container{ grid-template-columns: 200px 1fr; padding:100px 18px }
+    .right-panel{ display:none }
+  }
+  @media (max-width:720px){
+    nav{ padding:0 12px }
+    .container{ grid-template-columns: 1fr; padding:120px 12px 20px }
+    .sidebar{ display:none }
+    .hamburger{ display:flex }
+    .searchbar input{ width:100% }
+  }
 
-    .bar {
-      width: 4px;
-      height: 10px;
-      background: var(--accent);
-      animation: bounce 1s infinite ease-in-out;
-      animation-play-state: paused;
-    }
-
-    .bar:nth-child(2){ animation-delay: 0.2s; }
-    .bar:nth-child(3){ animation-delay: 0.4s; }
-    .bar:nth-child(4){ animation-delay: 0.6s; }
-    .bar:nth-child(5){ animation-delay: 0.8s; }
-
-    @keyframes bounce {
-      0%, 100% { height: 8px; }
-      50% { height: 28px; }
-    }
-
-    input {
-      padding: 10px;
-      width: 70%;
-      border-radius: 8px;
-      border: none;
-      outline: none;
-      margin-right: 5px;
-    }
-
-    #loadBtn {
-      padding: 10px 14px;
-      background: var(--accent);
-      color: #0b0f12;
-      border: none;
-      border-radius: 8px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    @media (max-width: 600px) {
-      .player {
-        width: 90%;
-      }
-      .cover-img {
-        height: 200px;
-      }
-    }
-  </style>
+  /* small utility classes */
+  .muted{ color:var(--muted) }
+  .small{ font-size:13px }
+</style>
 </head>
-
 <body>
 
-  <video autoplay loop muted playsinline>
-    <source src="bg.mp4" type="video/mp4">
-  </video>
+<video autoplay muted loop playsinline id="bg-video" style="display:block">
+  <source src="https://files.catbox.moe/0ouh3o.mp4" type="video/mp4">
+</video>
+<div class="overlay"></div>
 
-  <nav class="navbar">
-    <div class="logo">🎵 Music Player</div>
-    <div id="menuBtn" class="hamburger">
-      <span></span><span></span><span></span>
+<nav>
+  <div class="nav-left">
+    <div class="hamburger" id="hamburger">
+      <div></div><div></div><div></div>
     </div>
-  </nav>
 
-  <div id="sidebar" class="sidebar">
-    <h3>Menu</h3>
-    <a href="index.html">Home</a>
-    <a href="music.html">Music</a>
-    <a href="#">Settings</a>
+    <div class="logo" style="cursor:default">
+      <div class="dot">J</div>
+      <div>
+        <h1 style="font-size:14px;margin:0">JARVIS Music</h1>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">Your mini-Spotify</div>
+      </div>
+    </div>
   </div>
 
-  <main class="main" style="padding:20px;margin-top:80px;">
+  <div class="nav-right">
+    <!-- extra top buttons if required -->
+    <div style="color:var(--muted);font-size:13px">Logged in</div>
+  </div>
+</nav>
 
-    <!-- ⭐⭐⭐ NEW HOMEPAGE FEATURED SECTION ⭐⭐⭐ -->
-    <h2 style="font-size:24px;color:white;font-weight:700;margin-bottom:15px;">Featured Songs</h2>
+<!-- ========== HOMEPAGE LAYOUT ========== -->
+<div class="container">
 
-    <div id="songGrid" style="
-      display:grid;
-      grid-template-columns:repeat(auto-fill, minmax(160px,1fr));
-      gap:18px;
-      margin-bottom:35px;
-    ">
+  <!-- LEFT SIDEBAR -->
+  <aside class="sidebar">
+    <h3>Browse</h3>
 
-      <div class="song-card"
-           data-id="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-           data-title="Never Gonna Give You Up"
-           data-artist="Rick Astley"
-           data-cover="https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg"
-           style="background:var(--glass);padding:12px;border-radius:14px;cursor:pointer;">
-        <img src="https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg"
-             style="width:100%;height:140px;border-radius:10px;">
-        <div style="margin-top:8px;color:white;font-weight:600;">Never Gonna Give You Up</div>
-        <div style="font-size:13px;color:var(--muted)">Rick Astley</div>
-      </div>
+    <div class="nav-item">🏠 &nbsp; <strong>Home</strong></div>
+    <div class="nav-item">🔍 &nbsp; <strong>Search</strong></div>
+    <div class="nav-item">📚 &nbsp; <strong>Your Library</strong></div>
 
-      <div class="song-card"
-           data-id="https://www.youtube.com/watch?v=ktvTqknDobU"
-           data-title="Radioactive"
-           data-artist="Imagine Dragons"
-           data-cover="https://i.ytimg.com/vi/ktvTqknDobU/hqdefault.jpg"
-           style="background:var(--glass);padding:12px;border-radius:14px;cursor:pointer;">
-        <img src="https://i.ytimg.com/vi/ktvTqknDobU/hqdefault.jpg"
-             style="width:100%;height:140px;border-radius:10px;">
-        <div style="margin-top:8px;color:white;font-weight:600;">Radioactive</div>
-        <div style="font-size:13px;color:var(--muted)">Imagine Dragons</div>
-      </div>
+    <div style="height:14px"></div>
+    <div style="font-size:13px;color:var(--muted);font-weight:700">Playlists</div>
 
+    <div class="playlist-list" id="sidebarPlaylists">
+      <!-- small playlist buttons (JS will render the full list in right panel; this is quick-access) -->
+      <!-- We'll keep these in sync with localStorage when page loads -->
     </div>
 
-    <!-- ⭐⭐⭐ PLAYLISTS SECTION ⭐⭐⭐ -->
-    <h2 style="font-size:24px;color:white;font-weight:700;margin-bottom:10px;">Your Playlists</h2>
+    <button id="createPlaylistBtn" class="create-pl">+ Create Playlist</button>
 
-    <button id="createPlaylistBtn" style="
-      padding:10px 16px;
-      background:var(--accent);
-      border:none;
-      color:#07100a;
-      border-radius:10px;
-      font-weight:700;
-      cursor:pointer;
-      margin-bottom:15px;
-    ">+ Create Playlist</button>
+    <div style="height:18px"></div>
+    <div style="font-size:13px;color:var(--muted)">Tip: Click a card to play. Use + on a card to add to playlists.</div>
+  </aside>
 
-    <div id="playlistArea" style="display:flex;flex-direction:column;gap:12px;margin-bottom:40px;">
+  <!-- MAIN CONTENT -->
+  <main>
+    <div class="top-controls">
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div class="section-title">Featured</div>
+        <div class="small muted">Hand-picked songs to start your day</div>
+      </div>
+
+      <div class="searchbar">
+        <input id="ytInput" type="text" placeholder="Search song or paste YouTube link here...">
+        <button id="loadBtn">Search & Play</button>
+      </div>
     </div>
 
+    <!-- Featured Songs Grid -->
+    <div id="songGrid" class="song-grid" aria-live="polite">
+      <!-- Example song cards. You can duplicate / replace these. -->
+      <div class="song-card" data-id="https://www.youtube.com/watch?v=dQw4w9WgXcQ" data-title="Never Gonna Give You Up" data-artist="Rick Astley" data-cover="https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg">
+        <img class="song-cover" src="https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg" alt="cover">
+        <div class="song-meta">
+          <div class="title">Never Gonna Give You Up</div>
+          <div class="artist muted">Rick Astley</div>
+        </div>
+        <button class="add-to-pl-btn" title="Add to playlist">+</button>
+      </div>
+
+      <div class="song-card" data-id="https://www.youtube.com/watch?v=ktvTqknDobU" data-title="Radioactive" data-artist="Imagine Dragons" data-cover="https://i.ytimg.com/vi/ktvTqknDobU/hqdefault.jpg">
+        <img class="song-cover" src="https://i.ytimg.com/vi/ktvTqknDobU/hqdefault.jpg" alt="cover">
+        <div class="song-meta">
+          <div class="title">Radioactive</div>
+          <div class="artist muted">Imagine Dragons</div>
+        </div>
+        <button class="add-to-pl-btn" title="Add to playlist">+</button>
+      </div>
+
+      <div class="song-card" data-id="https://www.youtube.com/watch?v=3JZ_D3ELwOQ" data-title="Counting Stars" data-artist="OneRepublic" data-cover="https://i.ytimg.com/vi/3JZ_D3ELwOQ/hqdefault.jpg">
+        <img class="song-cover" src="https://i.ytimg.com/vi/3JZ_D3ELwOQ/hqdefault.jpg" alt="cover">
+        <div class="song-meta">
+          <div class="title">Counting Stars</div>
+          <div class="artist muted">OneRepublic</div>
+        </div>
+        <button class="add-to-pl-btn" title="Add to playlist">+</button>
+      </div>
+
+      <!-- you can add many more cards here -->
+    </div>
   </main>
 
-  <!-- ⭐⭐⭐ ORIGINAL MUSIC PLAYER SYSTEM (UNCHANGED) ⭐⭐⭐ -->
-  <div class="wrap">
-
-    <div class="player">
-      <img id="coverImg" class="cover-img" src="https://i.imgur.com/J9o3v7V.jpeg">
-
-      <div id="trackTitle" class="title">Track Title</div>
-      <div id="trackArtist" class="artist">Artist Name</div>
-
-      <button id="playBtn">▶</button>
-
-      <div class="progress-bar">
-        <div id="progressFill" class="progress-fill"></div>
+  <!-- RIGHT PANEL: Player + Playlists -->
+  <aside class="right-panel">
+    <div class="player-card">
+      <div class="cover" id="cover">
+        <img id="coverImg" src="https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg" alt="cover">
       </div>
 
-      <div id="waveContainer" class="wave-container">
-        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
-        <div class="bar"></div><div class="bar"></div>
-      </div>
+      <div class="meta">
+        <div class="title" id="trackTitle">Not Playing</div>
+        <div class="sub" id="trackArtist">Paste a link or search to play</div>
 
-      <iframe id="ytPlayer" width="0" height="0" frameborder="0" allow="autoplay"></iframe>
+        <div class="controls">
+          <button class="btn" id="prevBtn" title="Previous">⏮</button>
+          <button class="btn" id="rewBtn" title="Rewind 10s">⟲</button>
+          <button class="btn play" id="playBtn" title="Play/Pause">▶</button>
+          <button class="btn" id="fwdBtn" title="Forward 10s">⟳</button>
+          <button class="btn" id="nextBtn" title="Next">⏭</button>
+        </div>
 
-      <div style="margin-top:15px;">
-        <input id="ytInput" placeholder="Paste YouTube Link...">
-        <button id="loadBtn">Load</button>
+        <div class="progress" id="progressBar" aria-hidden="true">
+          <i id="progressFill"></i>
+        </div>
+
+        <div class="wave-container" id="waveContainer" aria-hidden="true"></div>
+
       </div>
     </div>
 
-  </div>
+    <div style="height:18px"></div>
 
-  <script src="music.js"></script>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="font-weight:700">Your Playlists</div>
+      <div style="font-size:13px;color:var(--muted)">(saved)</div>
+    </div>
+
+    <div id="playlistArea">
+      <!-- playlists rendered by music.js -->
+    </div>
+
+    <div style="height:14px"></div>
+
+    <div style="font-size:13px;color:var(--muted)">Controls: Use the search box or click any card to play. Use + to add songs to playlists.</div>
+
+    <!-- hidden iframe for yt -->
+    <iframe id="ytPlayer" class="hidden-iframe" style="width:0;height:0;border:0" allow="autoplay"></iframe>
+  </aside>
+</div>
+
+<!-- keep your music.js unchanged -->
+<script src="music.js"></script>
+
+<!-- keep hamburger script (safe & unchanged IDs) -->
+<script>
+const hamburger = document.getElementById("hamburger");
+const sidebar = document.querySelector(".sidebar");
+hamburger?.addEventListener("click", () => {
+  sidebar?.classList.toggle("open");
+  hamburger.classList.toggle("toggle");
+});
+</script>
 </body>
 </html>
