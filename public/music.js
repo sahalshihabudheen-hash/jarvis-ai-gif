@@ -1,9 +1,8 @@
-/* music.js — final consolidated version
-   - Play featured song cards
-   - Playlist create/add/remove + persistence (jarvis_playlists)
-   - Queue support (next / prev)
-   - Wave & progress simulation
-   - Non-destructive, defensive
+/* music.js — rebuilt full version
+   - Plays featured YouTube items via hidden iframe (audio)
+   - Local search (title/artist) + paste link handling
+   - Play/pause, prev/next, simulated progress & wave
+   - Playlists (create + add song via popover) stored in localStorage
 */
 
 const INPUT_ID = "ytInput";
@@ -12,12 +11,22 @@ const PLAYER_IFRAME_ID = "ytPlayer";
 const COVER_IMG_ID = "coverImg";
 const TITLE_ID = "trackTitle";
 const ARTIST_ID = "trackArtist";
+const MINI_TITLE_ID = "miniTrackTitle";
+const MINI_ARTIST_ID = "miniTrackArtist";
+const MINI_COVER_ID = "miniCover";
 const PLAY_BTN_ID = "playBtn";
 const PROGRESS_FILL_ID = "progressFill";
 const WAVE_CONTAINER_ID = "waveContainer";
 
 const STORAGE_KEY = "jarvis_playlists";
-const NUM_BARS = 20;
+const NUM_BARS = 22;
+
+/* Demo song list (you can extend this array) */
+const SONGS = [
+  { videoId: "fHI8X4OXluQ", title: "Blinding Lights", artist: "The Weeknd", cover: "https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg" },
+  { videoId: "34Na4j8AVgA", title: "Starboy", artist: "The Weeknd", cover: "https://i.ytimg.com/vi/34Na4j8AVgA/hqdefault.jpg" },
+  { videoId: "mRD0-GxqHVo", title: "Heat Waves", artist: "Glass Animals", cover: "https://i.ytimg.com/vi/mRD0-GxqHVo/hqdefault.jpg" }
+];
 
 let currentVideoId = null;
 let isPlaying = false;
@@ -26,49 +35,69 @@ let waveBars = [];
 let currentQueue = [];
 let currentIndex = -1;
 
-/* util to extract youtube id */
+/* ---- Helpers ---- */
+function $id(id){ return document.getElementById(id); }
+
 function extractVideoId(url) {
   if (!url) return null;
-  try {
-    url = url.trim();
-    if (/^[A-Za-z0-9_-]{10,}$/.test(url)) return url;
-    if (url.includes("youtu.be/")) return url.split("youtu.be/")[1].split(/[?&]/)[0];
-    if (url.includes("v=")) return url.split("v=")[1].split("&")[0];
-    const m = url.match(/\/embed\/([A-Za-z0-9_\-]+)/);
-    if (m) return m[1];
-  } catch (e) {}
+  url = url.trim();
+  if (/^[A-Za-z0-9_-]{10,}$/.test(url)) return url;
+  const short = url.match(/youtu\.be\/([A-Za-z0-9_-]{6,})/);
+  if (short) return short[1].split(/[?&]/)[0];
+  const vParam = url.match(/[?&]v=([A-Za-z0-9_-]{6,})/);
+  if (vParam) return vParam[1];
+  const emb = url.match(/\/embed\/([A-Za-z0-9_-]{6,})/);
+  if (emb) return emb[1];
+  const maybe = url.match(/([A-Za-z0-9_-]{11})/);
+  if (maybe) return maybe[1];
   return null;
 }
 
-/* set video by ID */
+/* ---- Player controls ---- */
+function setIframeSrcHidden(id) {
+  const iframe = $id(PLAYER_IFRAME_ID);
+  if (!iframe) return;
+  // Keep iframe hidden: use minimal UI params
+  iframe.src = `https://www.youtube.com/embed/${id}?autoplay=1&controls=0&rel=0&modestbranding=1&iv_load_policy=3`;
+}
+
 function setVideoById(vid) {
   if (!vid) return;
-  const player = document.getElementById(PLAYER_IFRAME_ID);
-  const cover = document.getElementById(COVER_IMG_ID);
-  const titleEl = document.getElementById(TITLE_ID);
-  const artistEl = document.getElementById(ARTIST_ID);
-  const miniCover = document.getElementById("miniCover");
-
-  if (player) player.src = `https://www.youtube.com/embed/${vid}?autoplay=1&controls=1&rel=0&modestbranding=1`;
   currentVideoId = vid;
   isPlaying = true;
-  if (cover) cover.src = `https://i.ytimg.com/vi/${vid}/hqdefault.jpg`;
-  if (miniCover) miniCover.src = `https://i.ytimg.com/vi/${vid}/mqdefault.jpg`;
 
-  if (titleEl || artistEl) {
+  // update iframe (audio)
+  setIframeSrcHidden(vid);
+
+  // update covers and meta
+  const coverEl = $id(COVER_IMG_ID), mini = $id(MINI_COVER_ID);
+  const titleEl = $id(TITLE_ID), artistEl = $id(ARTIST_ID);
+  const miniTitle = $id(MINI_TITLE_ID), miniArtist = $id(MINI_ARTIST_ID);
+
+  if (coverEl) coverEl.src = `https://i.ytimg.com/vi/${vid}/hqdefault.jpg`;
+  if (mini) mini.src = `https://i.ytimg.com/vi/${vid}/mqdefault.jpg`;
+
+  // try fetch title/author via oEmbed (graceful)
+  if (titleEl || artistEl || miniTitle || miniArtist) {
     fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${vid}&format=json`)
       .then(r => r.ok ? r.json() : null)
       .then(data => {
-        if (titleEl) titleEl.textContent = data?.title || `Video: ${vid}`;
-        if (artistEl) artistEl.textContent = data?.author_name || "YouTube";
-        highlightCurrentPlayingInGrid(vid);
-      }).catch(() => {
+        const title = data?.title || vid;
+        const author = data?.author_name || "YouTube";
+        if (titleEl) titleEl.textContent = title;
+        if (artistEl) artistEl.textContent = author;
+        if (miniTitle) miniTitle.textContent = title;
+        if (miniArtist) miniArtist.textContent = author;
+      })
+      .catch(() => {
         if (titleEl) titleEl.textContent = `Video: ${vid}`;
         if (artistEl) artistEl.textContent = "YouTube";
-        highlightCurrentPlayingInGrid(vid);
+        if (miniTitle) miniTitle.textContent = `Video: ${vid}`;
+        if (miniArtist) miniArtist.textContent = "YouTube";
       });
   }
 
+  // update queue index
   const idx = currentQueue.indexOf(vid);
   if (idx !== -1) currentIndex = idx;
   else { currentQueue = [vid]; currentIndex = 0; }
@@ -77,60 +106,62 @@ function setVideoById(vid) {
   setProgress(0);
   startProgressSimulation();
   startWaveAnimation();
+  highlightCurrentPlayingInGrid(vid);
 }
 
-/* play/pause toggle */
 function togglePlay() {
-  const player = document.getElementById(PLAYER_IFRAME_ID);
+  const iframe = $id(PLAYER_IFRAME_ID);
   if (!currentVideoId) return;
   if (isPlaying) {
-    if (player) player.src = "";
+    if (iframe) iframe.src = "";
     isPlaying = false;
-    updatePlayButton();
     stopProgressSimulation();
     stopWaveAnimation();
   } else {
-    if (player) player.src = `https://www.youtube.com/embed/${currentVideoId}?autoplay=1&controls=1&rel=0&modestbranding=1`;
+    if (iframe) setIframeSrcHidden(currentVideoId);
     isPlaying = true;
-    updatePlayButton();
     startProgressSimulation();
     startWaveAnimation();
   }
+  updatePlayButton();
 }
+
 function updatePlayButton() {
-  const el = document.getElementById(PLAY_BTN_ID);
+  const el = $id(PLAY_BTN_ID);
   if (!el) return;
   el.textContent = isPlaying ? "⏸" : "▶";
 }
 
-/* progress simulation */
+/* ---- Progress simulation ---- */
 function setProgress(p) {
-  const fill = document.getElementById(PROGRESS_FILL_ID);
+  const fill = $id(PROGRESS_FILL_ID);
   if (!fill) return;
   fill.style.width = `${Math.max(0, Math.min(100, p))}%`;
 }
 function startProgressSimulation() {
-  clearInterval(progressInterval);
+  stopProgressSimulation();
   let val = 0;
   progressInterval = setInterval(() => {
     if (!isPlaying) return;
-    val += 0.7;
+    val += 0.8; // speed
     if (val > 100) val = 0;
     setProgress(val);
-  }, 500);
+  }, 450);
 }
-function stopProgressSimulation() { clearInterval(progressInterval); }
+function stopProgressSimulation() {
+  if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
+}
 
-/* waves */
+/* ---- Wave animation ---- */
 function initWaveBars() {
-  const container = document.getElementById(WAVE_CONTAINER_ID);
+  const container = $id(WAVE_CONTAINER_ID);
   if (!container) return;
   container.innerHTML = "";
   waveBars = [];
   for (let i = 0; i < NUM_BARS; i++) {
     const bar = document.createElement("div");
     bar.className = "wave-bar";
-    bar.style.setProperty("--scale", Math.random().toString());
+    bar.style.setProperty("--scale", (0.3 + Math.random() * 1).toString());
     container.appendChild(bar);
     waveBars.push(bar);
   }
@@ -138,7 +169,7 @@ function initWaveBars() {
 function startWaveAnimation() { waveBars.forEach(b => b.style.animationPlayState = "running"); }
 function stopWaveAnimation() { waveBars.forEach(b => b.style.animationPlayState = "paused"); }
 
-/* queue next/prev */
+/* ---- Queue navigation ---- */
 function next() {
   if (!currentQueue || currentQueue.length === 0) return alert("Queue is empty.");
   currentIndex = (currentIndex + 1) % currentQueue.length;
@@ -150,7 +181,7 @@ function prev() {
   setVideoById(currentQueue[currentIndex]);
 }
 
-/* playlists */
+/* ---- Playlists (localStorage) ---- */
 function loadPlaylistsFromStorage() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -164,10 +195,9 @@ function savePlaylistsToStorage(list) {
 }
 function createEmptyPlaylist(name) { return { id: `pl_${Date.now()}`, name: name || "New Playlist", songs: [] }; }
 
-/* render playlists in right panel and sidebar */
 function renderPlaylists() {
-  const area = document.getElementById("playlistArea");
-  const sidebarList = document.getElementById("sidebarPlaylists");
+  const area = $id("playlistArea");
+  const sidebarList = $id("sidebarPlaylists");
   const playlists = loadPlaylistsFromStorage();
 
   if (area) {
@@ -175,110 +205,81 @@ function renderPlaylists() {
     if (playlists.length === 0) {
       const note = document.createElement("div");
       note.style.color = "var(--muted)";
-      note.style.fontSize = "14px";
-      note.textContent = "No playlists yet — create one with the + Create Playlist button.";
+      note.textContent = "No playlists yet — create one with + Create Playlist.";
       area.appendChild(note);
     } else {
       playlists.forEach(pl => {
-        const plWrap = document.createElement("div");
-        plWrap.style.background = "var(--glass)";
-        plWrap.style.padding = "10px";
-        plWrap.style.borderRadius = "10px";
-        plWrap.style.marginBottom = "10px";
-        plWrap.style.display = "flex";
-        plWrap.style.flexDirection = "column";
-        plWrap.style.gap = "8px";
+        const wrap = document.createElement("div");
+        wrap.style.background = "var(--glass)";
+        wrap.style.padding = "10px";
+        wrap.style.borderRadius = "8px";
+        wrap.style.marginBottom = "10px";
 
         const header = document.createElement("div");
         header.style.display = "flex";
         header.style.justifyContent = "space-between";
         header.style.alignItems = "center";
-
         const title = document.createElement("div");
         title.textContent = `${pl.name} (${pl.songs.length})`;
         title.style.fontWeight = "700";
+        header.appendChild(title);
 
         const controls = document.createElement("div");
-        const playAllBtn = document.createElement("button");
-        playAllBtn.textContent = "▶";
-        playAllBtn.className = "btn";
-        playAllBtn.style.marginRight = "8px";
-        playAllBtn.onclick = (e) => {
+        const playBtn = document.createElement("button");
+        playBtn.className = "btn";
+        playBtn.textContent = "▶";
+        playBtn.onclick = (e) => {
           e.stopPropagation();
-          if (pl.songs.length === 0) return alert("Playlist is empty.");
+          if (pl.songs.length === 0) return alert("Playlist empty.");
           currentQueue = pl.songs.map(s => s.videoId);
           currentIndex = 0;
           setVideoById(currentQueue[0]);
         };
-
         const delBtn = document.createElement("button");
-        delBtn.textContent = "🗑";
         delBtn.className = "btn";
+        delBtn.textContent = "🗑";
         delBtn.onclick = (e) => {
           e.stopPropagation();
           if (!confirm(`Delete playlist "${pl.name}" ?`)) return;
-          const all = loadPlaylistsFromStorage();
-          const filtered = all.filter(x => x.id !== pl.id);
-          savePlaylistsToStorage(filtered);
+          const all = loadPlaylistsFromStorage().filter(x => x.id !== pl.id);
+          savePlaylistsToStorage(all);
           renderPlaylists();
           renderSidebarPlaylists();
         };
-
-        controls.appendChild(playAllBtn);
+        controls.appendChild(playBtn);
         controls.appendChild(delBtn);
-        header.appendChild(title);
         header.appendChild(controls);
-        plWrap.appendChild(header);
+        wrap.appendChild(header);
 
-        if (pl.songs.length === 0) {
+        if (!pl.songs.length) {
           const empty = document.createElement("div");
           empty.style.color = "var(--muted)";
-          empty.textContent = "No songs — add songs from Featured Songs.";
-          plWrap.appendChild(empty);
+          empty.textContent = "No songs — add from featured cards.";
+          wrap.appendChild(empty);
         } else {
           pl.songs.forEach(s => {
             const row = document.createElement("div");
             row.style.display = "flex";
             row.style.justifyContent = "space-between";
             row.style.alignItems = "center";
-            row.style.gap = "8px";
+            row.style.marginTop = "8px";
 
             const left = document.createElement("div");
-            left.style.display = "flex";
-            left.style.alignItems = "center";
-            left.style.gap = "10px";
-            left.style.cursor = "pointer";
-
-            const thumb = document.createElement("img");
-            thumb.src = s.cover || `https://i.ytimg.com/vi/${s.videoId}/default.jpg`;
-            thumb.style.width = "46px";
-            thumb.style.height = "46px";
-            thumb.style.objectFit = "cover";
-            thumb.style.borderRadius = "6px";
-
-            const meta = document.createElement("div");
-            const t = document.createElement("div");
-            t.textContent = s.title || "Unknown";
-            t.style.fontWeight = "600";
-            const a = document.createElement("div");
-            a.textContent = s.artist || "Unknown";
-            a.style.fontSize = "12px";
-            a.style.color = "var(--muted)";
-            meta.appendChild(t);
-            meta.appendChild(a);
-
-            left.appendChild(thumb);
-            left.appendChild(meta);
+            left.style.display = "flex"; left.style.gap = "8px"; left.style.alignItems = "center"; left.style.cursor = "pointer";
             left.onclick = () => setVideoById(s.videoId);
 
-            const right = document.createElement("div");
-            right.style.display = "flex";
-            right.style.gap = "8px";
+            const img = document.createElement("img");
+            img.src = s.cover || `https://i.ytimg.com/vi/${s.videoId}/default.jpg`;
+            img.style.width = "46px"; img.style.height = "46px"; img.style.objectFit = "cover"; img.style.borderRadius = "6px";
+            const meta = document.createElement("div");
+            const t = document.createElement("div"); t.textContent = s.title || "Unknown"; t.style.fontWeight = "600";
+            const a = document.createElement("div"); a.textContent = s.artist || "Unknown"; a.style.color = "var(--muted)"; a.style.fontSize = "12px";
+            meta.appendChild(t); meta.appendChild(a);
+            left.appendChild(img); left.appendChild(meta);
 
-            const removeBtn = document.createElement("button");
-            removeBtn.textContent = "✖";
-            removeBtn.className = "btn";
-            removeBtn.onclick = (e) => {
+            const right = document.createElement("div");
+            const rem = document.createElement("button"); rem.className = "btn"; rem.textContent = "✖";
+            rem.onclick = (e) => {
               e.stopPropagation();
               if (!confirm(`Remove "${s.title}" from "${pl.name}"?`)) return;
               const all = loadPlaylistsFromStorage();
@@ -286,18 +287,17 @@ function renderPlaylists() {
               if (!target) return;
               target.songs = target.songs.filter(x => x.videoId !== s.videoId);
               savePlaylistsToStorage(all);
-              renderPlaylists();
-              renderSidebarPlaylists();
+              renderPlaylists(); renderSidebarPlaylists();
             };
+            right.appendChild(rem);
 
-            right.appendChild(removeBtn);
             row.appendChild(left);
             row.appendChild(right);
-            plWrap.appendChild(row);
+            wrap.appendChild(row);
           });
         }
 
-        area.appendChild(plWrap);
+        area.appendChild(wrap);
       });
     }
   }
@@ -319,36 +319,34 @@ function renderPlaylists() {
   }
 }
 
-/* add song to playlist by id */
+function renderSidebarPlaylists(){ renderPlaylists(); }
+
+/* add song to playlist */
 function addSongToPlaylist(playlistId, songObj) {
   const all = loadPlaylistsFromStorage();
   const pl = all.find(x => x.id === playlistId);
   if (!pl) return alert("Playlist not found.");
-  if (pl.songs.some(s => s.videoId === songObj.videoId)) {
-    return alert("Song already in playlist.");
-  }
+  if (pl.songs.some(s => s.videoId === songObj.videoId)) return alert("Song already in playlist.");
   pl.songs.push(songObj);
   savePlaylistsToStorage(all);
   renderPlaylists();
   renderSidebarPlaylists();
   alert(`Added "${songObj.title}" to "${pl.name}"`);
 }
-function renderSidebarPlaylists() { renderPlaylists(); }
 
-/* wire song grid (play + add) */
+/* ---- Song grid wiring ---- */
 function wireSongGrid() {
-  const grid = document.getElementById("songGrid");
+  const grid = $id("songGrid");
   if (!grid) return;
   const cards = Array.from(grid.querySelectorAll(".song-card"));
 
   cards.forEach(card => {
-    if (!card.style.position) card.style.position = "relative";
-
+    // click card -> play
     card.addEventListener("click", (ev) => {
       if (ev.target && ev.target.classList && ev.target.classList.contains("add-to-pl-btn")) return;
       const raw = card.getAttribute("data-id") || card.dataset.id || "";
       const vid = extractVideoId(raw) || raw;
-      if (!vid) return alert("Cannot play this item (invalid video id).");
+      if (!vid) return alert("Cannot play this item (invalid id).");
       const allIds = cards.map(c => extractVideoId(c.getAttribute("data-id") || c.dataset.id) || (c.getAttribute("data-id") || c.dataset.id));
       currentQueue = allIds.filter(x => !!x);
       currentIndex = currentQueue.indexOf(vid);
@@ -356,136 +354,197 @@ function wireSongGrid() {
       setVideoById(vid);
     });
 
+    // Add-to-playlist button handling
     const addBtn = card.querySelector(".add-to-pl-btn");
     if (addBtn) {
       addBtn.addEventListener("click", (e) => {
         e.stopPropagation();
         openPlaylistChooserForCard(card, addBtn);
       });
-    } else {
-      const btn = document.createElement("button");
-      btn.className = "add-to-pl-btn";
-      btn.textContent = "+";
-      btn.title = "Add to playlist";
-      btn.style.position = "absolute"; btn.style.top = "8px"; btn.style.right = "8px"; btn.style.zIndex = "5";
-      card.appendChild(btn);
-      btn.addEventListener("click", (e) => { e.stopPropagation(); openPlaylistChooserForCard(card, btn); });
     }
   });
 }
 
-/* chooser popover */
+/* popover for adding to playlist */
 function openPlaylistChooserForCard(card, anchorBtn) {
-  const existing = document.getElementById("playlistChooserPopover");
-  if (existing) existing.remove();
+  const existing = document.getElementById("playlistChooserPopover"); if (existing) existing.remove();
   const playlists = loadPlaylistsFromStorage();
 
   const pop = document.createElement("div");
   pop.id = "playlistChooserPopover";
   pop.style.position = "absolute";
+  // compute position relative to card
+  const rect = anchorBtn.getBoundingClientRect();
   pop.style.top = (anchorBtn.offsetTop + anchorBtn.offsetHeight + 6) + "px";
-  pop.style.right = "8px";
-  pop.style.background = "var(--card, #0f1720)";
-  pop.style.color = "#e9f2ef";
+  pop.style.left = (anchorBtn.offsetLeft - 10) + "px";
+  pop.style.background = "var(--panel)";
+  pop.style.color = "var(--text)";
   pop.style.padding = "10px";
   pop.style.borderRadius = "8px";
   pop.style.boxShadow = "0 10px 30px rgba(0,0,0,0.6)";
   pop.style.zIndex = 9999;
-  pop.style.minWidth = "180px";
+  pop.style.minWidth = "200px";
 
   const title = document.createElement("div"); title.textContent = "Add to playlist"; title.style.fontWeight = "700"; title.style.marginBottom = "8px"; pop.appendChild(title);
 
-  if (playlists.length === 0) {
+  if (!playlists.length) {
     const no = document.createElement("div"); no.textContent = "No playlists yet."; no.style.color = "var(--muted)"; no.style.marginBottom = "8px"; pop.appendChild(no);
-    const createNow = document.createElement("button"); createNow.textContent = "+ Create"; createNow.style.background = "var(--accent-2)"; createNow.style.border = "none"; createNow.style.padding = "8px 10px"; createNow.style.borderRadius = "8px"; createNow.style.cursor = "pointer";
-    createNow.onclick = () => { const name = prompt("Playlist name:"); if (!name) return; const all = loadPlaylistsFromStorage(); all.push(createEmptyPlaylist(name)); savePlaylistsToStorage(all); renderPlaylists(); renderSidebarPlaylists(); pop.remove(); };
+    const createNow = document.createElement("button");
+    createNow.textContent = "+ Create";
+    createNow.style.background = "var(--accent-2)"; createNow.style.border = "none"; createNow.style.padding = "8px 10px"; createNow.style.borderRadius = "8px"; createNow.style.cursor = "pointer";
+    createNow.onclick = () => {
+      const name = prompt("Playlist name:");
+      if (!name) return;
+      const all = loadPlaylistsFromStorage();
+      all.push(createEmptyPlaylist(name));
+      savePlaylistsToStorage(all);
+      renderPlaylists(); renderSidebarPlaylists();
+      const chooser = document.getElementById("playlistChooserPopover"); if (chooser) chooser.remove();
+    };
     pop.appendChild(createNow);
   } else {
     playlists.forEach(pl => {
-      const r = document.createElement("div");
-      r.style.display = "flex"; r.style.justifyContent = "space-between"; r.style.alignItems = "center"; r.style.marginBottom = "6px"; r.style.cursor = "pointer";
-      const left = document.createElement("div"); left.textContent = pl.name; left.style.color = "#e9f2ef";
+      const row = document.createElement("div");
+      row.style.display = "flex"; row.style.justifyContent = "space-between"; row.style.alignItems = "center"; row.style.marginBottom = "8px"; row.style.cursor = "pointer";
+      const left = document.createElement("div"); left.textContent = pl.name; left.style.color = "var(--text)";
       left.onclick = () => {
         const raw = card.getAttribute("data-id") || card.dataset.id || "";
         const vid = extractVideoId(raw) || raw;
-        if (!vid) return alert("Invalid video id");
+        if (!vid) return alert("Invalid id");
         const songObj = {
           videoId: vid,
-          title: card.getAttribute("data-title") || card.dataset.title || (card.querySelector(".title")?.textContent || card.querySelector("h4")?.textContent || "Unknown"),
+          title: card.getAttribute("data-title") || card.dataset.title || (card.querySelector(".title")?.textContent || "Unknown"),
           artist: card.getAttribute("data-artist") || card.dataset.artist || (card.querySelector(".artist")?.textContent || ""),
           cover: card.getAttribute("data-cover") || card.dataset.cover || (card.querySelector("img")?.src || "")
         };
-        addSongToPlaylist(pl.id, songObj); const chooser = document.getElementById("playlistChooserPopover"); if (chooser) chooser.remove();
+        addSongToPlaylist(pl.id, songObj);
+        const chooser = document.getElementById("playlistChooserPopover"); if (chooser) chooser.remove();
       };
       const cnt = document.createElement("div"); cnt.textContent = `${pl.songs.length}`; cnt.style.color = "var(--muted)";
-      r.appendChild(left); r.appendChild(cnt); pop.appendChild(r);
+      row.appendChild(left); row.appendChild(cnt); pop.appendChild(row);
     });
   }
 
+  // append popover to card
   card.appendChild(pop);
-  function closeOnClickOutside(e) { if (!pop.contains(e.target) && e.target !== anchorBtn) { pop.remove(); document.removeEventListener("click", closeOnClickOutside); } }
+
+  function closeOnClickOutside(e) {
+    if (!pop.contains(e.target) && e.target !== anchorBtn) {
+      pop.remove();
+      document.removeEventListener("click", closeOnClickOutside);
+    }
+  }
   setTimeout(() => document.addEventListener("click", closeOnClickOutside), 50);
 }
 
-/* highlight grid */
+/* highlight playing card */
 function highlightCurrentPlayingInGrid(vid) {
-  const grid = document.getElementById("songGrid"); if (!grid) return;
-  const cards = Array.from(grid.querySelectorAll(".song-card"));
-  cards.forEach(c => {
+  const grid = $id("songGrid"); if (!grid) return;
+  Array.from(grid.querySelectorAll(".song-card")).forEach(c => {
     const raw = c.getAttribute("data-id") || c.dataset.id || "";
     const id = extractVideoId(raw) || raw;
     c.style.outline = (id && vid && id === vid) ? "2px solid rgba(29,123,255,0.85)" : "none";
   });
 }
 
-/* search/load music */
-async function loadMusic() {
-  const input = document.getElementById(INPUT_ID); if (!input) return alert("Search input not found.");
-  const raw = input.value.trim(); if (!raw) return alert("Type a song name or paste a YouTube link.");
-  const isUrl = /(youtube\.com|youtu\.be)/i.test(raw);
-  if (isUrl) {
-    const vid = extractVideoId(raw); if (!vid) return alert("Could not extract video id from link.");
-    currentQueue = [vid]; currentIndex = 0; setVideoById(vid); return;
+/* ---- Search / Load ---- */
+function localSearch(query) {
+  const q = (query || "").toLowerCase().trim();
+  if (!q) return null;
+  // match title or artist substring
+  for (const s of SONGS) {
+    if ((s.title || "").toLowerCase().includes(q) || (s.artist || "").toLowerCase().includes(q)) return s;
   }
-  try {
-    const resp = await fetch(`/api/search?q=${encodeURIComponent(raw)}`);
-    const data = await resp.json();
-    if (!data.videoId) return alert("Search failed. Try a different query or paste a link.");
-    currentQueue = [data.videoId]; currentIndex = 0; setVideoById(data.videoId);
-  } catch (err) { console.error(err); alert("Search failed. Try again."); }
+  return null;
 }
 
-/* init */
+async function loadMusic() {
+  const input = $id(INPUT_ID);
+  if (!input) return alert("Search input not found.");
+  const raw = input.value.trim();
+  if (!raw) return alert("Type a song title/artist or paste a YouTube link.");
+
+  // if it's a URL -> try extract video id
+  const isUrl = /(youtube\.com|youtu\.be)/i.test(raw);
+  if (isUrl) {
+    const vid = extractVideoId(raw);
+    if (!vid) return alert("Could not extract video id from link.");
+    currentQueue = [vid]; currentIndex = 0; setVideoById(vid); return;
+  }
+
+  // local search first
+  const found = localSearch(raw);
+  if (found) {
+    currentQueue = [found.videoId]; currentIndex = 0; setVideoById(found.videoId); return;
+  }
+
+  // no backend search available here — notify user
+  alert("No local match found. Paste a YouTube link or add the song to the featured list.");
+}
+
+/* ---- Init UI wiring ---- */
 document.addEventListener("DOMContentLoaded", () => {
+  // populate song grid from SONGS array (so user can change SONGS easily)
+  const grid = $id("songGrid");
+  if (grid) {
+    grid.innerHTML = ""; // clear existing if any
+    SONGS.forEach(s => {
+      const card = document.createElement("div");
+      card.className = "song-card";
+      card.setAttribute("data-id", s.videoId);
+      card.setAttribute("data-title", s.title);
+      card.setAttribute("data-artist", s.artist);
+      card.setAttribute("data-cover", s.cover);
+      card.innerHTML = `
+        <img class="song-cover" src="${s.cover}" alt="">
+        <div class="song-meta"><div class="title">${s.title}</div><div class="artist muted">${s.artist}</div></div>
+        <button class="add-to-pl-btn" title="Add to playlist">+</button>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  // init visuals & wiring
   initWaveBars();
   wireSongGrid();
   renderPlaylists();
 
-  const loadBtn = document.getElementById(LOAD_BTN_ID); if (loadBtn) loadBtn.addEventListener("click", loadMusic);
-  const inputEl = document.getElementById(INPUT_ID); if (inputEl) inputEl.addEventListener("keydown", e => { if (e.key === "Enter") loadMusic(); });
+  // wires
+  const loadBtn = $id(LOAD_BTN_ID); if (loadBtn) loadBtn.addEventListener("click", loadMusic);
+  const inputEl = $id(INPUT_ID); if (inputEl) inputEl.addEventListener("keydown", e => { if (e.key === "Enter") loadMusic(); });
 
-  const playBtn = document.getElementById(PLAY_BTN_ID); if (playBtn) playBtn.addEventListener("click", togglePlay);
-  const nextBtn = document.getElementById("nextBtn"); if (nextBtn) nextBtn.addEventListener("click", next);
-  const prevBtn = document.getElementById("prevBtn"); if (prevBtn) prevBtn.addEventListener("click", prev);
-
-  const rewBtn = document.getElementById("rewBtn"); if (rewBtn) rewBtn.addEventListener("click", () => alert("Precise seek requires YouTube IFrame API; ask me to add it."));
-  const fwdBtn = document.getElementById("fwdBtn"); if (fwdBtn) fwdBtn.addEventListener("click", () => alert("Precise seek requires YouTube IFrame API; ask me to add it."));
-
-  const createBtn = document.getElementById("createPlaylistBtn");
-  if (createBtn) createBtn.addEventListener("click", () => {
-    const name = prompt("Playlist name:"); if (!name) return;
-    const all = loadPlaylistsFromStorage(); all.push(createEmptyPlaylist(name)); savePlaylistsToStorage(all); renderPlaylists(); renderSidebarPlaylists();
+  const playBtn = $id(PLAY_BTN_ID); if (playBtn) playBtn.addEventListener("click", () => {
+    // if nothing is loaded but there's a queued cued video, play the first
+    if (!currentVideoId && currentQueue.length) { setVideoById(currentQueue[0]); return; }
+    togglePlay();
   });
 
+  const nextBtn = $id("nextBtn"); if (nextBtn) nextBtn.addEventListener("click", next);
+  const prevBtn = $id("prevBtn"); if (prevBtn) prevBtn.addEventListener("click", prev);
+  const rewBtn = $id("rewBtn"); if (rewBtn) rewBtn.addEventListener("click", () => alert("Rewind/forward needs YouTube IFrame API for precise seek — ask me if you want that."));
+  const fwdBtn = $id("fwdBtn"); if (fwdBtn) fwdBtn.addEventListener("click", () => alert("Rewind/forward needs YouTube IFrame API for precise seek — ask me if you want that."));
+
+  const createBtn = $id("createPlaylistBtn");
+  if (createBtn) createBtn.addEventListener("click", () => {
+    const name = prompt("Playlist name:");
+    if (!name) return;
+    const all = loadPlaylistsFromStorage();
+    all.push(createEmptyPlaylist(name));
+    savePlaylistsToStorage(all);
+    renderPlaylists(); renderSidebarPlaylists();
+  });
+
+  // global click: close popovers if clicked outside
   document.addEventListener("click", (e) => {
     const chooser = document.getElementById("playlistChooserPopover");
     if (chooser && !chooser.contains(e.target) && !e.target.classList?.contains("add-to-pl-btn")) chooser.remove();
   });
 });
 
-/* expose */
+/* expose some functions for debugging / console usage */
 window.loadMusic = loadMusic;
 window.setVideoById = setVideoById;
 window.next = next;
 window.prev = prev;
-window.extractVideoId = extractVideoId;
+window.addSongToPlaylist = addSongToPlaylist;
+window.SONGS = SONGS;
