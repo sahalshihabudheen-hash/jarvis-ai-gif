@@ -13,7 +13,6 @@
   --glass: rgba(255,255,255,0.03);
   --text:#e9f2ef;
 }
-
 html,body{
   height:100%;margin:0;font-family:"Segoe UI", Roboto, Arial,sans-serif;
   background:linear-gradient(180deg,#071017 0%,#041014 100%);
@@ -44,6 +43,12 @@ border-radius:12px;padding:16px;box-shadow:0 10px 30px rgba(2,6,10,0.6);height:c
 .nav-item{display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;color:var(--muted);cursor:pointer;}
 .playlist-list{margin-top:12px;display:flex;flex-direction:column;gap:8px;}
 .pl-btn{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.02);color:var(--muted);cursor:pointer;}
+
+/* EMOJI BUTTONS */
+.pl-item::before{
+  content: attr(data-emoji);
+  margin-right:6px;
+}
 
 /* MAIN */
 .main{display:flex;flex-direction:column;gap:20px}
@@ -108,9 +113,9 @@ border-radius:12px;padding:16px;box-shadow:0 10px 30px rgba(2,6,10,0.6);height:c
   <aside class="sidebar">
     <h3 style="margin-bottom:12px">Library</h3>
     <div class="playlist-list">
-      <div class="pl-item">Liked Songs</div>
-      <div class="pl-item">Top Tracks</div>
-      <div class="pl-item">Recently Played</div>
+      <div class="pl-item" data-emoji="💖">Liked Songs</div>
+      <div class="pl-item" data-emoji="🔥">Top Tracks</div>
+      <div class="pl-item" data-emoji="⏱">Recently Played</div>
     </div>
   </aside>
 
