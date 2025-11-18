@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>JARVIS Music — Spotify Style</title>
+<title>JARVIS Music â€” Spotify Style</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -18,87 +18,28 @@
   }
 
   html,body{height:100%;margin:0;font-family:Inter, "Segoe UI", Roboto, Arial, sans-serif;background:linear-gradient(180deg,#071017 0%, #041014 100%);color:var(--text);-webkit-font-smoothing:antialiased}
-   nav {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    background: rgba(20, 25, 40, 0.35);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(0, 255, 255, 0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 20px;
-    z-index: 10;
-    box-shadow: 0 0 15px rgba(0, 255, 255, 0.15);
-    height: 65px;
+  /* NAVBAR (uses user's original structure visually) */
+  nav{
+    position:fixed;top:0;left:0;right:0;height:64px;display:flex;align-items:center;padding:0 20px;z-index:40;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.12));backdrop-filter: blur(8px);border-bottom:1px solid rgba(255,255,255,0.02);
   }
+  nav .nav-left{display:flex;gap:14px;align-items:center}
+  .nav-left .logo{display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));box-shadow:var(--card-shadow)}
+  .nav-left .dot{width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,var(--accent-2), #6ad1ff);display:flex;align-items:center;justify-content:center;font-weight:800;color:#031017}
+  .nav-left h1{font-size:15px;margin:0}
+  .nav-right{margin-left:auto;display:flex;align-items:center;gap:12px;color:var(--muted);font-size:13px}
 
-  .nav-links {
-    display: flex;
-    gap: 35px;
-    align-items: center;
-    justify-content: center;
-  }
+  /* desktop nav links (centered like user's original) */
+  #navLinks { display:flex; gap:28px; list-style:none; margin:0; padding:0; position:absolute; left:50%; transform:translateX(-50%); align-items:center; }
+  #navLinks li a { color:#dffaff; text-decoration:none; padding:8px 14px; font-weight:600; border-radius:10px }
+  #navLinks li a.music { color:var(--accent) }
 
-  nav a {
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 17px;
-    padding: 10px 24px;
-    border-radius: 12px;
-    color: #dffaff;
-    letter-spacing: 0.5px;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-  }
-
-  nav a::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: 12px;
-    background: linear-gradient(120deg, rgba(0,255,255,0.6), rgba(100,0,255,0.5));
-    opacity: 0;
-    transform: scale(0.9);
-    transition: all 0.3s ease;
-    z-index: -1;
-    box-shadow: 0 0 12px rgba(0,255,255,0.4);
-  }
-
-  nav a:hover::before { opacity: 1; transform: scale(1); }
-  nav a:hover { color: #fff; text-shadow: 0 0 8px #00ffff; transform: translateY(-2px); }
-
-  nav a.chat { color: #00eaff; }
-  nav a.discord { color: #a377ff; }
-  nav a.image { color: #39ff14; }
-  nav a.music { color: #1db954; }
-  nav a.video { color: #ff6b00; }
-  nav a.home { color: #ff3bff; }
-
-/* Hamburger */
-  .hamburger {
-    display: none;
-    flex-direction: column;
-    cursor: pointer;
-    gap: 5px;
-    position: absolute;
-    left: 20px;
-  }
-
-  .hamburger div {
-    width: 28px;
-    height: 3px;
-    background: #e3f9ff;
-    border-radius: 2px;
-    transition: all 0.4s ease;
-  }
-
-  .hamburger.toggle div:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
-  .hamburger.toggle div:nth-child(2) { opacity: 0; }
-  .hamburger.toggle div:nth-child(3) { transform: rotate(-45deg) translate(6px, -6px); }
+  /* hamburger (mobile) */
+  .hamburger{display:none; flex-direction:column; gap:6px; cursor:pointer; position:absolute; right:20px}
+  .hamburger span{width:26px;height:3px;border-radius:2px;background:#e3f9ff;display:block}
+  .hamburger.toggle span:nth-child(1){transform:rotate(45deg) translate(5px,5px)}
+  .hamburger.toggle span:nth-child(2){opacity:0}
+  .hamburger.toggle span:nth-child(3){transform:rotate(-45deg) translate(6px,-6px)}
 
   /* layout: sidebar + main + right (right used for compact info) */
   .page { display:grid; grid-template-columns: 220px 1fr 320px; gap:22px; padding:100px 28px 140px; min-height:calc(100vh - 140px) }
@@ -203,9 +144,9 @@
   <!-- LEFT SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <h3>Browse</h3>
-    <div class="nav-item">🏠 <strong>Home</strong></div>
-    <div class="nav-item">🔍 <strong>Search</strong></div>
-    <div class="nav-item">📚 <strong>Your Library</strong></div>
+    <div class="nav-item">ðŸ  <strong>Home</strong></div>
+    <div class="nav-item">ðŸ” <strong>Search</strong></div>
+    <div class="nav-item">ðŸ“š <strong>Your Library</strong></div>
 
     <div style="height:14px"></div>
     <div style="font-size:13px;color:var(--muted);font-weight:700">Playlists</div>
@@ -224,7 +165,7 @@
     <div class="hero">
       <div>
         <div class="title">Featured</div>
-        <div class="muted small">Popular & trending — click a song to play</div>
+        <div class="muted small">Popular & trending â€” click a song to play</div>
       </div>
 
       <div class="searchbar">
@@ -235,7 +176,7 @@
 
     <!-- SONG GRID -->
     <div id="songGrid" class="song-grid" aria-live="polite">
-      <!-- Famous songs included — each card has data-id (YouTube id) and metadata -->
+      <!-- Famous songs included â€” each card has data-id (YouTube id) and metadata -->
       <div class="song-card" data-id="fHI8X4OXluQ" data-title="Blinding Lights" data-artist="The Weeknd" data-cover="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg">
         <img class="song-cover" src="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg" alt="">
         <div class="song-meta"><div class="title">Blinding Lights</div><div class="artist muted">The Weeknd</div></div>
@@ -303,17 +244,17 @@
     <div class="player-cover"><img id="miniCover" src="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg" alt=""></div>
     <div class="player-meta">
       <div id="trackTitle" class="title">Not Playing</div>
-      <div id="trackArtist" class="muted small">—</div>
+      <div id="trackArtist" class="muted small">â€”</div>
     </div>
   </div>
 
   <div style="display:flex;flex-direction:column;align-items:center;flex:1">
     <div class="player-controls">
-      <button class="btn" id="prevBtn">⏮</button>
-      <button class="btn" id="rewBtn" title="Rewind 10s">⟲</button>
-      <button class="btn play" id="playBtn">▶</button>
-      <button class="btn" id="fwdBtn" title="Forward 10s">⟳</button>
-      <button class="btn" id="nextBtn">⏭</button>
+      <button class="btn" id="prevBtn">â®</button>
+      <button class="btn" id="rewBtn" title="Rewind 10s">âŸ²</button>
+      <button class="btn play" id="playBtn">â–¶</button>
+      <button class="btn" id="fwdBtn" title="Forward 10s">âŸ³</button>
+      <button class="btn" id="nextBtn">â­</button>
       <div class="progress" style="margin-left:18px"><i id="progressFill"></i></div>
     </div>
 
