@@ -1,13 +1,11 @@
-// music.js — consolidated & fixed
-// - Click-to-play featured songs
-// - Playlist create/delete/add/remove, saved in localStorage (key: jarvis_playlists)
-// - Queue support + Next / Prev
-// - Wave & progress simulation preserved
-// - Non-destructive: defensive checks for missing elements
+/* music.js — final consolidated version
+   - Play featured song cards
+   - Playlist create/add/remove + persistence (jarvis_playlists)
+   - Queue support (next / prev)
+   - Wave & progress simulation
+   - Non-destructive, defensive
+*/
 
-/* ============================
-   Config / DOM IDs (match your HTML)
-   ============================ */
 const INPUT_ID = "ytInput";
 const LOAD_BTN_ID = "loadBtn";
 const PLAYER_IFRAME_ID = "ytPlayer";
@@ -21,63 +19,42 @@ const WAVE_CONTAINER_ID = "waveContainer";
 const STORAGE_KEY = "jarvis_playlists";
 const NUM_BARS = 20;
 
-/* ============================
-   State
-   ============================ */
 let currentVideoId = null;
 let isPlaying = false;
 let progressInterval = null;
 let waveBars = [];
-let currentQueue = []; // array of videoIds in current queue
-let currentIndex = -1;  // index into currentQueue
+let currentQueue = [];
+let currentIndex = -1;
 
-/* ============================
-   Utility: extract video id
-   Accepts youtube URLs, embed urls, or plain ids
-   ============================ */
+/* util to extract youtube id */
 function extractVideoId(url) {
   if (!url) return null;
   try {
     url = url.trim();
-    // plain id
     if (/^[A-Za-z0-9_-]{10,}$/.test(url)) return url;
-    // youtu.be short
     if (url.includes("youtu.be/")) return url.split("youtu.be/")[1].split(/[?&]/)[0];
-    // v= param
     if (url.includes("v=")) return url.split("v=")[1].split("&")[0];
-    // embed path
     const m = url.match(/\/embed\/([A-Za-z0-9_\-]+)/);
     if (m) return m[1];
-  } catch (e) { /* ignore */ }
+  } catch (e) {}
   return null;
 }
 
-/* ============================
-   Player: set video by ID (core)
-   - uses embed URL with autoplay
-   - updates cover, title via oEmbed when possible
-   - sets queue/index if present
-   ============================ */
+/* set video by ID */
 function setVideoById(vid) {
   if (!vid) return;
   const player = document.getElementById(PLAYER_IFRAME_ID);
   const cover = document.getElementById(COVER_IMG_ID);
   const titleEl = document.getElementById(TITLE_ID);
   const artistEl = document.getElementById(ARTIST_ID);
+  const miniCover = document.getElementById("miniCover");
 
-  // set iframe src (controls=1 kept)
-  if (player) {
-    // include modestbranding & rel & autoplay
-    player.src = `https://www.youtube.com/embed/${vid}?autoplay=1&controls=1&rel=0&modestbranding=1`;
-  }
-
+  if (player) player.src = `https://www.youtube.com/embed/${vid}?autoplay=1&controls=1&rel=0&modestbranding=1`;
   currentVideoId = vid;
   isPlaying = true;
-
-  // update cover if element present
   if (cover) cover.src = `https://i.ytimg.com/vi/${vid}/hqdefault.jpg`;
+  if (miniCover) miniCover.src = `https://i.ytimg.com/vi/${vid}/mqdefault.jpg`;
 
-  // try to fetch title/author via oEmbed
   if (titleEl || artistEl) {
     fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${vid}&format=json`)
       .then(r => r.ok ? r.json() : null)
@@ -92,14 +69,9 @@ function setVideoById(vid) {
       });
   }
 
-  // If this vid exists inside currentQueue, set currentIndex accordingly
   const idx = currentQueue.indexOf(vid);
   if (idx !== -1) currentIndex = idx;
-  else {
-    // set queue to this single vid (unless queue already exists and user expects queue behavior)
-    currentQueue = [vid];
-    currentIndex = 0;
-  }
+  else { currentQueue = [vid]; currentIndex = 0; }
 
   updatePlayButton();
   setProgress(0);
@@ -107,15 +79,12 @@ function setVideoById(vid) {
   startWaveAnimation();
 }
 
-/* ============================
-   Play / Pause toggle
-   - keeps original simple behavior (clear src to stop)
-   ============================ */
+/* play/pause toggle */
 function togglePlay() {
   const player = document.getElementById(PLAYER_IFRAME_ID);
   if (!currentVideoId) return;
   if (isPlaying) {
-    if (player) player.src = ""; // stop
+    if (player) player.src = "";
     isPlaying = false;
     updatePlayButton();
     stopProgressSimulation();
@@ -134,9 +103,7 @@ function updatePlayButton() {
   el.textContent = isPlaying ? "⏸" : "▶";
 }
 
-/* ============================
-   Progress simulation (visual only)
-   ============================ */
+/* progress simulation */
 function setProgress(p) {
   const fill = document.getElementById(PROGRESS_FILL_ID);
   if (!fill) return;
@@ -152,13 +119,9 @@ function startProgressSimulation() {
     setProgress(val);
   }, 500);
 }
-function stopProgressSimulation() {
-  clearInterval(progressInterval);
-}
+function stopProgressSimulation() { clearInterval(progressInterval); }
 
-/* ============================
-   Wave bars init/start/stop
-   ============================ */
+/* waves */
 function initWaveBars() {
   const container = document.getElementById(WAVE_CONTAINER_ID);
   if (!container) return;
@@ -167,7 +130,6 @@ function initWaveBars() {
   for (let i = 0; i < NUM_BARS; i++) {
     const bar = document.createElement("div");
     bar.className = "wave-bar";
-    // use CSS variable --scale to vary heights if CSS uses it
     bar.style.setProperty("--scale", Math.random().toString());
     container.appendChild(bar);
     waveBars.push(bar);
@@ -176,11 +138,7 @@ function initWaveBars() {
 function startWaveAnimation() { waveBars.forEach(b => b.style.animationPlayState = "running"); }
 function stopWaveAnimation() { waveBars.forEach(b => b.style.animationPlayState = "paused"); }
 
-/* ============================
-   Play queue helpers: next / prev
-   - next() moves forward in currentQueue (wraps)
-   - prev() moves backward (wraps)
-   ============================ */
+/* queue next/prev */
 function next() {
   if (!currentQueue || currentQueue.length === 0) return alert("Queue is empty.");
   currentIndex = (currentIndex + 1) % currentQueue.length;
@@ -192,31 +150,21 @@ function prev() {
   setVideoById(currentQueue[currentIndex]);
 }
 
-/* ============================
-   Playlists: load/save/create/delete/add/remove
-   Data format: [{id,name,songs:[{videoId,title,artist,cover}]}, ...]
-   ============================ */
+/* playlists */
 function loadPlaylistsFromStorage() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed : [];
-  } catch (e) {
-    console.error("loadPlaylists error", e);
-    return [];
-  }
+  } catch (e) { console.error(e); return []; }
 }
 function savePlaylistsToStorage(list) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(list || []));
-  } catch (e) { console.error("savePlaylists error", e); }
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(list || [])); } catch (e) { console.error(e); }
 }
-function createEmptyPlaylist(name) {
-  return { id: `pl_${Date.now()}`, name: name || "New Playlist", songs: [] };
-}
+function createEmptyPlaylist(name) { return { id: `pl_${Date.now()}`, name: name || "New Playlist", songs: [] }; }
 
-/* Render playlists into playlistArea and sidebar quick list if present */
+/* render playlists in right panel and sidebar */
 function renderPlaylists() {
   const area = document.getElementById("playlistArea");
   const sidebarList = document.getElementById("sidebarPlaylists");
@@ -249,14 +197,11 @@ function renderPlaylists() {
         const title = document.createElement("div");
         title.textContent = `${pl.name} (${pl.songs.length})`;
         title.style.fontWeight = "700";
-        title.style.color = "#e9f2ef";
 
         const controls = document.createElement("div");
-
         const playAllBtn = document.createElement("button");
         playAllBtn.textContent = "▶";
         playAllBtn.className = "btn";
-        playAllBtn.title = "Play first song";
         playAllBtn.style.marginRight = "8px";
         playAllBtn.onclick = (e) => {
           e.stopPropagation();
@@ -269,7 +214,6 @@ function renderPlaylists() {
         const delBtn = document.createElement("button");
         delBtn.textContent = "🗑";
         delBtn.className = "btn";
-        delBtn.title = "Delete playlist";
         delBtn.onclick = (e) => {
           e.stopPropagation();
           if (!confirm(`Delete playlist "${pl.name}" ?`)) return;
@@ -316,7 +260,6 @@ function renderPlaylists() {
             const t = document.createElement("div");
             t.textContent = s.title || "Unknown";
             t.style.fontWeight = "600";
-            t.style.color = "#e9f2ef";
             const a = document.createElement("div");
             a.textContent = s.artist || "Unknown";
             a.style.fontSize = "12px";
@@ -335,7 +278,6 @@ function renderPlaylists() {
             const removeBtn = document.createElement("button");
             removeBtn.textContent = "✖";
             removeBtn.className = "btn";
-            removeBtn.title = "Remove";
             removeBtn.onclick = (e) => {
               e.stopPropagation();
               if (!confirm(`Remove "${s.title}" from "${pl.name}"?`)) return;
@@ -360,7 +302,6 @@ function renderPlaylists() {
     }
   }
 
-  // sidebar quick list
   if (sidebarList) {
     sidebarList.innerHTML = "";
     playlists.forEach(pl => {
@@ -368,7 +309,6 @@ function renderPlaylists() {
       btn.className = "pl-btn";
       btn.textContent = `${pl.name} (${pl.songs.length})`;
       btn.onclick = () => {
-        // open: play first song if available
         if (pl.songs.length === 0) return alert("Playlist empty.");
         currentQueue = pl.songs.map(s => s.videoId);
         currentIndex = 0;
@@ -379,10 +319,7 @@ function renderPlaylists() {
   }
 }
 
-/* wrapper to render sidebar list */
-const sidebarList = document.getElementById("sidebarPlaylists");
-
-/* Add song object to a playlist by playlist id */
+/* add song to playlist by id */
 function addSongToPlaylist(playlistId, songObj) {
   const all = loadPlaylistsFromStorage();
   const pl = all.find(x => x.id === playlistId);
@@ -396,36 +333,22 @@ function addSongToPlaylist(playlistId, songObj) {
   renderSidebarPlaylists();
   alert(`Added "${songObj.title}" to "${pl.name}"`);
 }
+function renderSidebarPlaylists() { renderPlaylists(); }
 
-/* Small helper to update sidebar playlists (used after changes) */
-function renderSidebarPlaylists() {
-  // reuse renderPlaylists which also updates sidebar if present
-  renderPlaylists();
-}
-
-/* ============================
-   Wire featured song grid (cards are in HTML)
-   - clicks -> play
-   - + button opens chooser
-   ============================ */
+/* wire song grid (play + add) */
 function wireSongGrid() {
   const grid = document.getElementById("songGrid");
   if (!grid) return;
-
-  // attach add buttons and click behavior dynamically
   const cards = Array.from(grid.querySelectorAll(".song-card"));
 
   cards.forEach(card => {
-    // ensure position relative
     if (!card.style.position) card.style.position = "relative";
 
-    // primary click: play (skip if add button clicked)
     card.addEventListener("click", (ev) => {
       if (ev.target && ev.target.classList && ev.target.classList.contains("add-to-pl-btn")) return;
       const raw = card.getAttribute("data-id") || card.dataset.id || "";
       const vid = extractVideoId(raw) || raw;
       if (!vid) return alert("Cannot play this item (invalid video id).");
-      // set queue to all cards' ids (so next/prev work). Build array of all visible card ids
       const allIds = cards.map(c => extractVideoId(c.getAttribute("data-id") || c.dataset.id) || (c.getAttribute("data-id") || c.dataset.id));
       currentQueue = allIds.filter(x => !!x);
       currentIndex = currentQueue.indexOf(vid);
@@ -433,7 +356,6 @@ function wireSongGrid() {
       setVideoById(vid);
     });
 
-    // add button already exists in markup — ensure handler
     const addBtn = card.querySelector(".add-to-pl-btn");
     if (addBtn) {
       addBtn.addEventListener("click", (e) => {
@@ -441,30 +363,21 @@ function wireSongGrid() {
         openPlaylistChooserForCard(card, addBtn);
       });
     } else {
-      // if not present, create it
       const btn = document.createElement("button");
       btn.className = "add-to-pl-btn";
       btn.textContent = "+";
       btn.title = "Add to playlist";
-      btn.style.position = "absolute";
-      btn.style.top = "8px";
-      btn.style.right = "8px";
-      btn.style.zIndex = "5";
+      btn.style.position = "absolute"; btn.style.top = "8px"; btn.style.right = "8px"; btn.style.zIndex = "5";
       card.appendChild(btn);
-      btn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        openPlaylistChooserForCard(card, btn);
-      });
+      btn.addEventListener("click", (e) => { e.stopPropagation(); openPlaylistChooserForCard(card, btn); });
     }
   });
 }
 
-/* Playlist chooser popover for a card */
+/* chooser popover */
 function openPlaylistChooserForCard(card, anchorBtn) {
-  // close existing
   const existing = document.getElementById("playlistChooserPopover");
   if (existing) existing.remove();
-
   const playlists = loadPlaylistsFromStorage();
 
   const pop = document.createElement("div");
@@ -480,51 +393,19 @@ function openPlaylistChooserForCard(card, anchorBtn) {
   pop.style.zIndex = 9999;
   pop.style.minWidth = "180px";
 
-  const title = document.createElement("div");
-  title.textContent = "Add to playlist";
-  title.style.fontWeight = "700";
-  title.style.marginBottom = "8px";
-  pop.appendChild(title);
+  const title = document.createElement("div"); title.textContent = "Add to playlist"; title.style.fontWeight = "700"; title.style.marginBottom = "8px"; pop.appendChild(title);
 
   if (playlists.length === 0) {
-    const no = document.createElement("div");
-    no.textContent = "No playlists yet.";
-    no.style.color = "var(--muted)";
-    no.style.marginBottom = "8px";
-    pop.appendChild(no);
-
-    const createNow = document.createElement("button");
-    createNow.textContent = "+ Create";
-    createNow.style.background = "var(--accent, #1d7bff)";
-    createNow.style.border = "none";
-    createNow.style.padding = "8px 10px";
-    createNow.style.borderRadius = "8px";
-    createNow.style.cursor = "pointer";
-    createNow.onclick = () => {
-      const name = prompt("Playlist name:");
-      if (!name) return;
-      const all = loadPlaylistsFromStorage();
-      all.push(createEmptyPlaylist(name));
-      savePlaylistsToStorage(all);
-      renderPlaylists();
-      renderSidebarPlaylists();
-      pop.remove();
-    };
+    const no = document.createElement("div"); no.textContent = "No playlists yet."; no.style.color = "var(--muted)"; no.style.marginBottom = "8px"; pop.appendChild(no);
+    const createNow = document.createElement("button"); createNow.textContent = "+ Create"; createNow.style.background = "var(--accent-2)"; createNow.style.border = "none"; createNow.style.padding = "8px 10px"; createNow.style.borderRadius = "8px"; createNow.style.cursor = "pointer";
+    createNow.onclick = () => { const name = prompt("Playlist name:"); if (!name) return; const all = loadPlaylistsFromStorage(); all.push(createEmptyPlaylist(name)); savePlaylistsToStorage(all); renderPlaylists(); renderSidebarPlaylists(); pop.remove(); };
     pop.appendChild(createNow);
   } else {
     playlists.forEach(pl => {
       const r = document.createElement("div");
-      r.style.display = "flex";
-      r.style.justifyContent = "space-between";
-      r.style.alignItems = "center";
-      r.style.marginBottom = "6px";
-      r.style.cursor = "pointer";
-
-      const left = document.createElement("div");
-      left.textContent = pl.name;
-      left.style.color = "#e9f2ef";
+      r.style.display = "flex"; r.style.justifyContent = "space-between"; r.style.alignItems = "center"; r.style.marginBottom = "6px"; r.style.cursor = "pointer";
+      const left = document.createElement("div"); left.textContent = pl.name; left.style.color = "#e9f2ef";
       left.onclick = () => {
-        // build song object from card
         const raw = card.getAttribute("data-id") || card.dataset.id || "";
         const vid = extractVideoId(raw) || raw;
         if (!vid) return alert("Invalid video id");
@@ -534,140 +415,75 @@ function openPlaylistChooserForCard(card, anchorBtn) {
           artist: card.getAttribute("data-artist") || card.dataset.artist || (card.querySelector(".artist")?.textContent || ""),
           cover: card.getAttribute("data-cover") || card.dataset.cover || (card.querySelector("img")?.src || "")
         };
-        addSongToPlaylist(pl.id, songObj);
-        const chooser = document.getElementById("playlistChooserPopover");
-        if (chooser) chooser.remove();
+        addSongToPlaylist(pl.id, songObj); const chooser = document.getElementById("playlistChooserPopover"); if (chooser) chooser.remove();
       };
-
-      const cnt = document.createElement("div");
-      cnt.textContent = `${pl.songs.length}`;
-      cnt.style.color = "var(--muted)";
-
-      r.appendChild(left);
-      r.appendChild(cnt);
-      pop.appendChild(r);
+      const cnt = document.createElement("div"); cnt.textContent = `${pl.songs.length}`; cnt.style.color = "var(--muted)";
+      r.appendChild(left); r.appendChild(cnt); pop.appendChild(r);
     });
   }
 
-  // attach to card
   card.appendChild(pop);
-
-  // click outside to close
-  function closeOnClickOutside(e) {
-    if (!pop.contains(e.target) && e.target !== anchorBtn) {
-      pop.remove();
-      document.removeEventListener("click", closeOnClickOutside);
-    }
-  }
+  function closeOnClickOutside(e) { if (!pop.contains(e.target) && e.target !== anchorBtn) { pop.remove(); document.removeEventListener("click", closeOnClickOutside); } }
   setTimeout(() => document.addEventListener("click", closeOnClickOutside), 50);
 }
 
-/* Highlight currently playing card in the grid */
+/* highlight grid */
 function highlightCurrentPlayingInGrid(vid) {
-  const grid = document.getElementById("songGrid");
-  if (!grid) return;
+  const grid = document.getElementById("songGrid"); if (!grid) return;
   const cards = Array.from(grid.querySelectorAll(".song-card"));
   cards.forEach(c => {
     const raw = c.getAttribute("data-id") || c.dataset.id || "";
     const id = extractVideoId(raw) || raw;
-    if (id && vid && id === vid) {
-      c.style.outline = "2px solid rgba(29,123,255,0.85)";
-    } else {
-      c.style.outline = "none";
-    }
+    c.style.outline = (id && vid && id === vid) ? "2px solid rgba(29,123,255,0.85)" : "none";
   });
 }
 
-/* ============================
-   loadMusic (search) - keeps original API call
-   ============================ */
+/* search/load music */
 async function loadMusic() {
-  const input = document.getElementById(INPUT_ID);
-  if (!input) return alert("Search input not found.");
-  const raw = input.value.trim();
-  if (!raw) return alert("Type a song name or paste a YouTube link.");
+  const input = document.getElementById(INPUT_ID); if (!input) return alert("Search input not found.");
+  const raw = input.value.trim(); if (!raw) return alert("Type a song name or paste a YouTube link.");
   const isUrl = /(youtube\.com|youtu\.be)/i.test(raw);
   if (isUrl) {
-    const vid = extractVideoId(raw);
-    if (!vid) return alert("Could not extract video id from link.");
-    // set queue to this single item
-    currentQueue = [vid];
-    currentIndex = 0;
-    setVideoById(vid);
-    return;
+    const vid = extractVideoId(raw); if (!vid) return alert("Could not extract video id from link.");
+    currentQueue = [vid]; currentIndex = 0; setVideoById(vid); return;
   }
   try {
     const resp = await fetch(`/api/search?q=${encodeURIComponent(raw)}`);
     const data = await resp.json();
     if (!data.videoId) return alert("Search failed. Try a different query or paste a link.");
-    currentQueue = [data.videoId];
-    currentIndex = 0;
-    setVideoById(data.videoId);
-  } catch (err) {
-    console.error(err);
-    alert("Search failed. Try again.");
-  }
+    currentQueue = [data.videoId]; currentIndex = 0; setVideoById(data.videoId);
+  } catch (err) { console.error(err); alert("Search failed. Try again."); }
 }
 
-/* ============================
-   DOM ready: initialize everything and wire controls
-   ============================ */
+/* init */
 document.addEventListener("DOMContentLoaded", () => {
-  // Waves
   initWaveBars();
-
-  // Wire featured grid (cards must exist in HTML)
   wireSongGrid();
-
-  // Render playlists
   renderPlaylists();
 
-  // Hook up search/load
-  const loadBtn = document.getElementById(LOAD_BTN_ID);
-  if (loadBtn) loadBtn.addEventListener("click", loadMusic);
-  const inputEl = document.getElementById(INPUT_ID);
-  if (inputEl) inputEl.addEventListener("keydown", e => { if (e.key === "Enter") loadMusic(); });
+  const loadBtn = document.getElementById(LOAD_BTN_ID); if (loadBtn) loadBtn.addEventListener("click", loadMusic);
+  const inputEl = document.getElementById(INPUT_ID); if (inputEl) inputEl.addEventListener("keydown", e => { if (e.key === "Enter") loadMusic(); });
 
-  // Play button
-  const playBtn = document.getElementById(PLAY_BTN_ID);
-  if (playBtn) playBtn.addEventListener("click", togglePlay);
+  const playBtn = document.getElementById(PLAY_BTN_ID); if (playBtn) playBtn.addEventListener("click", togglePlay);
+  const nextBtn = document.getElementById("nextBtn"); if (nextBtn) nextBtn.addEventListener("click", next);
+  const prevBtn = document.getElementById("prevBtn"); if (prevBtn) prevBtn.addEventListener("click", prev);
 
-  // Next / Prev: try to find buttons by id, else ignore
-  const nextBtn = document.getElementById("nextBtn");
-  if (nextBtn) nextBtn.addEventListener("click", next);
-  const prevBtn = document.getElementById("prevBtn");
-  if (prevBtn) prevBtn.addEventListener("click", prev);
+  const rewBtn = document.getElementById("rewBtn"); if (rewBtn) rewBtn.addEventListener("click", () => alert("Precise seek requires YouTube IFrame API; ask me to add it."));
+  const fwdBtn = document.getElementById("fwdBtn"); if (fwdBtn) fwdBtn.addEventListener("click", () => alert("Precise seek requires YouTube IFrame API; ask me to add it."));
 
-  // Rewind / Forward: current behavior — placeholder (seek requires YT API)
-  const rewBtn = document.getElementById("rewBtn");
-  if (rewBtn) rewBtn.addEventListener("click", () => alert("Rewind/forward needs YouTube Player API to be precise. I can add it if you want."));
-  const fwdBtn = document.getElementById("fwdBtn");
-  if (fwdBtn) fwdBtn.addEventListener("click", () => alert("Rewind/forward needs YouTube Player API to be precise. I can add it if you want."));
-
-  // Create playlist button
   const createBtn = document.getElementById("createPlaylistBtn");
-  if (createBtn) {
-    createBtn.addEventListener("click", () => {
-      const name = prompt("Playlist name:");
-      if (!name) return;
-      const all = loadPlaylistsFromStorage();
-      all.push(createEmptyPlaylist(name));
-      savePlaylistsToStorage(all);
-      renderPlaylists();
-      renderSidebarPlaylists();
-    });
-  }
+  if (createBtn) createBtn.addEventListener("click", () => {
+    const name = prompt("Playlist name:"); if (!name) return;
+    const all = loadPlaylistsFromStorage(); all.push(createEmptyPlaylist(name)); savePlaylistsToStorage(all); renderPlaylists(); renderSidebarPlaylists();
+  });
 
-  // Close chooser on outside click (extra safety)
   document.addEventListener("click", (e) => {
     const chooser = document.getElementById("playlistChooserPopover");
-    if (chooser && !chooser.contains(e.target) && !e.target.classList?.contains("add-to-pl-btn")) {
-      chooser.remove();
-    }
+    if (chooser && !chooser.contains(e.target) && !e.target.classList?.contains("add-to-pl-btn")) chooser.remove();
   });
 });
 
-/* Expose functions for debugging or HTML inline use */
+/* expose */
 window.loadMusic = loadMusic;
 window.setVideoById = setVideoById;
 window.next = next;
