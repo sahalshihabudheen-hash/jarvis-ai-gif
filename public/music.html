@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>JARVIS Music — Search Fixed + Add to Playlist</title>
+<title>JARVIS Music — Search+Play (No API Key)</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -56,8 +56,8 @@
   .popover{position:absolute;background:var(--panel);padding:8px;border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,0.6);z-index:9999;min-width:240px}
   .popover .row{display:flex;justify-content:space-between;align-items:center;padding:6px 4px;cursor:pointer}
   .popover .row:hover{background:var(--glass)}
-  /* search results */
-  .results-pop{position:absolute;left:0;right:0;top:56px;background:var(--panel);border-radius:8px;padding:8px;box-shadow:0 10px 30px rgba(0,0,0,0.6);z-index:60;max-height:360px;overflow:auto}
+  /* search results (kept hidden since we play first result) */
+  .results-pop{position:absolute;left:0;right:0;top:56px;background:var(--panel);border-radius:8px;padding:8px;box-shadow:0 10px 30px rgba(0,0,0,0.6);z-index:60;max-height:360px;overflow:auto;display:none}
   .result-row{display:flex;gap:8px;align-items:center;padding:8px;border-radius:8px}
   .result-row:hover{background:var(--glass)}
   .result-thumb{width:72px;height:48px;border-radius:6px;object-fit:cover}
@@ -104,7 +104,7 @@
     <button id="createPlaylistBtn" style="margin-top:12px;padding:8px;border-radius:8px;border:none;background:var(--accent);color:#071018;cursor:pointer;width:100%">+ Create Playlist</button>
 
     <div style="height:14px"></div>
-    <div class="small">Tip: click a card to play. Use + on a card to add to a playlist.</div>
+    <div class="small">Tip: paste a YouTube link or type title/artist and press Search.</div>
   </aside>
 
   <!-- main -->
@@ -112,15 +112,15 @@
     <div style="display:flex;justify-content:space-between;align-items:center">
       <div>
         <div style="font-size:20px;font-weight:800">Featured</div>
-        <div class="small">Popular — click a song to play</div>
+        <div class="small">Click a song to play</div>
       </div>
 
       <div class="searchbar" style="width:480px">
         <input id="ytInput" placeholder="Type title/artist or paste YouTube link...">
         <button id="loadBtn">Search & Play</button>
 
-        <!-- search results popup (filled by JS) -->
-        <div id="searchResults" class="results-pop" style="display:none"></div>
+        <!-- search results popup (kept but not used to interrupt immediate-play) -->
+        <div id="searchResults" class="results-pop" aria-hidden="true"></div>
       </div>
     </div>
 
@@ -137,7 +137,7 @@
           <button class="btn" id="fwdBtn" title="Forward">⏩</button>
           <button class="btn" id="nextBtn">⏭</button>
 
-          <!-- NEW: Add to playlist button in controller (Option A) -->
+          <!-- controller add button -->
           <button id="controllerAddBtn" title="Add currently playing to playlist" style="margin-left:6px" class="btn small-ghost">➕</button>
 
           <div style="flex:1;margin-left:12px">
@@ -151,9 +151,7 @@
       <iframe id="ytPlayer" allow="autoplay" style="display:none"></iframe>
     </div>
 
-    <div id="songGrid" class="song-grid" aria-live="polite">
-      <!-- will be populated by JS from SONGS array -->
-    </div>
+    <div id="songGrid" class="song-grid" aria-live="polite"></div>
   </main>
 
   <!-- right -->
@@ -178,7 +176,13 @@
 
 <script>
 /* ==========================
-   Embedded JS - Search fixed
+   FULL single-file: Search+Play YouTube (no API key)
+   - Immediate play of first search result (you chose YES)
+   - Paste YouTube link plays instantly (you chose YES)
+   - Controller add-to-playlist popup (you chose YES)
+   - Soundwave animated only when playing (you chose YES)
+   - Featured songs NOT auto-played on load (you chose NO)
+   - Kept layout & features
    ========================== */
 
 /* IDs and constants */
@@ -198,7 +202,7 @@ const STORAGE_KEY = "jarvis_playlists_v1";
 const NUM_BARS = 20;
 const SEARCH_RESULTS_EL = "searchResults";
 
-/* Demo featured songs */
+/* Featured demo songs (kept simple so you can expand) */
 const SONGS = [
   { videoId: "fHI8X4OXluQ", title: "Blinding Lights", artist: "The Weeknd", cover: "https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg" },
   { videoId: "34Na4j8AVgA", title: "Starboy", artist: "The Weeknd", cover: "https://i.ytimg.com/vi/34Na4j8AVgA/hqdefault.jpg" },
@@ -213,11 +217,12 @@ let waveBars = [];
 let currentQueue = [];
 let currentIndex = -1;
 
-/* helper */
+/* helpers */
 function $id(id){ return document.getElementById(id); }
 function extractVideoId(url){
   if(!url) return null;
   url = url.trim();
+  // straight id
   if(/^[A-Za-z0-9_-]{10,}$/.test(url)) return url;
   const short = url.match(/youtu\.be\/([A-Za-z0-9_-]{6,})/);
   if(short) return short[1].split(/[?&]/)[0];
@@ -242,14 +247,14 @@ function setVideoById(vid){
   isPlaying = true;
   setIframeSrcHidden(vid);
 
-  // UI updates
+  // update UI
   const cover = $id(COVER_IMG_ID), mini = $id(MINI_COVER_ID);
   const titleEl = $id(TITLE_ID), artistEl = $id(ARTIST_ID);
   const miniTitle = $id(MINI_TITLE_ID), miniArtist = $id(MINI_ARTIST_ID);
   if(cover) cover.src = `https://i.ytimg.com/vi/${vid}/hqdefault.jpg`;
   if(mini) mini.src = `https://i.ytimg.com/vi/${vid}/mqdefault.jpg`;
 
-  // oEmbed metadata (graceful)
+  // metadata via oEmbed (graceful)
   fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${vid}&format=json`)
     .then(r => r.ok ? r.json() : null)
     .then(data => {
@@ -264,6 +269,7 @@ function setVideoById(vid){
       if(artistEl) artistEl.textContent = "YouTube";
     });
 
+  // queue index logic
   const idx = currentQueue.indexOf(vid);
   if(idx !== -1) currentIndex = idx;
   else { currentQueue = [vid]; currentIndex = 0; }
@@ -304,7 +310,7 @@ function stopWaveAnimation(){ waveBars.forEach(b=>b.style.animationPlayState='pa
 function next(){ if(!currentQueue.length) return alert("Queue empty"); currentIndex=(currentIndex+1)%currentQueue.length; setVideoById(currentQueue[currentIndex]); }
 function prev(){ if(!currentQueue.length) return alert("Queue empty"); currentIndex=(currentIndex-1+currentQueue.length)%currentQueue.length; setVideoById(currentQueue[currentIndex]); }
 
-/* PLAYLISTS (localStorage) */
+/* PLAYLISTS */
 function loadPlaylistsFromStorage(){ try{ const raw = localStorage.getItem(STORAGE_KEY); if(!raw) return []; const p = JSON.parse(raw); return Array.isArray(p)?p:[] }catch(e){ console.error(e); return []; } }
 function savePlaylistsToStorage(list){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(list||[])); }catch(e){ console.error(e); } }
 function createEmptyPlaylist(name){ return { id: 'pl_'+Date.now(), name: name||'New Playlist', songs: [] }; }
@@ -355,7 +361,6 @@ function renderPlaylists(){
 }
 function renderSidebarPlaylists(){ renderPlaylists(); }
 
-/* add song to playlist */
 function addSongToPlaylist(playlistId, songObj){
   const all = loadPlaylistsFromStorage();
   const pl = all.find(x=>x.id===playlistId);
@@ -367,7 +372,7 @@ function addSongToPlaylist(playlistId, songObj){
   alert(`Added "${songObj.title}" to "${pl.name}"`);
 }
 
-/* highlight playing card */
+/* highlight */
 function highlightCurrentPlayingInGrid(vid){
   const grid = $id('songGrid'); if(!grid) return;
   Array.from(grid.querySelectorAll('.song-card')).forEach(c=>{
@@ -376,7 +381,7 @@ function highlightCurrentPlayingInGrid(vid){
   });
 }
 
-/* wire song grid */
+/* grid wiring */
 function wireSongGrid(){
   const grid = $id('songGrid');
   if(!grid) return;
@@ -400,14 +405,11 @@ function wireSongGrid(){
   });
 }
 
-/* popover to add to playlist (for cards and controller) */
+/* Popover for adding to playlist - works for card (passed) or controller (cardOrNull = null) */
 function openPlaylistChooserForCard(cardOrNull, anchorBtn){
-  // cardOrNull can be null when opening from controller -- handle that
   const existing = document.getElementById('playlistChooserPopover'); if(existing) existing.remove();
   const playlists = loadPlaylistsFromStorage();
   const pop = document.createElement('div'); pop.id='playlistChooserPopover'; pop.className='popover';
-
-  // position: near anchorBtn (append to body so absolute uses viewport)
   document.body.appendChild(pop);
   const rect = anchorBtn.getBoundingClientRect();
   pop.style.top = (rect.bottom + 8) + 'px';
@@ -421,7 +423,6 @@ function openPlaylistChooserForCard(cardOrNull, anchorBtn){
     createNow.onclick = ()=>{
       const name = prompt('Playlist name:'); if(!name) return;
       const all = loadPlaylistsFromStorage(); const pl = createEmptyPlaylist(name); all.push(pl); savePlaylistsToStorage(all);
-      // determine songObj (from card or current playing)
       const songObj = getSongObjectFromContext(cardOrNull);
       if(!songObj) { alert('No song to add'); pop.remove(); return; }
       addSongToPlaylist(pl.id, songObj);
@@ -464,7 +465,7 @@ function openPlaylistChooserForCard(cardOrNull, anchorBtn){
   setTimeout(()=>document.addEventListener('click', close),40);
 }
 
-/* helper to obtain song object from context (card or controller current) */
+/* Determine song object from card or currently playing */
 function getSongObjectFromContext(cardOrNull){
   if(cardOrNull){
     const raw = cardOrNull.dataset.id || '';
@@ -477,7 +478,6 @@ function getSongObjectFromContext(cardOrNull){
       cover: cardOrNull.dataset.cover || cardOrNull.querySelector('img')?.src || ''
     };
   } else {
-    // use currently playing
     if(!currentVideoId) return null;
     return {
       videoId: currentVideoId,
@@ -488,16 +488,15 @@ function getSongObjectFromContext(cardOrNull){
   }
 }
 
-/* search using public Invidious instances (tries several until success) */
+/* SEARCH using public Invidious instances (no API key) */
 const INVIDIOUS_INSTANCES = [
-  "https://yewtu.cafe",          // common public instance
-  "https://yewtu.cafe",          // kept duplicates as fallback, the algorithm will skip failing ones
-  "https://yewtu.eu",            // another instance (may fail)
-  "https://yewtu.cafe"           // final fallback
+  "https://yewtu.cafe",
+  "https://yewtu.eu",
+  "https://yewtu.cafe", // duplicates acceptable as fallback
+  "https://yewtu.cafe"
 ];
 
 async function searchInvidious(query){
-  // try multiple instances until one returns usable results
   const q = encodeURIComponent(query);
   for(const base of INVIDIOUS_INSTANCES){
     try{
@@ -506,7 +505,6 @@ async function searchInvidious(query){
       if(!res.ok) continue;
       const data = await res.json();
       if(!Array.isArray(data) || data.length===0) continue;
-      // transform to normalized results
       const results = data.map(item => ({
         videoId: item.videoId || item.video_id || item.id || (item.url && extractVideoId(item.url)),
         title: item.title || item.videoTitle || item.name || '',
@@ -515,79 +513,50 @@ async function searchInvidious(query){
       })).filter(r => r.videoId);
       if(results.length) return results;
     }catch(err){
-      // try next instance
-      // console.warn('instance failed', base, err);
       continue;
     }
   }
   return null;
 }
 
-/* show results popup under search input */
-function showSearchResults(results){
-  const out = $id(SEARCH_RESULTS_EL);
-  if(!out) return;
-  out.innerHTML = '';
-  if(!results || results.length===0){
-    out.style.display='none';
-    return;
-  }
-  results.slice(0,12).forEach(r=>{
-    const row = document.createElement('div'); row.className='result-row';
-    const thumb = document.createElement('img'); thumb.className='result-thumb'; thumb.src = r.thumbnail || `https://i.ytimg.com/vi/${r.videoId}/mqdefault.jpg`;
-    const meta = document.createElement('div'); meta.className='result-meta';
-    const t = document.createElement('div'); t.textContent = r.title; t.style.fontWeight='700';
-    const a = document.createElement('div'); a.textContent = r.author || ''; a.style.fontSize='13px'; a.style.color='var(--muted)';
-    meta.appendChild(t); meta.appendChild(a);
-    const actions = document.createElement('div'); actions.className='result-actions';
-    const playBtn = document.createElement('button'); playBtn.className='small-ghost'; playBtn.textContent='Play'; playBtn.onclick = (e)=>{ e.stopPropagation(); currentQueue=[r.videoId]; currentIndex=0; setVideoById(r.videoId); hideSearchResults(); };
-    const addBtn = document.createElement('button'); addBtn.className='small-ghost'; addBtn.textContent='Add'; addBtn.onclick = (e)=>{ e.stopPropagation(); // add to playlist chooser
-      // create a fake card-like object to reuse popover logic
-      const fakeCard = document.createElement('div');
-      fakeCard.dataset.id = r.videoId;
-      fakeCard.dataset.title = r.title;
-      fakeCard.dataset.artist = r.author;
-      fakeCard.dataset.cover = r.thumbnail;
-      openPlaylistChooserForCard(fakeCard, addBtn);
-      hideSearchResults();
-    };
-    actions.appendChild(playBtn); actions.appendChild(addBtn);
-    row.appendChild(thumb); row.appendChild(meta); row.appendChild(actions);
-    out.appendChild(row);
-  });
-  out.style.display = 'block';
-}
-function hideSearchResults(){ const out = $id(SEARCH_RESULTS_EL); if(out) out.style.display='none'; }
-
-/* perform search: url or query */
-async function performSearchAndShow(raw){
+/* NOTE: per your "immediate play first result" choice: this function
+   will search and automatically play the top result (if any).
+   If a direct YouTube link is provided, it will play it immediately. */
+async function performSearchAndPlay(raw){
   if(!raw) return;
   const isUrl = /(youtube\.com|youtu\.be)/i.test(raw);
   if(isUrl){
     const vid = extractVideoId(raw);
     if(!vid) return alert('Could not extract video id from link.');
-    currentQueue=[vid]; currentIndex=0; setVideoById(vid);
-    hideSearchResults();
-    return;
+    currentQueue=[vid]; currentIndex=0; setVideoById(vid); return;
   }
 
-  // try local substring match first (featured)
+  // local featured list match
   const local = localSearch(raw);
-  if(local){ currentQueue=[local.videoId]; currentIndex=0; setVideoById(local.videoId); hideSearchResults(); return; }
+  if(local){ currentQueue=[local.videoId]; currentIndex=0; setVideoById(local.videoId); return; }
 
-  // try external search (Invidious)
-  // show temporary loading UI
-  const out = $id(SEARCH_RESULTS_EL);
-  if(out){ out.innerHTML='<div style="padding:10px;color:var(--muted)">Searching...</div>'; out.style.display='block'; }
+  // try external Invidious search and play the first result
+  const srEl = $id(SEARCH_RESULTS_EL);
+  if(srEl){ srEl.innerHTML = '<div style="padding:10px;color:var(--muted)">Searching and playing the top result (no API key)...</div>'; srEl.style.display='block'; }
   const results = await searchInvidious(raw);
   if(!results || results.length===0){
-    if(out) out.innerHTML='<div style="padding:10px;color:var(--muted)">No results. Try a different query or paste a YouTube link.</div>';
+    if(srEl) srEl.innerHTML = '<div style="padding:10px;color:var(--muted)">No results. Paste a YouTube link or try a different query.</div>';
+    setTimeout(()=>{ if(srEl) srEl.style.display='none'; }, 2000);
     return;
   }
-  showSearchResults(results);
+
+  // play top result immediately
+  const top = results[0];
+  if(top && top.videoId){
+    currentQueue=[top.videoId]; currentIndex=0; setVideoById(top.videoId);
+    if(srEl) srEl.style.display='none';
+    return;
+  }
+
+  if(srEl) srEl.style.display='none';
 }
 
-/* local simple search on SONGS array */
+/* local simple search */
 function localSearch(query){
   const q=(query||'').toLowerCase().trim();
   if(!q) return null;
@@ -597,9 +566,9 @@ function localSearch(query){
   return null;
 }
 
-/* init UI */
+/* UI Init */
 document.addEventListener('DOMContentLoaded', ()=>{
-  // populate song grid
+  // populate grid from SONGS
   const grid = $id('songGrid');
   if(grid){
     grid.innerHTML = '';
@@ -612,8 +581,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
   initWaveBars(); wireSongGrid(); renderPlaylists();
 
-  $id(LOAD_BTN_ID).addEventListener('click', ()=> performSearchAndShow($id(INPUT_ID).value.trim()));
-  $id(INPUT_ID).addEventListener('keydown', e=>{ if(e.key==='Enter') performSearchAndShow($id(INPUT_ID).value.trim()); });
+  $id(LOAD_BTN_ID).addEventListener('click', ()=> performSearchAndPlay($id(INPUT_ID).value.trim()));
+  $id(INPUT_ID).addEventListener('keydown', e=>{ if(e.key==='Enter') performSearchAndPlay($id(INPUT_ID).value.trim()); });
 
   $id(PLAY_BTN_ID).addEventListener('click', ()=>{ if(!currentVideoId && currentQueue.length) { setVideoById(currentQueue[0]); return; } togglePlay(); });
   $id('nextBtn').addEventListener('click', next);
@@ -626,14 +595,13 @@ document.addEventListener('DOMContentLoaded', ()=>{
     const all = loadPlaylistsFromStorage(); all.push(createEmptyPlaylist(name)); savePlaylistsToStorage(all); renderPlaylists(); renderSidebarPlaylists();
   });
 
-  // controller add button: add current playing to playlist
+  // controller add: add currently playing
   $id('controllerAddBtn').addEventListener('click', (e)=>{
     e.stopPropagation();
-    // anchor on the controller button, no card context => cardOrNull = null
     openPlaylistChooserForCard(null, e.currentTarget);
   });
 
-  // click outside to hide search results
+  // click outside handlers hide popovers and search results
   document.addEventListener('click', (e)=>{
     const sr = $id(SEARCH_RESULTS_EL);
     if(sr && !sr.contains(e.target) && e.target !== $id(INPUT_ID) && e.target !== $id(LOAD_BTN_ID)) sr.style.display='none';
@@ -642,9 +610,10 @@ document.addEventListener('DOMContentLoaded', ()=>{
   });
 });
 
-/* expose for debugging */
+/* expose useful functions for console debugging */
 window.SONGS = SONGS;
 window.setVideoById = setVideoById;
+window.addSongToPlaylist = addSongToPlaylist;
 </script>
 </body>
 </html>
