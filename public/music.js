@@ -1,9 +1,9 @@
-/* music.js — fully fixed version
-   - Search, playlist create/add/remove + persistence
-   - Play featured song cards & currently playing video
-   - Queue support (next/prev)
+/* music.js — final consolidated version
+   - Play featured song cards
+   - Playlist create/add/remove + persistence (jarvis_playlists)
+   - Queue support (next / prev)
    - Wave & progress simulation
-   - Add currently playing video to playlist from controller
+   - Non-destructive, defensive
 */
 
 const INPUT_ID = "ytInput";
@@ -233,7 +233,7 @@ function renderPlaylists() {
         if (pl.songs.length === 0) {
           const empty = document.createElement("div");
           empty.style.color = "var(--muted)";
-          empty.textContent = "No songs — add songs from Featured Songs or current video.";
+          empty.textContent = "No songs — add songs from Featured Songs.";
           plWrap.appendChild(empty);
         } else {
           pl.songs.forEach(s => {
@@ -324,7 +324,9 @@ function addSongToPlaylist(playlistId, songObj) {
   const all = loadPlaylistsFromStorage();
   const pl = all.find(x => x.id === playlistId);
   if (!pl) return alert("Playlist not found.");
-  if (pl.songs.some(s => s.videoId === songObj.videoId)) return alert("Song already in playlist.");
+  if (pl.songs.some(s => s.videoId === songObj.videoId)) {
+    return alert("Song already in playlist.");
+  }
   pl.songs.push(songObj);
   savePlaylistsToStorage(all);
   renderPlaylists();
@@ -415,83 +417,75 @@ function openPlaylistChooserForCard(card, anchorBtn) {
         };
         addSongToPlaylist(pl.id, songObj); const chooser = document.getElementById("playlistChooserPopover"); if (chooser) chooser.remove();
       };
-      r.appendChild(left);
-      pop.appendChild(r);
+      const cnt = document.createElement("div"); cnt.textContent = `${pl.songs.length}`; cnt.style.color = "var(--muted)";
+      r.appendChild(left); r.appendChild(cnt); pop.appendChild(r);
     });
   }
 
-  document.body.appendChild(pop);
-  document.addEventListener("click", function handler(ev) {
-    if (!pop.contains(ev.target) && ev.target !== anchorBtn) { pop.remove(); document.removeEventListener("click", handler); }
+  card.appendChild(pop);
+  function closeOnClickOutside(e) { if (!pop.contains(e.target) && e.target !== anchorBtn) { pop.remove(); document.removeEventListener("click", closeOnClickOutside); } }
+  setTimeout(() => document.addEventListener("click", closeOnClickOutside), 50);
+}
+
+/* highlight grid */
+function highlightCurrentPlayingInGrid(vid) {
+  const grid = document.getElementById("songGrid"); if (!grid) return;
+  const cards = Array.from(grid.querySelectorAll(".song-card"));
+  cards.forEach(c => {
+    const raw = c.getAttribute("data-id") || c.dataset.id || "";
+    const id = extractVideoId(raw) || raw;
+    c.style.outline = (id && vid && id === vid) ? "2px solid rgba(29,123,255,0.85)" : "none";
   });
 }
 
-/* highlight current playing */
-function highlightCurrentPlayingInGrid(vid) {
-  const grid = document.getElementById("songGrid");
-  if (!grid) return;
-  grid.querySelectorAll(".song-card").forEach(c => { c.style.border = ""; });
-  const current = Array.from(grid.querySelectorAll(".song-card")).find(c => (extractVideoId(c.dataset.id) || c.dataset.id) === vid);
-  if (current) current.style.border = "2px solid var(--accent)";
-}
-
-/* create new playlist button wiring */
-function wireCreatePlaylistBtn() {
-  const btn = document.getElementById("createPlaylistBtn");
-  if (!btn) return;
-  btn.onclick = () => {
-    const name = prompt("Playlist name:");
-    if (!name) return;
-    const all = loadPlaylistsFromStorage();
-    all.push(createEmptyPlaylist(name));
-    savePlaylistsToStorage(all);
-    renderPlaylists();
-    renderSidebarPlaylists();
-  };
-}
-
-/* add currently playing to playlist */
-function wireAddCurrentToPlaylistBtn() {
-  const btn = document.getElementById("addCurrentToPlaylistBtn");
-  if (!btn) return;
-  btn.onclick = () => {
-    if (!currentVideoId) return alert("No video playing.");
-    const playlists = loadPlaylistsFromStorage();
-    if (playlists.length === 0) return alert("No playlists available. Create one first.");
-    const choice = prompt(`Add to which playlist?\n${playlists.map((p,i)=>`${i+1}: ${p.name}`).join("\n")}`);
-    if (!choice) return;
-    const idx = parseInt(choice)-1;
-    if (idx < 0 || idx >= playlists.length) return alert("Invalid choice");
-    const songObj = {
-      videoId: currentVideoId,
-      title: document.getElementById(TITLE_ID)?.textContent || "Unknown",
-      artist: document.getElementById(ARTIST_ID)?.textContent || "",
-      cover: document.getElementById(COVER_IMG_ID)?.src || ""
-    };
-    addSongToPlaylist(playlists[idx].id, songObj);
-  };
-}
-
-/* init everything */
-function initMusic() {
-  initWaveBars();
-  renderPlaylists();
-  renderSidebarPlaylists();
-  wireSongGrid();
-  wireCreatePlaylistBtn();
-  wireAddCurrentToPlaylistBtn();
-
-  const loadBtn = document.getElementById(LOAD_BTN_ID);
-  const input = document.getElementById(INPUT_ID);
-  if (loadBtn && input) {
-    loadBtn.onclick = () => { const vid = extractVideoId(input.value); if (!vid) return alert("Invalid YouTube URL/ID"); setVideoById(vid); };
+/* search/load music */
+async function loadMusic() {
+  const input = document.getElementById(INPUT_ID); if (!input) return alert("Search input not found.");
+  const raw = input.value.trim(); if (!raw) return alert("Type a song name or paste a YouTube link.");
+  const isUrl = /(youtube\.com|youtu\.be)/i.test(raw);
+  if (isUrl) {
+    const vid = extractVideoId(raw); if (!vid) return alert("Could not extract video id from link.");
+    currentQueue = [vid]; currentIndex = 0; setVideoById(vid); return;
   }
-
-  const playBtn = document.getElementById(PLAY_BTN_ID);
-  if (playBtn) playBtn.onclick = togglePlay;
-
-  document.getElementById("nextBtn")?.addEventListener("click", next);
-  document.getElementById("prevBtn")?.addEventListener("click", prev);
+  try {
+    const resp = await fetch(`/api/search?q=${encodeURIComponent(raw)}`);
+    const data = await resp.json();
+    if (!data.videoId) return alert("Search failed. Try a different query or paste a link.");
+    currentQueue = [data.videoId]; currentIndex = 0; setVideoById(data.videoId);
+  } catch (err) { console.error(err); alert("Search failed. Try again."); }
 }
 
-document.addEventListener("DOMContentLoaded", initMusic);
+/* init */
+document.addEventListener("DOMContentLoaded", () => {
+  initWaveBars();
+  wireSongGrid();
+  renderPlaylists();
+
+  const loadBtn = document.getElementById(LOAD_BTN_ID); if (loadBtn) loadBtn.addEventListener("click", loadMusic);
+  const inputEl = document.getElementById(INPUT_ID); if (inputEl) inputEl.addEventListener("keydown", e => { if (e.key === "Enter") loadMusic(); });
+
+  const playBtn = document.getElementById(PLAY_BTN_ID); if (playBtn) playBtn.addEventListener("click", togglePlay);
+  const nextBtn = document.getElementById("nextBtn"); if (nextBtn) nextBtn.addEventListener("click", next);
+  const prevBtn = document.getElementById("prevBtn"); if (prevBtn) prevBtn.addEventListener("click", prev);
+
+  const rewBtn = document.getElementById("rewBtn"); if (rewBtn) rewBtn.addEventListener("click", () => alert("Precise seek requires YouTube IFrame API; ask me to add it."));
+  const fwdBtn = document.getElementById("fwdBtn"); if (fwdBtn) fwdBtn.addEventListener("click", () => alert("Precise seek requires YouTube IFrame API; ask me to add it."));
+
+  const createBtn = document.getElementById("createPlaylistBtn");
+  if (createBtn) createBtn.addEventListener("click", () => {
+    const name = prompt("Playlist name:"); if (!name) return;
+    const all = loadPlaylistsFromStorage(); all.push(createEmptyPlaylist(name)); savePlaylistsToStorage(all); renderPlaylists(); renderSidebarPlaylists();
+  });
+
+  document.addEventListener("click", (e) => {
+    const chooser = document.getElementById("playlistChooserPopover");
+    if (chooser && !chooser.contains(e.target) && !e.target.classList?.contains("add-to-pl-btn")) chooser.remove();
+  });
+});
+
+/* expose */
+window.loadMusic = loadMusic;
+window.setVideoById = setVideoById;
+window.next = next;
+window.prev = prev;
+window.extractVideoId = extractVideoId;
