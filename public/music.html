@@ -18,7 +18,10 @@
   }
 
   html,body{height:100%;margin:0;font-family:Inter, "Segoe UI", Roboto, Arial, sans-serif;background:linear-gradient(180deg,#071017 0%, #041014 100%);color:var(--text);-webkit-font-smoothing:antialiased}
-  nav{position:fixed;top:0;left:0;right:0;height:64px;display:flex;align-items:center;padding:0 20px;z-index:40;background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.12));backdrop-filter: blur(8px);border-bottom:1px solid rgba(255,255,255,0.02);}
+  nav{
+    position:fixed;top:0;left:0;right:0;height:64px;display:flex;align-items:center;padding:0 20px;z-index:40;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.12));backdrop-filter: blur(8px);border-bottom:1px solid rgba(255,255,255,0.02);
+  }
   nav .nav-left{display:flex;gap:14px;align-items:center}
   .nav-left .logo{display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));box-shadow:var(--card-shadow)}
   .nav-left .dot{width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,var(--accent-2), #6ad1ff);display:flex;align-items:center;justify-content:center;font-weight:800;color:#031017}
@@ -32,6 +35,7 @@
   .hamburger.toggle span:nth-child(1){transform:rotate(45deg) translate(5px,5px)}
   .hamburger.toggle span:nth-child(2){opacity:0}
   .hamburger.toggle span:nth-child(3){transform:rotate(-45deg) translate(6px,-6px)}
+
   .page { display:grid; grid-template-columns: 220px 1fr 320px; gap:22px; padding:100px 28px 140px; min-height:calc(100vh - 140px) }
   .sidebar { background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:12px; padding:16px; box-shadow:var(--card-shadow); height:calc(100vh - 140px); position:sticky; top:80px; overflow:auto }
   .sidebar h3{margin:0 0 12px 0}
@@ -47,6 +51,7 @@
   .searchbar { display:flex; gap:10px; align-items:center; width:480px }
   .searchbar input{flex:1;padding:10px 12px;border-radius:10px;border:none;background:rgba(255,255,255,0.03);color:var(--text)}
   .searchbar button{padding:10px 12px;border-radius:10px;border:none;background:var(--accent-2);color:#071018;font-weight:700;cursor:pointer}
+
   .song-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-top:6px}
   .song-card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:10px;cursor:pointer;position:relative;overflow:hidden;transition:transform .18s,box-shadow .18s}
   .song-card:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(2,6,10,0.6)}
@@ -57,6 +62,7 @@
   .add-to-pl-btn{position:absolute;top:8px;right:8px;width:34px;height:34px;border-radius:8px;border:none;background:rgba(0,0,0,0.45);color:#fff;font-weight:700;cursor:pointer}
   .right-panel { background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:16px;box-shadow:var(--card-shadow); height:calc(100vh - 140px); position:sticky; top:80px; overflow:auto }
   .right-panel h4{margin:0 0 10px 0}
+
   .player-bar{position:fixed;left:0;right:0;bottom:0;height:96px;background:#071017;border-top:1px solid rgba(255,255,255,0.02);display:flex;align-items:center;gap:20px;padding:10px 24px;z-index:60}
   .player-left{display:flex;align-items:center;gap:12px}
   .player-cover{width:64px;height:64px;border-radius:6px;overflow:hidden;background:#0b0f12}
@@ -85,10 +91,12 @@
 </head>
 <body>
 
-<!-- NAVBAR -->
 <nav>
   <div class="nav-left">
-    <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+    <div class="hamburger" id="hamburger">
+      <span></span><span></span><span></span>
+    </div>
+
     <div class="logo" style="cursor:default">
       <div class="dot">J</div>
       <div>
@@ -97,6 +105,7 @@
       </div>
     </div>
   </div>
+
   <ul id="navLinks">
     <li><a href="index.html" class="chat">Chat-bot</a></li>
     <li><a href="bots.html" class="discord">Discord Bots</a></li>
@@ -105,51 +114,54 @@
     <li><a href="video.html" class="video">Video Gen</a></li>
     <li><a href="home-automation.html" class="home">Home Automation</a></li>
   </ul>
-  <div class="nav-right"><div style="font-size:13px;color:var(--muted)">Logged in</div></div>
+
+  <div class="nav-right">
+    <div style="font-size:13px;color:var(--muted)">Logged in</div>
+  </div>
 </nav>
 
-<!-- PAGE GRID -->
 <div class="page">
-  <!-- LEFT SIDEBAR -->
+
   <aside class="sidebar" id="sidebar">
     <h3>Browse</h3>
     <div class="nav-item">🏠 <strong>Home</strong></div>
     <div class="nav-item">🔍 <strong>Search</strong></div>
     <div class="nav-item">📚 <strong>Your Library</strong></div>
+
     <div style="height:14px"></div>
     <div style="font-size:13px;color:var(--muted);font-weight:700">Playlists</div>
+
     <div class="playlist-list" id="sidebarPlaylists"></div>
+
     <button id="createPlaylistBtn">+ Create Playlist</button>
     <div style="height:12px"></div>
     <div style="font-size:13px;color:var(--muted)">Tip: click a card to play. Use + on a card to add to playlists.</div>
   </aside>
 
-  <!-- MAIN -->
   <main class="main">
     <div class="hero">
       <div>
         <div class="title">Featured</div>
         <div class="muted small">Popular & trending — click a song to play</div>
       </div>
+
       <div class="searchbar">
         <input id="ytInput" placeholder="Search song or paste YouTube link here...">
         <button id="loadBtn">Search & Play</button>
       </div>
     </div>
 
-    <!-- SONG GRID -->
     <div id="songGrid" class="song-grid" aria-live="polite">
-      <!-- example song card -->
+      <!-- Sample song cards, your music.js can populate dynamically as well -->
       <div class="song-card" data-id="fHI8X4OXluQ" data-title="Blinding Lights" data-artist="The Weeknd" data-cover="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg">
         <img class="song-cover" src="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg" alt="">
         <div class="song-meta"><div class="title">Blinding Lights</div><div class="artist muted">The Weeknd</div></div>
         <button class="add-to-pl-btn" title="Add to playlist">+</button>
       </div>
-      <!-- more songs like above -->
+      <!-- Add more cards as needed -->
     </div>
   </main>
 
-  <!-- RIGHT PANEL -->
   <aside class="right-panel">
     <h4>Now Playing</h4>
     <div style="display:flex;flex-direction:column;gap:10px">
@@ -158,20 +170,21 @@
           <img id="coverImg" src="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg" style="width:100%;height:100%;object-fit:cover">
         </div>
         <div>
-          <div id="trackTitle" style="font-weight:700">Not Playing</div>
-          <div id="trackArtist" class="muted">Paste a link or search to play</div>
+          <div id="trackTitleRight" style="font-weight:700">Not Playing</div>
+          <div id="trackArtistRight" class="muted">Paste a link or search to play</div>
         </div>
       </div>
+
       <div style="margin-top:8px">
         <div style="font-weight:700">Your Playlists</div>
         <div id="playlistArea" style="margin-top:8px"></div>
       </div>
     </div>
+
     <iframe id="ytPlayer" style="display:none" allow="autoplay"></iframe>
   </aside>
 </div>
 
-<!-- BOTTOM PLAYER -->
 <div class="player-bar">
   <div class="player-left">
     <div class="player-cover"><img id="miniCover" src="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg" alt=""></div>
@@ -180,6 +193,7 @@
       <div id="trackArtist" class="muted small">—</div>
     </div>
   </div>
+
   <div style="display:flex;flex-direction:column;align-items:center;flex:1">
     <div class="player-controls">
       <button class="btn" id="prevBtn">⏮</button>
@@ -189,19 +203,12 @@
       <button class="btn" id="nextBtn">⏭</button>
       <div class="progress" style="margin-left:18px"><i id="progressFill"></i></div>
     </div>
+
     <div class="wave-container" id="waveContainer" aria-hidden="true" style="margin-top:8px;height:28px"></div>
   </div>
+
   <div style="width:220px;display:flex;align-items:center;justify-content:flex-end;gap:12px">
     <div style="font-size:13px;color:var(--muted)">JARVIS</div>
-  </div>
-</div>
-
-<!-- PLAYLIST MODAL -->
-<div id="playlistModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:100;justify-content:center;align-items:center;display:flex">
-  <div style="background:var(--panel);border-radius:12px;padding:20px;min-width:260px;max-width:90%;display:flex;flex-direction:column;gap:12px">
-    <div style="font-weight:700;font-size:16px;margin-bottom:8px">Add to Playlist</div>
-    <div id="playlistOptions" style="display:flex;flex-direction:column;gap:8px;max-height:300px;overflow:auto"></div>
-    <button id="closePlaylistModal" style="margin-top:10px;padding:8px 12px;border:none;border-radius:8px;background:var(--accent);color:#071018;font-weight:700;cursor:pointer">Cancel</button>
   </div>
 </div>
 
@@ -210,7 +217,11 @@
 const hamburger = document.getElementById("hamburger");
 const navLinks = document.getElementById("navLinks");
 const sidebar = document.getElementById("sidebar");
-hamburger?.addEventListener("click", ()=>{hamburger.classList.toggle("toggle");sidebar.classList.toggle("open");});
+hamburger?.addEventListener("click", () => {
+  navLinks.classList.toggle("active");
+  hamburger.classList.toggle("toggle");
+  if (sidebar) sidebar.classList.toggle("open");
+});
 </script>
 </body>
 </html>
