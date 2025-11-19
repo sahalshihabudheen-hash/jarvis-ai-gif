@@ -1,9 +1,9 @@
-/* music.js — final consolidated version (updated)
+/* music.js — final consolidated version
    - Play featured song cards
    - Playlist create/add/remove + persistence (jarvis_playlists)
    - Queue support (next / prev)
    - Wave & progress simulation
-   - Search results now have Add-to-Playlist support
+   - Non-destructive, defensive
 */
 
 const INPUT_ID = "ytInput";
@@ -403,11 +403,7 @@ function openPlaylistChooserForCard(card, anchorBtn) {
   } else {
     playlists.forEach(pl => {
       const r = document.createElement("div");
-      r.style.display = "flex";
-      r.style.justifyContent = "space-between";
-      r.style.alignItems = "center";
-      r.style.marginBottom = "6px";
-      r.style.cursor = "pointer";
+      r.style.display = "flex"; r.style.justifyContent = "space-between"; r.style.alignItems = "center"; r.style.marginBottom = "6px"; r.style.cursor = "pointer";
       const left = document.createElement("div"); left.textContent = pl.name; left.style.color = "#e9f2ef";
       left.onclick = () => {
         const raw = card.getAttribute("data-id") || card.dataset.id || "";
@@ -426,49 +422,70 @@ function openPlaylistChooserForCard(card, anchorBtn) {
     });
   }
 
-  document.body.appendChild(pop);
-  const closeFn = (e) => { if (!pop.contains(e.target) && e.target !== anchorBtn) pop.remove(); document.removeEventListener("click", closeFn); };
-  document.addEventListener("click", closeFn);
+  card.appendChild(pop);
+  function closeOnClickOutside(e) { if (!pop.contains(e.target) && e.target !== anchorBtn) { pop.remove(); document.removeEventListener("click", closeOnClickOutside); } }
+  setTimeout(() => document.addEventListener("click", closeOnClickOutside), 50);
 }
 
-/* highlight playing card in grid */
+/* highlight grid */
 function highlightCurrentPlayingInGrid(vid) {
-  const grid = document.getElementById("songGrid");
-  if (!grid) return;
-  Array.from(grid.querySelectorAll(".song-card")).forEach(c => {
-    const id = extractVideoId(c.getAttribute("data-id") || c.dataset.id || "");
-    c.classList.toggle("playing", id === vid);
+  const grid = document.getElementById("songGrid"); if (!grid) return;
+  const cards = Array.from(grid.querySelectorAll(".song-card"));
+  cards.forEach(c => {
+    const raw = c.getAttribute("data-id") || c.dataset.id || "";
+    const id = extractVideoId(raw) || raw;
+    c.style.outline = (id && vid && id === vid) ? "2px solid rgba(29,123,255,0.85)" : "none";
   });
 }
 
-/* search & load music */
-function loadMusic(urlOrId) {
-  const vid = extractVideoId(urlOrId) || urlOrId;
-  if (!vid) return alert("Invalid video URL/ID");
-  currentQueue = [vid];
-  currentIndex = 0;
-  setVideoById(vid);
-
-  // Ensure search result can be added to playlist
-  const grid = document.getElementById("songGrid");
-  if (grid && !grid.querySelector(`.search-temp-card[data-id="${vid}"]`)) {
-    const tempCard = document.createElement("div");
-    tempCard.className = "song-card search-temp-card";
-    tempCard.setAttribute("data-id", vid);
-    tempCard.setAttribute("data-title", "YouTube Video");
-    tempCard.setAttribute("data-artist", "YouTube");
-    tempCard.setAttribute("data-cover", `https://i.ytimg.com/vi/${vid}/hqdefault.jpg`);
-    tempCard.style.display = "none";
-    grid.appendChild(tempCard);
-    wireSongGrid();
+/* search/load music */
+async function loadMusic() {
+  const input = document.getElementById(INPUT_ID); if (!input) return alert("Search input not found.");
+  const raw = input.value.trim(); if (!raw) return alert("Type a song name or paste a YouTube link.");
+  const isUrl = /(youtube\.com|youtu\.be)/i.test(raw);
+  if (isUrl) {
+    const vid = extractVideoId(raw); if (!vid) return alert("Could not extract video id from link.");
+    currentQueue = [vid]; currentIndex = 0; setVideoById(vid); return;
   }
+  try {
+    const resp = await fetch(`/api/search?q=${encodeURIComponent(raw)}`);
+    const data = await resp.json();
+    if (!data.videoId) return alert("Search failed. Try a different query or paste a link.");
+    currentQueue = [data.videoId]; currentIndex = 0; setVideoById(data.videoId);
+  } catch (err) { console.error(err); alert("Search failed. Try again."); }
 }
 
-/* init on page load */
-window.addEventListener("DOMContentLoaded", () => {
+/* init */
+document.addEventListener("DOMContentLoaded", () => {
   initWaveBars();
-  renderPlaylists();
   wireSongGrid();
-  const playBtn = document.getElementById(PLAY_BTN_ID);
-  if (playBtn) playBtn.addEventListener("click", togglePlay);
+  renderPlaylists();
+
+  const loadBtn = document.getElementById(LOAD_BTN_ID); if (loadBtn) loadBtn.addEventListener("click", loadMusic);
+  const inputEl = document.getElementById(INPUT_ID); if (inputEl) inputEl.addEventListener("keydown", e => { if (e.key === "Enter") loadMusic(); });
+
+  const playBtn = document.getElementById(PLAY_BTN_ID); if (playBtn) playBtn.addEventListener("click", togglePlay);
+  const nextBtn = document.getElementById("nextBtn"); if (nextBtn) nextBtn.addEventListener("click", next);
+  const prevBtn = document.getElementById("prevBtn"); if (prevBtn) prevBtn.addEventListener("click", prev);
+
+  const rewBtn = document.getElementById("rewBtn"); if (rewBtn) rewBtn.addEventListener("click", () => alert("Precise seek requires YouTube IFrame API; ask me to add it."));
+  const fwdBtn = document.getElementById("fwdBtn"); if (fwdBtn) fwdBtn.addEventListener("click", () => alert("Precise seek requires YouTube IFrame API; ask me to add it."));
+
+  const createBtn = document.getElementById("createPlaylistBtn");
+  if (createBtn) createBtn.addEventListener("click", () => {
+    const name = prompt("Playlist name:"); if (!name) return;
+    const all = loadPlaylistsFromStorage(); all.push(createEmptyPlaylist(name)); savePlaylistsToStorage(all); renderPlaylists(); renderSidebarPlaylists();
+  });
+
+  document.addEventListener("click", (e) => {
+    const chooser = document.getElementById("playlistChooserPopover");
+    if (chooser && !chooser.contains(e.target) && !e.target.classList?.contains("add-to-pl-btn")) chooser.remove();
+  });
 });
+
+/* expose */
+window.loadMusic = loadMusic;
+window.setVideoById = setVideoById;
+window.next = next;
+window.prev = prev;
+window.extractVideoId = extractVideoId;
