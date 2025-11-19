@@ -235,6 +235,23 @@ hamburger?.addEventListener("click", () => {
   hamburger.classList.toggle("toggle");
   if (sidebar) sidebar.classList.toggle("open");
 });
+
+// --- FIX: Connect search button and input ---
+const ytInput = document.getElementById('ytInput');
+const loadBtn = document.getElementById('loadBtn');
+
+loadBtn.addEventListener('click', () => {
+  const query = ytInput.value.trim();
+  if (!query) return;
+  playYouTube(query); // this function should exist in your music.js
+});
+
+// Optional: allow pressing Enter key to trigger search
+ytInput.addEventListener('keydown', (e) => {
+  if(e.key === 'Enter') {
+    loadBtn.click();
+  }
+});
 </script>
 </body>
 </html>
