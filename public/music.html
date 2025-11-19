@@ -3,126 +3,96 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jarvis Audio Player</title>
+<title>Jarvis Music Player</title>
 <style>
-:root {
+:root{
   --bg:#0b0f12;
   --card:#0f1416;
   --accent:#1db954;
   --muted: #9aa6a1;
   --glass: rgba(255,255,255,0.03);
 }
+
 body {
   margin:0; padding:0;
-  background: var(--bg);
-  color: #fff;
   font-family:'Segoe UI', sans-serif;
-  display:flex;
-  height:100vh;
-  overflow:hidden;
+  background: var(--bg);
+  color: #e9f2ef;
+  display:flex; flex-direction:column; min-height:100vh;
 }
-#sidebar {
-  width:220px;
-  background: var(--card);
-  padding:20px;
-  display:flex;
-  flex-direction:column;
-  overflow-y:auto;
-}
-#sidebar h3 { margin-bottom:10px; }
-#sidebar .pl-btn { display:block; margin-bottom:6px; padding:6px 10px; background:var(--bg); border:none; border-radius:6px; color:#fff; cursor:pointer; text-align:left; }
-#main {
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  padding:20px;
-}
-#searchBar { display:flex; margin-bottom:20px; }
-#searchBar input { flex:1; padding:10px; border-radius:6px; border:none; margin-right:10px; background:var(--card); color:#fff; }
-#searchBar button { padding:10px; border:none; border-radius:6px; background:var(--accent); color:#fff; cursor:pointer; }
 
-#controls { display:flex; gap:10px; align-items:center; margin-bottom:20px; }
-#controls button { padding:10px 14px; border:none; border-radius:6px; background:var(--accent); color:#fff; cursor:pointer; }
+header { padding:20px; text-align:center; font-size:24px; font-weight:700; }
 
-#waveContainer { display:flex; gap:2px; height:30px; margin-bottom:10px; }
-.wave-bar { width:4px; background:var(--accent); height:100%; animation:wave 1s infinite; transform-origin:bottom; animation-play-state:paused; }
-@keyframes wave { 0%,100%{transform:scaleY(0.2);} 50%{transform:scaleY(1);} }
-
-#progressContainer { width:100%; background:var(--glass); height:6px; border-radius:3px; overflow:hidden; margin-bottom:20px; }
-#progressFill { height:100%; width:0%; background:var(--accent); transition:width 0.2s; }
-
-#songGrid {
-  display:grid;
-  grid-template-columns: repeat(auto-fill,minmax(160px,1fr));
-  gap:15px;
-  overflow-y:auto;
-  flex:1;
-}
-.song-card {
-  background: var(--card);
-  padding:10px;
-  border-radius:8px;
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-  cursor:pointer;
+.controls {
+  display:flex; justify-content:center; align-items:center; gap:15px;
+  padding:15px; background: var(--card); border-top:1px solid #222;
   position:relative;
 }
+
+.controls button {
+  padding:10px 14px;
+  font-size:16px;
+  border:none;
+  border-radius:6px;
+  background:var(--accent);
+  color:#fff;
+  cursor:pointer;
+}
+
+#progressContainer {
+  height:5px; background: #222;
+  width:90%; margin:10px auto;
+  border-radius:3px; overflow:hidden;
+}
+
+#progressFill { height:100%; width:0%; background: var(--accent); }
+
+#waveContainer { display:flex; justify-content:center; align-items:flex-end; gap:2px; height:50px; margin:10px 0; }
+.wave-bar {
+  width:4px; height:100%; background: var(--accent);
+  transform: scaleY(var(--scale,1));
+  animation: waveAnim 1s linear infinite;
+  animation-play-state: paused;
+}
+@keyframes waveAnim {
+  0%,100%{ transform: scaleY(0.3); }
+  50%{ transform: scaleY(1); }
+}
+
+#songGrid { display:grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap:12px; padding:12px; }
+.song-card {
+  background: var(--card); border-radius:10px; padding:10px; position:relative;
+  cursor:pointer; display:flex; flex-direction:column; align-items:center;
+}
 .song-card img { width:100%; border-radius:6px; object-fit:cover; }
-.song-card .title { font-weight:600; font-size:14px; }
-.song-card .artist { font-size:12px; color:var(--muted); }
-
-#playlistArea { margin-top:20px; }
-#playlistArea .playlist-wrapper { margin-bottom:10px; background:var(--glass); padding:10px; border-radius:8px; }
-#playlistArea .playlist-header { display:flex; justify-content:space-between; align-items:center; font-weight:600; margin-bottom:6px; }
-#playlistArea .playlist-songs { display:flex; flex-direction:column; gap:6px; }
-#playlistArea .playlist-song { display:flex; justify-content:space-between; align-items:center; padding:6px; background:var(--card); border-radius:6px; cursor:pointer; }
-#playlistArea .playlist-song:hover { background:var(--accent); }
-
-#audioPlayerIframe { width:0; height:0; position:absolute; opacity:0; pointer-events:none; }
+.song-card h4, .song-card .artist { margin:4px 0; text-align:center; font-weight:600; font-size:14px; }
+.add-to-pl-btn { position:absolute; top:8px; right:8px; z-index:5; padding:4px 6px; border:none; border-radius:4px; background:var(--accent); color:#fff; cursor:pointer; }
+#playlistArea { padding:12px; }
 </style>
 </head>
 <body>
-<div id="sidebar">
-  <h3>Playlists</h3>
-  <div id="sidebarPlaylists"></div>
-  <button id="createPlaylistBtn" class="pl-btn">+ Create Playlist</button>
+<header>Jarvis Music Player</header>
+
+<div class="controls">
+  <button id="prevBtn">⏮</button>
+  <button id="playBtn">▶</button>
+  <button id="nextBtn">⏭</button>
+  <button id="addToPlaylistBtn">➕</button>
 </div>
 
-<div id="main">
-  <div id="searchBar">
-    <input id="ytInput" type="text" placeholder="Search or paste YouTube link">
-    <button id="loadBtn">Play</button>
-  </div>
+<div id="progressContainer"><div id="progressFill"></div></div>
+<div id="waveContainer"></div>
 
-  <div id="controls">
-    <button id="prevBtn">⏮</button>
-    <button id="playBtn">▶</button>
-    <button id="nextBtn">⏭</button>
-    <button id="rewBtn">⏪</button>
-    <button id="fwdBtn">⏩</button>
-  </div>
-
-  <div id="waveContainer"></div>
-  <div id="progressContainer"><div id="progressFill"></div></div>
-
-  <div id="songGrid">
-    <div class="song-card" data-id="dQw4w9WgXcQ" data-title="Never Gonna Give You Up" data-artist="Rick Astley">
-      <img src="https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg">
-      <div class="title">Never Gonna Give You Up</div>
-      <div class="artist">Rick Astley</div>
-    </div>
-    <div class="song-card" data-id="kJQP7kiw5Fk" data-title="Despacito" data-artist="Luis Fonsi">
-      <img src="https://i.ytimg.com/vi/kJQP7kiw5Fk/hqdefault.jpg">
-      <div class="title">Despacito</div>
-      <div class="artist">Luis Fonsi</div>
-    </div>
-  </div>
-
-  <div id="playlistArea"></div>
+<div style="padding:12px;">
+  <input type="text" id="ytInput" placeholder="Search song or paste link..." style="width:70%; padding:8px; border-radius:6px; border:none;">
+  <button id="loadBtn" style="padding:8px 12px; border-radius:6px; border:none; background:var(--accent); color:#fff; cursor:pointer;">Load</button>
+  <button id="createPlaylistBtn" style="padding:8px 12px; border-radius:6px; border:none; background:#555; color:#fff; cursor:pointer;">+ Create Playlist</button>
 </div>
 
-<iframe id="audioPlayerIframe" src="" frameborder="0" allow="autoplay"></iframe>
+<div id="songGrid"></div>
+<div id="playlistArea"></div>
+
+<audio id="ytPlayer" style="display:none;"></audio>
 
 <script src="music.js"></script>
 </body>
