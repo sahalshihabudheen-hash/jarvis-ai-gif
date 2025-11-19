@@ -6,113 +6,89 @@
 <title>JARVIS Music — Spotify Style</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#0b1114;
-  --panel:#0e1618;
-  --muted:#9aa6a1;
-  --glass: rgba(255,255,255,0.03);
-  --accent:#4169E1;
-  --accent-2:#1d7bff;
-  --card-shadow: 0 10px 30px rgba(2,6,10,0.6);
-  --text:#e9f2ef;
-}
+  :root{
+    --bg:#0b1114;
+    --panel:#0e1618;
+    --muted:#9aa6a1;
+    --glass: rgba(255,255,255,0.03);
+    --accent:#4169E1;
+    --accent-2:#1d7bff;
+    --card-shadow: 0 10px 30px rgba(2,6,10,0.6);
+    --text:#e9f2ef;
+  }
 
-html,body{height:100%;margin:0;font-family:Inter, "Segoe UI", Roboto, Arial, sans-serif;background:linear-gradient(180deg,#071017 0%, #041014 100%);color:var(--text);-webkit-font-smoothing:antialiased}
-
-/* NAVBAR */
-nav{
-  position:fixed;top:0;left:0;right:0;height:64px;display:flex;align-items:center;padding:0 20px;z-index:40;
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.12));backdrop-filter: blur(8px);border-bottom:1px solid rgba(255,255,255,0.02);
-}
-nav .nav-left{display:flex;gap:14px;align-items:center}
-.nav-left .logo{display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));box-shadow:var(--card-shadow)}
-.nav-left .dot{width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,var(--accent-2), #6ad1ff);display:flex;align-items:center;justify-content:center;font-weight:800;color:#031017}
-.nav-left h1{font-size:15px;margin:0}
-.nav-right{margin-left:auto;display:flex;align-items:center;gap:12px;color:var(--muted);font-size:13px}
-
-/* desktop nav links */
-#navLinks { display:flex; gap:28px; list-style:none; margin:0; padding:0; position:absolute; left:50%; transform:translateX(-50%); align-items:center; }
-#navLinks li a { color:#dffaff; text-decoration:none; padding:8px 14px; font-weight:600; border-radius:10px }
-#navLinks li a.music { color:var(--accent) }
-
-/* hamburger */
-.hamburger{display:none; flex-direction:column; gap:6px; cursor:pointer; position:absolute; right:20px}
-.hamburger span{width:26px;height:3px;border-radius:2px;background:#e3f9ff;display:block}
-.hamburger.toggle span:nth-child(1){transform:rotate(45deg) translate(5px,5px)}
-.hamburger.toggle span:nth-child(2){opacity:0}
-.hamburger.toggle span:nth-child(3){transform:rotate(-45deg) translate(6px,-6px)}
-
-/* layout */
-.page { display:grid; grid-template-columns: 220px 1fr 320px; gap:22px; padding:100px 28px 140px; min-height:calc(100vh - 140px) }
-/* left sidebar */
-.sidebar { background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:12px; padding:16px; box-shadow:var(--card-shadow); height:calc(100vh - 140px); position:sticky; top:80px; overflow:auto }
-.sidebar h3{margin:0 0 12px 0}
-.nav-item{display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;color:var(--muted);cursor:pointer}
-.nav-item:hover{background:var(--glass); color:var(--text)}
-.playlist-list{margin-top:12px;display:flex;flex-direction:column;gap:8px}
-.pl-btn{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.02);color:var(--muted);cursor:pointer}
-.pl-btn:hover{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); color:var(--text)}
-#createPlaylistBtn{margin-top:12px;padding:10px;border-radius:10px;border:none;background:var(--accent);color:#071018;font-weight:700;cursor:pointer;width:100%}
-
-/* main content */
-.main { display:flex;flex-direction:column; gap:20px }
-.hero { display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap }
-.hero .title { font-size:24px; font-weight:800 }
-.searchbar { display:flex; gap:10px; align-items:center; width:100%; max-width:480px }
-.searchbar input{flex:1;padding:10px 12px;border-radius:10px;border:none;background:rgba(255,255,255,0.03);color:var(--text)}
-.searchbar button{padding:10px 12px;border-radius:10px;border:none;background:var(--accent-2);color:#071018;font-weight:700;cursor:pointer}
-
-.song-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-top:6px}
-.song-card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:10px;cursor:pointer;position:relative;overflow:hidden;transition:transform .18s,box-shadow .18s}
-.song-card:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(2,6,10,0.6)}
-.song-cover{width:100%;height:140px;object-fit:cover;border-radius:8px;display:block}
-.song-meta{margin-top:8px}
-.song-meta .title{font-weight:700;font-size:14px;color:var(--text)}
-.song-meta .artist{font-size:13px;color:var(--muted);margin-top:4px}
-.add-to-pl-btn{position:absolute;top:8px;right:8px;width:34px;height:34px;border-radius:8px;border:none;background:rgba(0,0,0,0.45);color:#fff;font-weight:700;cursor:pointer}
-
-/* right panel */
-.right-panel { background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:16px;box-shadow:var(--card-shadow); height:calc(100vh - 140px); position:sticky; top:80px; overflow:auto }
-.right-panel h4{margin:0 0 10px 0}
-
-/* bottom player */
-.player-bar{position:fixed;left:0;right:0;bottom:0;height:96px;background:#071017;border-top:1px solid rgba(255,255,255,0.02);display:flex;align-items:center;gap:20px;padding:10px 24px;z-index:60}
-.player-left{display:flex;align-items:center;gap:12px}
-.player-cover{width:64px;height:64px;border-radius:6px;overflow:hidden;background:#0b0f12}
-.player-cover img{width:100%;height:100%;object-fit:cover}
-.player-meta{display:flex;flex-direction:column}
-.player-meta .title{font-weight:700}
-.player-controls{display:flex;align-items:center;gap:10px}
-.btn{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.03);border:none;color:#fff;display:grid;place-items:center;cursor:pointer}
-.btn.play{width:56px;height:56px;background:var(--accent);color:#071018;font-weight:800;font-size:18px}
-.progress{width:420px;height:8px;background:rgba(255,255,255,0.03);border-radius:8px;overflow:hidden;margin-left:20px}
-.progress > i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--accent), #9cffb8)}
-
-.wave-container{display:flex;align-items:flex-end;gap:4px;height:30px}
-.wave-bar{width:4px;background:var(--accent);border-radius:2px;height:8px;animation:wave 0.6s infinite;animation-play-state:paused;--scale:1}
-@keyframes wave{0%{height:8px}50%{height:calc(8px + 18px * var(--scale))}100%{height:8px}}
-
-/* responsive */
-@media(max-width:1100px){ .page{grid-template-columns:200px 1fr} .right-panel{display:none} .progress{display:none} }
-@media(max-width:720px){
-  #navLinks{display:none}
-  .hamburger{display:flex}
-  .sidebar{position:fixed;left:-260px;top:64px;height:calc(100vh - 64px);z-index:50;transition:transform .28s}
-  .sidebar.open{transform:translateX(260px)}
-  .page{grid-template-columns:1fr;padding:120px 12px 140px}
-  .player-bar{padding:8px 12px}
-}
-
-.muted{color:var(--muted)}
+  html,body{height:100%;margin:0;font-family:Inter, "Segoe UI", Roboto, Arial, sans-serif;background:linear-gradient(180deg,#071017 0%, #041014 100%);color:var(--text);-webkit-font-smoothing:antialiased}
+  nav{position:fixed;top:0;left:0;right:0;height:64px;display:flex;align-items:center;padding:0 20px;z-index:40;background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.12));backdrop-filter: blur(8px);border-bottom:1px solid rgba(255,255,255,0.02);}
+  nav .nav-left{display:flex;gap:14px;align-items:center}
+  .nav-left .logo{display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));box-shadow:var(--card-shadow)}
+  .nav-left .dot{width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,var(--accent-2), #6ad1ff);display:flex;align-items:center;justify-content:center;font-weight:800;color:#031017}
+  .nav-left h1{font-size:15px;margin:0}
+  .nav-right{margin-left:auto;display:flex;align-items:center;gap:12px;color:var(--muted);font-size:13px}
+  #navLinks { display:flex; gap:28px; list-style:none; margin:0; padding:0; position:absolute; left:50%; transform:translateX(-50%); align-items:center; }
+  #navLinks li a { color:#dffaff; text-decoration:none; padding:8px 14px; font-weight:600; border-radius:10px }
+  #navLinks li a.music { color:var(--accent) }
+  .hamburger{display:none; flex-direction:column; gap:6px; cursor:pointer; position:absolute; right:20px}
+  .hamburger span{width:26px;height:3px;border-radius:2px;background:#e3f9ff;display:block}
+  .hamburger.toggle span:nth-child(1){transform:rotate(45deg) translate(5px,5px)}
+  .hamburger.toggle span:nth-child(2){opacity:0}
+  .hamburger.toggle span:nth-child(3){transform:rotate(-45deg) translate(6px,-6px)}
+  .page { display:grid; grid-template-columns: 220px 1fr 320px; gap:22px; padding:100px 28px 140px; min-height:calc(100vh - 140px) }
+  .sidebar { background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:12px; padding:16px; box-shadow:var(--card-shadow); height:calc(100vh - 140px); position:sticky; top:80px; overflow:auto }
+  .sidebar h3{margin:0 0 12px 0}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;color:var(--muted);cursor:pointer}
+  .nav-item:hover{background:var(--glass); color:var(--text)}
+  .playlist-list{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+  .pl-btn{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.02);color:var(--muted);cursor:pointer}
+  .pl-btn:hover{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); color:var(--text)}
+  #createPlaylistBtn{margin-top:12px;padding:10px;border-radius:10px;border:none;background:var(--accent);color:#071018;font-weight:700;cursor:pointer;width:100%}
+  .main { display:flex;flex-direction:column; gap:20px }
+  .hero { display:flex; justify-content:space-between; align-items:center; gap:16px }
+  .hero .title { font-size:24px; font-weight:800 }
+  .searchbar { display:flex; gap:10px; align-items:center; width:480px }
+  .searchbar input{flex:1;padding:10px 12px;border-radius:10px;border:none;background:rgba(255,255,255,0.03);color:var(--text)}
+  .searchbar button{padding:10px 12px;border-radius:10px;border:none;background:var(--accent-2);color:#071018;font-weight:700;cursor:pointer}
+  .song-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-top:6px}
+  .song-card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:10px;cursor:pointer;position:relative;overflow:hidden;transition:transform .18s,box-shadow .18s}
+  .song-card:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(2,6,10,0.6)}
+  .song-cover{width:100%;height:140px;object-fit:cover;border-radius:8px;display:block}
+  .song-meta{margin-top:8px}
+  .song-meta .title{font-weight:700;font-size:14px;color:var(--text)}
+  .song-meta .artist{font-size:13px;color:var(--muted);margin-top:4px}
+  .add-to-pl-btn{position:absolute;top:8px;right:8px;width:34px;height:34px;border-radius:8px;border:none;background:rgba(0,0,0,0.45);color:#fff;font-weight:700;cursor:pointer}
+  .right-panel { background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:16px;box-shadow:var(--card-shadow); height:calc(100vh - 140px); position:sticky; top:80px; overflow:auto }
+  .right-panel h4{margin:0 0 10px 0}
+  .player-bar{position:fixed;left:0;right:0;bottom:0;height:96px;background:#071017;border-top:1px solid rgba(255,255,255,0.02);display:flex;align-items:center;gap:20px;padding:10px 24px;z-index:60}
+  .player-left{display:flex;align-items:center;gap:12px}
+  .player-cover{width:64px;height:64px;border-radius:6px;overflow:hidden;background:#0b0f12}
+  .player-cover img{width:100%;height:100%;object-fit:cover}
+  .player-meta{display:flex;flex-direction:column}
+  .player-meta .title{font-weight:700}
+  .player-controls{display:flex;align-items:center;gap:10px}
+  .btn{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.03);border:none;color:#fff;display:grid;place-items:center;cursor:pointer}
+  .btn.play{width:56px;height:56px;background:var(--accent);color:#071018;font-weight:800;font-size:18px}
+  .progress{width:420px;height:8px;background:rgba(255,255,255,0.03);border-radius:8px;overflow:hidden;margin-left:20px}
+  .progress > i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--accent), #9cffb8)}
+  .wave-container{display:flex;align-items:flex-end;gap:4px;height:30px}
+  .wave-bar{width:4px;background:var(--accent);border-radius:2px;height:8px;animation:wave 0.6s infinite;animation-play-state:paused;--scale:1}
+  @keyframes wave{0%{height:8px}50%{height:calc(8px + 18px * var(--scale))}100%{height:8px}}
+  @media(max-width:1100px){ .page{grid-template-columns:200px 1fr} .right-panel{display:none} .progress{display:none} }
+  @media(max-width:720px){
+    #navLinks{display:none}
+    .hamburger{display:flex}
+    .sidebar{position:fixed;left:-260px;top:64px;height:calc(100vh - 64px);z-index:50;transition:transform .28s}
+    .sidebar.open{transform:translateX(260px)}
+    .page{grid-template-columns:1fr;padding:120px 12px 140px}
+    .player-bar{padding:8px 12px}
+  }
+  .muted{color:var(--muted)}
 </style>
 </head>
 <body>
 
+<!-- NAVBAR -->
 <nav>
   <div class="nav-left">
-    <div class="hamburger" id="hamburger">
-      <span></span><span></span><span></span>
-    </div>
+    <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
     <div class="logo" style="cursor:default">
       <div class="dot">J</div>
       <div>
@@ -129,28 +105,26 @@ nav .nav-left{display:flex;gap:14px;align-items:center}
     <li><a href="video.html" class="video">Video Gen</a></li>
     <li><a href="home-automation.html" class="home">Home Automation</a></li>
   </ul>
-  <div class="nav-right">
-    <div style="font-size:13px;color:var(--muted)">Logged in</div>
-  </div>
+  <div class="nav-right"><div style="font-size:13px;color:var(--muted)">Logged in</div></div>
 </nav>
 
+<!-- PAGE GRID -->
 <div class="page">
-
+  <!-- LEFT SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <h3>Browse</h3>
     <div class="nav-item">🏠 <strong>Home</strong></div>
     <div class="nav-item">🔍 <strong>Search</strong></div>
     <div class="nav-item">📚 <strong>Your Library</strong></div>
-
     <div style="height:14px"></div>
     <div style="font-size:13px;color:var(--muted);font-weight:700">Playlists</div>
     <div class="playlist-list" id="sidebarPlaylists"></div>
-
     <button id="createPlaylistBtn">+ Create Playlist</button>
     <div style="height:12px"></div>
     <div style="font-size:13px;color:var(--muted)">Tip: click a card to play. Use + on a card to add to playlists.</div>
   </aside>
 
+  <!-- MAIN -->
   <main class="main">
     <div class="hero">
       <div>
@@ -163,31 +137,29 @@ nav .nav-left{display:flex;gap:14px;align-items:center}
       </div>
     </div>
 
+    <!-- SONG GRID -->
     <div id="songGrid" class="song-grid" aria-live="polite">
-      <!-- Featured songs -->
+      <!-- example song card -->
       <div class="song-card" data-id="fHI8X4OXluQ" data-title="Blinding Lights" data-artist="The Weeknd" data-cover="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg">
         <img class="song-cover" src="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg" alt="">
         <div class="song-meta"><div class="title">Blinding Lights</div><div class="artist muted">The Weeknd</div></div>
         <button class="add-to-pl-btn" title="Add to playlist">+</button>
       </div>
-      <div class="song-card" data-id="34Na4j8AVgA" data-title="Starboy" data-artist="The Weeknd" data-cover="https://i.ytimg.com/vi/34Na4j8AVgA/hqdefault.jpg">
-        <img class="song-cover" src="https://i.ytimg.com/vi/34Na4j8AVgA/hqdefault.jpg" alt="">
-        <div class="song-meta"><div class="title">Starboy</div><div class="artist muted">The Weeknd</div></div>
-        <button class="add-to-pl-btn">+</button>
-      </div>
+      <!-- more songs like above -->
     </div>
   </main>
 
+  <!-- RIGHT PANEL -->
   <aside class="right-panel">
     <h4>Now Playing</h4>
     <div style="display:flex;flex-direction:column;gap:10px">
       <div style="display:flex;gap:10px;align-items:center">
         <div style="width:56px;height:56px;border-radius:8px;overflow:hidden;background:#0b0f12">
-          <img id="coverImg" src="" style="width:100%;height:100%;object-fit:cover">
+          <img id="coverImg" src="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg" style="width:100%;height:100%;object-fit:cover">
         </div>
         <div>
-          <div id="trackTitleRight" style="font-weight:700">Not Playing</div>
-          <div id="trackArtistRight" class="muted">Paste a link or search to play</div>
+          <div id="trackTitle" style="font-weight:700">Not Playing</div>
+          <div id="trackArtist" class="muted">Paste a link or search to play</div>
         </div>
       </div>
       <div style="margin-top:8px">
@@ -199,15 +171,15 @@ nav .nav-left{display:flex;gap:14px;align-items:center}
   </aside>
 </div>
 
+<!-- BOTTOM PLAYER -->
 <div class="player-bar">
   <div class="player-left">
-    <div class="player-cover"><img id="miniCover" src="" alt=""></div>
+    <div class="player-cover"><img id="miniCover" src="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg" alt=""></div>
     <div class="player-meta">
-      <div id="trackTitleMini" class="title">Not Playing</div>
-      <div id="trackArtistMini" class="muted small">—</div>
+      <div id="trackTitle" class="title">Not Playing</div>
+      <div id="trackArtist" class="muted small">—</div>
     </div>
   </div>
-
   <div style="display:flex;flex-direction:column;align-items:center;flex:1">
     <div class="player-controls">
       <button class="btn" id="prevBtn">⏮</button>
@@ -219,9 +191,17 @@ nav .nav-left{display:flex;gap:14px;align-items:center}
     </div>
     <div class="wave-container" id="waveContainer" aria-hidden="true" style="margin-top:8px;height:28px"></div>
   </div>
-
   <div style="width:220px;display:flex;align-items:center;justify-content:flex-end;gap:12px">
     <div style="font-size:13px;color:var(--muted)">JARVIS</div>
+  </div>
+</div>
+
+<!-- PLAYLIST MODAL -->
+<div id="playlistModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:100;justify-content:center;align-items:center;display:flex">
+  <div style="background:var(--panel);border-radius:12px;padding:20px;min-width:260px;max-width:90%;display:flex;flex-direction:column;gap:12px">
+    <div style="font-weight:700;font-size:16px;margin-bottom:8px">Add to Playlist</div>
+    <div id="playlistOptions" style="display:flex;flex-direction:column;gap:8px;max-height:300px;overflow:auto"></div>
+    <button id="closePlaylistModal" style="margin-top:10px;padding:8px 12px;border:none;border-radius:8px;background:var(--accent);color:#071018;font-weight:700;cursor:pointer">Cancel</button>
   </div>
 </div>
 
@@ -230,28 +210,7 @@ nav .nav-left{display:flex;gap:14px;align-items:center}
 const hamburger = document.getElementById("hamburger");
 const navLinks = document.getElementById("navLinks");
 const sidebar = document.getElementById("sidebar");
-hamburger?.addEventListener("click", () => {
-  navLinks.classList.toggle("active");
-  hamburger.classList.toggle("toggle");
-  if (sidebar) sidebar.classList.toggle("open");
-});
-
-// --- FIX: Connect search button and input ---
-const ytInput = document.getElementById('ytInput');
-const loadBtn = document.getElementById('loadBtn');
-
-loadBtn.addEventListener('click', () => {
-  const query = ytInput.value.trim();
-  if (!query) return;
-  playYouTube(query); // this function should exist in your music.js
-});
-
-// Optional: allow pressing Enter key to trigger search
-ytInput.addEventListener('keydown', (e) => {
-  if(e.key === 'Enter') {
-    loadBtn.click();
-  }
-});
+hamburger?.addEventListener("click", ()=>{hamburger.classList.toggle("toggle");sidebar.classList.toggle("open");});
 </script>
 </body>
 </html>
