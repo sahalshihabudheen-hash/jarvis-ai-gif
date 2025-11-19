@@ -11,15 +11,14 @@
     --panel:#0e1618;
     --muted:#9aa6a1;
     --glass: rgba(255,255,255,0.03);
-    --accent:#4169E1; /* blue */
-    --accent-2:#1d7bff; /* blue fallback */
+    --accent:#4169E1;
+    --accent-2:#1d7bff;
     --card-shadow: 0 10px 30px rgba(2,6,10,0.6);
     --text:#e9f2ef;
   }
 
   html,body{height:100%;margin:0;font-family:Inter, "Segoe UI", Roboto, Arial, sans-serif;background:linear-gradient(180deg,#071017 0%, #041014 100%);color:var(--text);-webkit-font-smoothing:antialiased}
 
-  /* NAVBAR */
   nav{
     position:fixed;top:0;left:0;right:0;height:64px;display:flex;align-items:center;padding:0 20px;z-index:40;
     background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.12));backdrop-filter: blur(8px);border-bottom:1px solid rgba(255,255,255,0.02);
@@ -30,22 +29,18 @@
   .nav-left h1{font-size:15px;margin:0}
   .nav-right{margin-left:auto;display:flex;align-items:center;gap:12px;color:var(--muted);font-size:13px}
 
-  /* desktop nav links (centered) */
   #navLinks { display:flex; gap:28px; list-style:none; margin:0; padding:0; position:absolute; left:50%; transform:translateX(-50%); align-items:center; }
   #navLinks li a { color:#dffaff; text-decoration:none; padding:8px 14px; font-weight:600; border-radius:10px }
   #navLinks li a.music { color:var(--accent) }
 
-  /* hamburger (mobile) */
   .hamburger{display:none; flex-direction:column; gap:6px; cursor:pointer; position:absolute; right:20px}
   .hamburger span{width:26px;height:3px;border-radius:2px;background:#e3f9ff;display:block}
   .hamburger.toggle span:nth-child(1){transform:rotate(45deg) translate(5px,5px)}
   .hamburger.toggle span:nth-child(2){opacity:0}
   .hamburger.toggle span:nth-child(3){transform:rotate(-45deg) translate(6px,-6px)}
 
-  /* layout: sidebar + main + right panel */
   .page { display:grid; grid-template-columns: 220px 1fr 320px; gap:22px; padding:100px 28px 140px; min-height:calc(100vh - 140px) }
 
-  /* left sidebar */
   .sidebar { background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:12px; padding:16px; box-shadow:var(--card-shadow); height:calc(100vh - 140px); position:sticky; top:80px; overflow:auto }
   .sidebar h3{margin:0 0 12px 0}
   .nav-item{display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;color:var(--muted);cursor:pointer}
@@ -55,7 +50,6 @@
   .pl-btn:hover{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); color:var(--text)}
   #createPlaylistBtn{margin-top:12px;padding:10px;border-radius:10px;border:none;background:var(--accent);color:#071018;font-weight:700;cursor:pointer;width:100%}
 
-  /* main content */
   .main { display:flex;flex-direction:column; gap:20px }
   .hero { display:flex; justify-content:space-between; align-items:center; gap:16px }
   .hero .title { font-size:24px; font-weight:800 }
@@ -72,11 +66,9 @@
   .song-meta .artist{font-size:13px;color:var(--muted);margin-top:4px}
   .add-to-pl-btn{position:absolute;top:8px;right:8px;width:34px;height:34px;border-radius:8px;border:none;background:rgba(0,0,0,0.45);color:#fff;font-weight:700;cursor:pointer}
 
-  /* right panel */
   .right-panel { background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:16px;box-shadow:var(--card-shadow); height:calc(100vh - 140px); position:sticky; top:80px; overflow:auto }
   .right-panel h4{margin:0 0 10px 0}
 
-  /* bottom player */
   .player-bar{position:fixed;left:0;right:0;bottom:0;height:96px;background:#071017;border-top:1px solid rgba(255,255,255,0.02);display:flex;align-items:center;gap:20px;padding:10px 24px;z-index:60}
   .player-left{display:flex;align-items:center;gap:12px}
   .player-cover{width:64px;height:64px;border-radius:6px;overflow:hidden;background:#0b0f12}
@@ -89,12 +81,10 @@
   .progress{width:420px;height:8px;background:rgba(255,255,255,0.03);border-radius:8px;overflow:hidden;margin-left:20px}
   .progress > i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--accent), #9cffb8)}
 
-  /* wave animation */
   .wave-container{display:flex;align-items:flex-end;gap:4px;height:30px}
   .wave-bar{width:4px;background:var(--accent);border-radius:2px;height:8px;animation:wave 0.6s infinite;animation-play-state:paused;--scale:1}
   @keyframes wave{0%{height:8px}50%{height:calc(8px + 18px * var(--scale))}100%{height:8px}}
 
-  /* responsive */
   @media(max-width:1100px){ .page{grid-template-columns:200px 1fr} .right-panel{display:none} .progress{display:none} }
   @media(max-width:720px){
     #navLinks{display:none}
@@ -110,7 +100,6 @@
 </head>
 <body>
 
-<!-- NAVBAR -->
 <nav>
   <div class="nav-left">
     <div class="hamburger" id="hamburger">
@@ -139,10 +128,7 @@
   </div>
 </nav>
 
-<!-- PAGE GRID -->
 <div class="page">
-
-  <!-- LEFT SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <h3>Browse</h3>
     <div class="nav-item">🏠 <strong>Home</strong></div>
@@ -158,7 +144,6 @@
     <div style="font-size:13px;color:var(--muted)">Tip: click a card to play. Use + on a card to add to playlists.</div>
   </aside>
 
-  <!-- MAIN -->
   <main class="main">
     <div class="hero">
       <div>
@@ -171,7 +156,6 @@
       </div>
     </div>
 
-    <!-- SONG GRID -->
     <div id="songGrid" class="song-grid" aria-live="polite">
       <div class="song-card" data-id="fHI8X4OXluQ" data-title="Blinding Lights" data-artist="The Weeknd" data-cover="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg">
         <img class="song-cover" src="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg" alt="">
@@ -182,12 +166,11 @@
       <div class="song-card" data-id="34Na4j8AVgA" data-title="Starboy" data-artist="The Weeknd" data-cover="https://i.ytimg.com/vi/34Na4j8AVgA/hqdefault.jpg">
         <img class="song-cover" src="https://i.ytimg.com/vi/34Na4j8AVgA/hqdefault.jpg" alt="">
         <div class="song-meta"><div class="title">Starboy</div><div class="artist muted">The Weeknd</div></div>
-        <button class="add-to-pl-btn">+</button>
+        <button class="add-to-pl-btn" title="Add to playlist">+</button>
       </div>
     </div>
   </main>
 
-  <!-- RIGHT PANEL -->
   <aside class="right-panel">
     <h4>Now Playing</h4>
     <div style="display:flex;flex-direction:column;gap:10px">
@@ -209,7 +192,6 @@
   </aside>
 </div>
 
-<!-- BOTTOM PLAYER -->
 <div class="player-bar">
   <div class="player-left">
     <div class="player-cover"><img id="miniCover" src="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg" alt=""></div>
