@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>JARVIS Music — Search+Play (No API Key)</title>
+<title>JARVIS Music — Search+Play (No API Key) — Option 3</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -119,7 +119,7 @@
         <input id="ytInput" placeholder="Type title/artist or paste YouTube link...">
         <button id="loadBtn">Search & Play</button>
 
-        <!-- search results popup (kept but not used to interrupt immediate-play) -->
+        <!-- (hidden) search results area; we use it for minimal status messages -->
         <div id="searchResults" class="results-pop" aria-hidden="true"></div>
       </div>
     </div>
@@ -177,12 +177,10 @@
 <script>
 /* ==========================
    FULL single-file: Search+Play YouTube (no API key)
-   - Immediate play of first search result (you chose YES)
-   - Paste YouTube link plays instantly (you chose YES)
-   - Controller add-to-playlist popup (you chose YES)
-   - Soundwave animated only when playing (you chose YES)
-   - Featured songs NOT auto-played on load (you chose NO)
-   - Kept layout & features
+   Option 3 behavior implemented:
+   - If opened from playlist -> Next/Prev follows that playlist
+   - If opened from search -> Next/Prev follows search results
+   - If opened from grid -> Next/Prev follows grid order
    ========================== */
 
 /* IDs and constants */
@@ -202,7 +200,7 @@ const STORAGE_KEY = "jarvis_playlists_v1";
 const NUM_BARS = 20;
 const SEARCH_RESULTS_EL = "searchResults";
 
-/* Featured demo songs (kept simple so you can expand) */
+/* Featured demo songs (editable) */
 const SONGS = [
   { videoId: "fHI8X4OXluQ", title: "Blinding Lights", artist: "The Weeknd", cover: "https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg" },
   { videoId: "34Na4j8AVgA", title: "Starboy", artist: "The Weeknd", cover: "https://i.ytimg.com/vi/34Na4j8AVgA/hqdefault.jpg" },
@@ -217,12 +215,18 @@ let waveBars = [];
 let currentQueue = [];
 let currentIndex = -1;
 
+/* playContext:
+   - type: 'playlist' | 'search' | 'grid' | '' (empty)
+   - id: when type==='playlist', the playlist id
+   - list: array of videoIds for next/prev navigation
+*/
+let playContext = { type: '', id: null, list: [] };
+
 /* helpers */
 function $id(id){ return document.getElementById(id); }
 function extractVideoId(url){
   if(!url) return null;
   url = url.trim();
-  // straight id
   if(/^[A-Za-z0-9_-]{10,}$/.test(url)) return url;
   const short = url.match(/youtu\.be\/([A-Za-z0-9_-]{6,})/);
   if(short) return short[1].split(/[?&]/)[0];
@@ -235,13 +239,13 @@ function extractVideoId(url){
   return null;
 }
 
-/* PLAYER */
+/* PLAYER (setVideoById accepts optional context param) */
 function setIframeSrcHidden(id){
   const iframe = $id(PLAYER_IFRAME_ID);
   if(!iframe) return;
   iframe.src = `https://www.youtube.com/embed/${id}?autoplay=1&controls=0&rel=0&modestbranding=1&iv_load_policy=3`;
 }
-function setVideoById(vid){
+function setVideoById(vid, ctx = null){
   if(!vid) return;
   currentVideoId = vid;
   isPlaying = true;
@@ -269,10 +273,39 @@ function setVideoById(vid){
       if(artistEl) artistEl.textContent = "YouTube";
     });
 
-  // queue index logic
-  const idx = currentQueue.indexOf(vid);
-  if(idx !== -1) currentIndex = idx;
-  else { currentQueue = [vid]; currentIndex = 0; }
+  // update queue/index based on context param
+  if(ctx && ctx.type){
+    // if caller passed explicit context, adopt it
+    playContext = { type: ctx.type || '', id: ctx.id || null, list: Array.isArray(ctx.list) ? ctx.list.slice() : [] };
+    // set queue to the context list if available
+    if(playContext.list && playContext.list.length){
+      currentQueue = playContext.list.slice();
+      currentIndex = currentQueue.indexOf(vid);
+      if(currentIndex === -1) currentIndex = 0;
+    } else {
+      currentQueue = [vid]; currentIndex = 0;
+    }
+  } else {
+    // if no context provided, try infer:
+    // - if currentQueue contains vid, keep queue (no change)
+    const idx = currentQueue.indexOf(vid);
+    if(idx !== -1) {
+      currentIndex = idx;
+      // keep playContext as-is
+    } else {
+      // default to grid context if vid exists in grid, else just single queue
+      const gridIds = Array.from(document.querySelectorAll('.song-card')).map(c => extractVideoId(c.dataset.id)||c.dataset.id).filter(Boolean);
+      if(gridIds.includes(vid)){
+        playContext = { type:'grid', id: null, list: gridIds.slice() };
+        currentQueue = gridIds.slice();
+        currentIndex = currentQueue.indexOf(vid);
+      } else {
+        playContext = { type:'', id:null, list:[] };
+        currentQueue = [vid];
+        currentIndex = 0;
+      }
+    }
+  }
 
   updatePlayButton();
   setProgress(0);
@@ -280,6 +313,8 @@ function setVideoById(vid){
   startWaveAnimation();
   highlightCurrentPlayingInGrid(vid);
 }
+
+/* toggle play/pause */
 function togglePlay(){
   const iframe = $id(PLAYER_IFRAME_ID);
   if(!currentVideoId) return;
@@ -306,11 +341,27 @@ function initWaveBars(){ const c = $id(WAVE_CONTAINER_ID); if(!c) return; c.inne
 function startWaveAnimation(){ waveBars.forEach(b=>b.style.animationPlayState='running'); }
 function stopWaveAnimation(){ waveBars.forEach(b=>b.style.animationPlayState='paused'); }
 
-/* QUEUE NAV */
-function next(){ if(!currentQueue.length) return alert("Queue empty"); currentIndex=(currentIndex+1)%currentQueue.length; setVideoById(currentQueue[currentIndex]); }
-function prev(){ if(!currentQueue.length) return alert("Queue empty"); currentIndex=(currentIndex-1+currentQueue.length)%currentQueue.length; setVideoById(currentQueue[currentIndex]); }
+/* QUEUE NAV — use playContext.list preferentially (Option 3) */
+function next(){
+  const list = (playContext.list && playContext.list.length) ? playContext.list : currentQueue;
+  if(!list || !list.length) return alert("Queue empty");
+  // if currentVideoId not found, start at 0
+  const idx = list.indexOf(currentVideoId);
+  const nextIdx = (idx === -1) ? 0 : (idx + 1) % list.length;
+  const vid = list[nextIdx];
+  // if playContext.type === 'playlist' we want to keep that context
+  setVideoById(vid, { type: playContext.type, id: playContext.id, list: list });
+}
+function prev(){
+  const list = (playContext.list && playContext.list.length) ? playContext.list : currentQueue;
+  if(!list || !list.length) return alert("Queue empty");
+  const idx = list.indexOf(currentVideoId);
+  const prevIdx = (idx === -1) ? 0 : (idx - 1 + list.length) % list.length;
+  const vid = list[prevIdx];
+  setVideoById(vid, { type: playContext.type, id: playContext.id, list: list });
+}
 
-/* PLAYLISTS */
+/* PLAYLISTS (localStorage) */
 function loadPlaylistsFromStorage(){ try{ const raw = localStorage.getItem(STORAGE_KEY); if(!raw) return []; const p = JSON.parse(raw); return Array.isArray(p)?p:[] }catch(e){ console.error(e); return []; } }
 function savePlaylistsToStorage(list){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(list||[])); }catch(e){ console.error(e); } }
 function createEmptyPlaylist(name){ return { id: 'pl_'+Date.now(), name: name||'New Playlist', songs: [] }; }
@@ -329,8 +380,25 @@ function renderPlaylists(){
         const hdr = document.createElement('div'); hdr.style.display='flex'; hdr.style.justifyContent='space-between'; hdr.style.alignItems='center';
         const title = document.createElement('div'); title.textContent = `${pl.name} (${pl.songs.length})`; title.style.fontWeight='700';
         const ctrl = document.createElement('div');
-        const playBtn = document.createElement('button'); playBtn.className='btn'; playBtn.textContent='▶'; playBtn.onclick=(e)=>{ e.stopPropagation(); if(!pl.songs.length) return alert('Playlist empty'); currentQueue=pl.songs.map(s=>s.videoId); currentIndex=0; setVideoById(currentQueue[0]); };
-        const delBtn = document.createElement('button'); delBtn.className='btn'; delBtn.textContent='🗑'; delBtn.onclick=(e)=>{ e.stopPropagation(); if(!confirm(`Delete "${pl.name}"?`)) return; const all = loadPlaylistsFromStorage().filter(x=>x.id!==pl.id); savePlaylistsToStorage(all); renderPlaylists(); renderSidebarPlaylists(); };
+        const playBtn = document.createElement('button'); playBtn.className='btn'; playBtn.textContent='▶';
+        playBtn.onclick=(e)=>{
+          e.stopPropagation();
+          if(!pl.songs.length) return alert('Playlist empty');
+          // set playContext to this playlist
+          const ids = pl.songs.map(s=>s.videoId);
+          playContext = { type:'playlist', id:pl.id, list: ids.slice() };
+          currentQueue = ids.slice();
+          currentIndex = 0;
+          setVideoById(currentQueue[0], { type:'playlist', id:pl.id, list: ids.slice() });
+        };
+        const delBtn = document.createElement('button'); delBtn.className='btn'; delBtn.textContent='🗑';
+        delBtn.onclick=(e)=>{
+          e.stopPropagation();
+          if(!confirm(`Delete "${pl.name}"?`)) return;
+          const all = loadPlaylistsFromStorage().filter(x=>x.id!==pl.id);
+          savePlaylistsToStorage(all);
+          renderPlaylists(); renderSidebarPlaylists();
+        };
         ctrl.appendChild(playBtn); ctrl.appendChild(delBtn);
         hdr.appendChild(title); hdr.appendChild(ctrl); wrap.appendChild(hdr);
 
@@ -339,11 +407,17 @@ function renderPlaylists(){
           pl.songs.forEach(s=>{
             const row=document.createElement('div'); row.style.display='flex'; row.style.justifyContent='space-between'; row.style.alignItems='center'; row.style.marginTop='8px';
             const left=document.createElement('div'); left.style.display='flex'; left.style.gap='8px'; left.style.alignItems='center'; left.style.cursor='pointer';
-            left.onclick = ()=> setVideoById(s.videoId);
+            left.onclick = ()=> {
+              // clicking song inside playlist should set playlist context and play that song (Option 3)
+              const ids = pl.songs.map(x=>x.videoId);
+              playContext = { type:'playlist', id:pl.id, list: ids.slice() };
+              setVideoById(s.videoId, { type:'playlist', id:pl.id, list: ids.slice() });
+            };
             const img=document.createElement('img'); img.src=s.cover||`https://i.ytimg.com/vi/${s.videoId}/default.jpg`; img.style.width='46px'; img.style.height='46px'; img.style.objectFit='cover'; img.style.borderRadius='6px';
             const meta=document.createElement('div'); const t=document.createElement('div'); t.textContent=s.title||'Unknown'; t.style.fontWeight='600'; const a=document.createElement('div'); a.textContent=s.artist||''; a.style.color='var(--muted)'; a.style.fontSize='12px';
             meta.appendChild(t); meta.appendChild(a); left.appendChild(img); left.appendChild(meta);
-            const rem=document.createElement('button'); rem.className='btn'; rem.textContent='✖'; rem.onclick=(e)=>{ e.stopPropagation(); if(!confirm(`Remove "${s.title}"?`)) return; const all=loadPlaylistsFromStorage(); const target = all.find(x=>x.id===pl.id); if(!target) return; target.songs = target.songs.filter(x=>x.videoId!==s.videoId); savePlaylistsToStorage(all); renderPlaylists(); renderSidebarPlaylists(); };
+            const rem=document.createElement('button'); rem.className='btn'; rem.textContent='✖';
+            rem.onclick=(e)=>{ e.stopPropagation(); if(!confirm(`Remove "${s.title}"?`)) return; const all=loadPlaylistsFromStorage(); const target = all.find(x=>x.id===pl.id); if(!target) return; target.songs = target.songs.filter(x=>x.videoId!==s.videoId); savePlaylistsToStorage(all); renderPlaylists(); renderSidebarPlaylists(); };
             row.appendChild(left); row.appendChild(rem); wrap.appendChild(row);
           });
         }
@@ -354,13 +428,15 @@ function renderPlaylists(){
   if(sidebar){
     sidebar.innerHTML = '';
     playlists.forEach(pl=>{
-      const btn=document.createElement('button'); btn.className='pl-btn'; btn.textContent=`${pl.name} (${pl.songs.length})`; btn.onclick=()=>{ if(!pl.songs.length) return alert('Playlist empty'); currentQueue = pl.songs.map(s=>s.videoId); currentIndex=0; setVideoById(currentQueue[0]); };
+      const btn=document.createElement('button'); btn.className='pl-btn'; btn.textContent=`${pl.name} (${pl.songs.length})`;
+      btn.onclick=()=>{ if(!pl.songs.length) return alert('Playlist empty'); const ids=pl.songs.map(s=>s.videoId); playContext={type:'playlist',id:pl.id,list:ids.slice()}; currentQueue=ids.slice(); currentIndex=0; setVideoById(currentQueue[0], { type:'playlist', id:pl.id, list: ids.slice() }); };
       sidebar.appendChild(btn);
     });
   }
 }
 function renderSidebarPlaylists(){ renderPlaylists(); }
 
+/* add song to playlist */
 function addSongToPlaylist(playlistId, songObj){
   const all = loadPlaylistsFromStorage();
   const pl = all.find(x=>x.id===playlistId);
@@ -372,7 +448,7 @@ function addSongToPlaylist(playlistId, songObj){
   alert(`Added "${songObj.title}" to "${pl.name}"`);
 }
 
-/* highlight */
+/* highlight playing card */
 function highlightCurrentPlayingInGrid(vid){
   const grid = $id('songGrid'); if(!grid) return;
   Array.from(grid.querySelectorAll('.song-card')).forEach(c=>{
@@ -386,17 +462,20 @@ function wireSongGrid(){
   const grid = $id('songGrid');
   if(!grid) return;
   const cards = Array.from(grid.querySelectorAll('.song-card'));
+  const gridIds = cards.map(c => extractVideoId(c.dataset.id) || c.dataset.id).filter(Boolean);
+
   cards.forEach(card=>{
     card.addEventListener('click', (ev)=>{
       if(ev.target && ev.target.classList && ev.target.classList.contains('add-to-pl-btn')) return;
       const raw = card.dataset.id || '';
       const vid = extractVideoId(raw) || raw;
       if(!vid) return alert('Invalid id');
-      const allIds = cards.map(c=> extractVideoId(c.dataset.id) || c.dataset.id );
-      currentQueue = allIds.filter(x=>!!x);
+      // clicking a card => treat context as grid (Option 3: grid used when not playlist/search)
+      playContext = { type:'grid', id:null, list: gridIds.slice() };
+      currentQueue = gridIds.slice();
       currentIndex = currentQueue.indexOf(vid);
-      if(currentIndex === -1){ currentQueue=[vid]; currentIndex=0; }
-      setVideoById(vid);
+      if(currentIndex === -1){ currentQueue=[vid]; currentIndex = 0; }
+      setVideoById(vid, { type:'grid', id:null, list: gridIds.slice() });
     });
     const addBtn = card.querySelector('.add-to-pl-btn');
     if(addBtn){
@@ -405,7 +484,7 @@ function wireSongGrid(){
   });
 }
 
-/* Popover for adding to playlist - works for card (passed) or controller (cardOrNull = null) */
+/* popover to add to playlist: accepts card (DOM node) or null (controller) */
 function openPlaylistChooserForCard(cardOrNull, anchorBtn){
   const existing = document.getElementById('playlistChooserPopover'); if(existing) existing.remove();
   const playlists = loadPlaylistsFromStorage();
@@ -492,7 +571,7 @@ function getSongObjectFromContext(cardOrNull){
 const INVIDIOUS_INSTANCES = [
   "https://yewtu.cafe",
   "https://yewtu.eu",
-  "https://yewtu.cafe", // duplicates acceptable as fallback
+  "https://yewtu.kavin.rocks",  // some public instances — add more if you want
   "https://yewtu.cafe"
 ];
 
@@ -519,40 +598,48 @@ async function searchInvidious(query){
   return null;
 }
 
-/* NOTE: per your "immediate play first result" choice: this function
-   will search and automatically play the top result (if any).
-   If a direct YouTube link is provided, it will play it immediately. */
+/* NOTE: performSearchAndPlay plays the top result immediately (and sets playContext.type='search') */
 async function performSearchAndPlay(raw){
   if(!raw) return;
   const isUrl = /(youtube\.com|youtu\.be)/i.test(raw);
   if(isUrl){
     const vid = extractVideoId(raw);
     if(!vid) return alert('Could not extract video id from link.');
-    currentQueue=[vid]; currentIndex=0; setVideoById(vid); return;
+    // playing a pasted link: we treat as a single-item queue and clear playContext
+    playContext = { type:'', id:null, list:[] };
+    currentQueue = [vid]; currentIndex = 0;
+    setVideoById(vid, { type:'', id:null, list:[] });
+    return;
   }
 
   // local featured list match
   const local = localSearch(raw);
-  if(local){ currentQueue=[local.videoId]; currentIndex=0; setVideoById(local.videoId); return; }
+  if(local){
+    // play from featured: treat as grid click would (grid context)
+    const gridIds = Array.from(document.querySelectorAll('.song-card')).map(c => extractVideoId(c.dataset.id) || c.dataset.id).filter(Boolean);
+    playContext = { type:'grid', id:null, list: gridIds.slice() };
+    currentQueue = gridIds.slice();
+    currentIndex = currentQueue.indexOf(local.videoId);
+    setVideoById(local.videoId, { type:'grid', id:null, list: gridIds.slice() });
+    return;
+  }
 
-  // try external Invidious search and play the first result
   const srEl = $id(SEARCH_RESULTS_EL);
-  if(srEl){ srEl.innerHTML = '<div style="padding:10px;color:var(--muted)">Searching and playing the top result (no API key)...</div>'; srEl.style.display='block'; }
+  if(srEl){ srEl.innerHTML = '<div style="padding:10px;color:var(--muted)">Searching and playing top result (no API key)...</div>'; srEl.style.display='block'; }
   const results = await searchInvidious(raw);
   if(!results || results.length===0){
     if(srEl) srEl.innerHTML = '<div style="padding:10px;color:var(--muted)">No results. Paste a YouTube link or try a different query.</div>';
-    setTimeout(()=>{ if(srEl) srEl.style.display='none'; }, 2000);
+    setTimeout(()=>{ if(srEl) srEl.style.display='none'; }, 1800);
     return;
   }
 
-  // play top result immediately
+  // Play top result immediately and set playContext to 'search' with list of top results (ids)
   const top = results[0];
-  if(top && top.videoId){
-    currentQueue=[top.videoId]; currentIndex=0; setVideoById(top.videoId);
-    if(srEl) srEl.style.display='none';
-    return;
-  }
-
+  const ids = results.map(r => r.videoId);
+  playContext = { type:'search', id:null, list: ids.slice() };
+  currentQueue = ids.slice();
+  currentIndex = 0;
+  setVideoById(top.videoId, { type:'search', id:null, list: ids.slice() });
   if(srEl) srEl.style.display='none';
 }
 
@@ -584,7 +671,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   $id(LOAD_BTN_ID).addEventListener('click', ()=> performSearchAndPlay($id(INPUT_ID).value.trim()));
   $id(INPUT_ID).addEventListener('keydown', e=>{ if(e.key==='Enter') performSearchAndPlay($id(INPUT_ID).value.trim()); });
 
-  $id(PLAY_BTN_ID).addEventListener('click', ()=>{ if(!currentVideoId && currentQueue.length) { setVideoById(currentQueue[0]); return; } togglePlay(); });
+  $id(PLAY_BTN_ID).addEventListener('click', ()=>{ if(!currentVideoId && currentQueue.length) { setVideoById(currentQueue[0], { type: playContext.type, id: playContext.id, list: playContext.list }); return; } togglePlay(); });
   $id('nextBtn').addEventListener('click', next);
   $id('prevBtn').addEventListener('click', prev);
   $id('rewBtn').addEventListener('click', ()=>alert('Precise seek requires YouTube IFrame API; ask me to add it.'));
