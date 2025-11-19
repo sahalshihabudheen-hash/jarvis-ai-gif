@@ -1,179 +1,209 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>JARVIS Music — Spotify Style</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jarvis Music Player</title>
 <style>
-/* ... keep all your previous CSS as-is ... */
+:root{
+  --bg:#0b0f12;
+  --card:#0f1416;
+  --accent:#1db954;
+  --muted:#9aa6a1;
+  --glass: rgba(255,255,255,0.03);
+}
+body{
+  margin:0;
+  font-family:'Segoe UI',sans-serif;
+  background:var(--bg);
+  color:#e9f2ef;
+}
+#playerContainer{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:20px;
+}
+#coverImg{
+  width:200px;
+  height:200px;
+  border-radius:15px;
+  margin-bottom:15px;
+  object-fit:cover;
+}
+#trackTitle{ font-weight:700; margin-bottom:5px; }
+#trackArtist{ font-size:14px; color:var(--muted); margin-bottom:15px; }
+#ytPlayer{ width:560px; height:315px; border:none; margin-bottom:15px; border-radius:12px; }
+
+.player-controls{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:15px;
+}
+.player-controls .btn{
+  background:var(--glass);
+  border:none;
+  color:#e9f2ef;
+  padding:10px 12px;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:16px;
+}
+.player-controls .play{ font-size:18px; }
+.progress{
+  flex:1;
+  height:6px;
+  background:var(--muted);
+  border-radius:3px;
+  overflow:hidden;
+  margin-left:10px;
+  margin-right:10px;
+}
+.progress i{
+  display:block;
+  height:100%;
+  width:0%;
+  background:var(--accent);
+}
+#waveContainer{
+  display:flex;
+  align-items:flex-end;
+  gap:3px;
+  margin-bottom:20px;
+  height:40px;
+}
+.wave-bar{
+  width:5px;
+  background:var(--accent);
+  height:20%;
+  animation:wave 1s linear infinite;
+  animation-play-state:paused;
+  transform-origin:bottom;
+}
+@keyframes wave{
+  0%{transform:scaleY(0.2);}
+  50%{transform:scaleY(1);}
+  100%{transform:scaleY(0.2);}
+}
+
+/* song grid */
+#songGrid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+  gap:10px;
+  padding:15px;
+}
+.song-card{
+  background:var(--card);
+  border-radius:10px;
+  padding:10px;
+  cursor:pointer;
+  position:relative;
+}
+.song-card.playing{
+  border:2px solid var(--accent);
+}
+.song-card img{
+  width:100%;
+  border-radius:8px;
+}
+.add-to-pl-btn{
+  position:absolute;
+  top:8px;
+  right:8px;
+  background:var(--accent);
+  border:none;
+  color:#fff;
+  border-radius:6px;
+  cursor:pointer;
+  font-weight:700;
+  padding:2px 6px;
+}
+#playlistArea{
+  margin-top:20px;
+  padding:10px;
+}
+.pl-btn{
+  display:block;
+  width:100%;
+  margin-bottom:5px;
+  padding:8px;
+  border:none;
+  background:var(--glass);
+  color:#e9f2ef;
+  cursor:pointer;
+  border-radius:6px;
+  text-align:left;
+}
+.highlight{
+  animation: highlightAnim 1s ease;
+}
+@keyframes highlightAnim{
+  0%{ background-color: rgba(65,105,225,0.3);}
+  50%{ background-color: rgba(65,105,225,0.1);}
+  100%{ background-color: transparent;}
+}
 </style>
 </head>
 <body>
 
-<!-- NAVBAR -->
-<nav>
-  <div class="nav-left">
-    <div class="hamburger" id="hamburger">
-      <span></span><span></span><span></span>
-    </div>
+<div id="playerContainer">
+  <img id="coverImg" src="" alt="Cover">
+  <div id="trackTitle">Track Title</div>
+  <div id="trackArtist">Artist</div>
+  <iframe id="ytPlayer" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
 
-    <div class="logo" style="cursor:default">
-      <div class="dot">J</div>
-      <div>
-        <h1 style="font-size:14px;margin:0">JARVIS Music</h1>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px">Your mini-Spotify</div>
-      </div>
-    </div>
+  <div class="player-controls">
+    <button class="btn" id="prevBtn">⏮</button>
+    <button class="btn" id="rewBtn" title="Rewind 10s">⏪</button>
+    <button class="btn play" id="playBtn">▶</button>
+    <button class="btn" id="fwdBtn" title="Forward 10s">⏩</button>
+    <button class="btn" id="nextBtn">⏭</button>
+    <button class="btn" id="playlistBtn" title="Open Playlist">📂</button>
+    <div class="progress"><i id="progressFill"></i></div>
   </div>
 
-  <ul id="navLinks">
-    <li><a href="index.html" class="chat">Chat-bot</a></li>
-    <li><a href="bots.html" class="discord">Discord Bots</a></li>
-    <li><a href="image.html" class="image">Image Gen</a></li>
-    <li><a href="music.html" class="music">Music</a></li>
-    <li><a href="video.html" class="video">Video Gen</a></li>
-    <li><a href="home-automation.html" class="home">Home Automation</a></li>
-  </ul>
-
-  <div class="nav-right">
-    <div style="font-size:13px;color:var(--muted)">Logged in</div>
-  </div>
-</nav>
-
-<!-- PAGE GRID -->
-<div class="page">
-
-  <!-- LEFT SIDEBAR -->
-  <aside class="sidebar" id="sidebar">
-    <h3>Browse</h3>
-    <div class="nav-item">🏠 <strong>Home</strong></div>
-    <div class="nav-item">🔍 <strong>Search</strong></div>
-    <div class="nav-item">📚 <strong>Your Library</strong></div>
-
-    <div style="height:14px"></div>
-    <div style="font-size:13px;color:var(--muted);font-weight:700">Playlists</div>
-
-    <div class="playlist-list" id="sidebarPlaylists">
-      <!-- playlists injected by JS -->
-    </div>
-
-    <button id="createPlaylistBtn">+ Create Playlist</button>
-    <div style="height:12px"></div>
-    <div style="font-size:13px;color:var(--muted)">Tip: click a card to play. Use + on a card to add to playlists.</div>
-  </aside>
-
-  <!-- MAIN -->
-  <main class="main">
-    <div class="hero">
-      <div>
-        <div class="title">Featured</div>
-        <div class="muted small">Popular & trending — click a song to play</div>
-      </div>
-
-      <div class="searchbar">
-        <input id="ytInput" placeholder="Search song or paste YouTube link here...">
-        <button id="loadBtn">Search & Play</button>
-      </div>
-    </div>
-
-    <div id="songGrid" class="song-grid" aria-live="polite">
-      <!-- Example song cards -->
-      <div class="song-card" data-id="fHI8X4OXluQ" data-title="Blinding Lights" data-artist="The Weeknd" data-cover="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg">
-        <img class="song-cover" src="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg" alt="">
-        <div class="song-meta"><div class="title">Blinding Lights</div><div class="artist muted">The Weeknd</div></div>
-        <button class="add-to-pl-btn" title="Add to playlist">+</button>
-      </div>
-
-      <div class="song-card" data-id="34Na4j8AVgA" data-title="Starboy" data-artist="The Weeknd" data-cover="https://i.ytimg.com/vi/34Na4j8AVgA/hqdefault.jpg">
-        <img class="song-cover" src="https://i.ytimg.com/vi/34Na4j8AVgA/hqdefault.jpg" alt="">
-        <div class="song-meta"><div class="title">Starboy</div><div class="artist muted">The Weeknd</div></div>
-        <button class="add-to-pl-btn">+</button>
-      </div>
-
-      <div class="song-card" data-id="XXYlFuWEuKI" data-title="Save Your Tears" data-artist="The Weeknd" data-cover="https://i.ytimg.com/vi/XXYlFuWEuKI/hqdefault.jpg">
-        <img class="song-cover" src="https://i.ytimg.com/vi/XXYlFuWEuKI/hqdefault.jpg" alt="">
-        <div class="song-meta"><div class="title">Save Your Tears</div><div class="artist muted">The Weeknd</div></div>
-        <button class="add-to-pl-btn">+</button>
-      </div>
-
-      <div class="song-card" data-id="mRD0-GxqHVo" data-title="Heat Waves" data-artist="Glass Animals" data-cover="https://i.ytimg.com/vi/mRD0-GxqHVo/hqdefault.jpg">
-        <img class="song-cover" src="https://i.ytimg.com/vi/mRD0-GxqHVo/hqdefault.jpg" alt="">
-        <div class="song-meta"><div class="title">Heat Waves</div><div class="artist muted">Glass Animals</div></div>
-        <button class="add-to-pl-btn">+</button>
-      </div>
-
-      <div class="song-card" data-id="TEpZyoLhK9M" data-title="Unholy" data-artist="Sam Smith" data-cover="https://i.ytimg.com/vi/TEpZyoLhK9M/hqdefault.jpg">
-        <img class="song-cover" src="https://i.ytimg.com/vi/TEpZyoLhK9M/hqdefault.jpg" alt="">
-        <div class="song-meta"><div class="title">Unholy</div><div class="artist muted">Sam Smith</div></div>
-        <button class="add-to-pl-btn">+</button>
-      </div>
-    </div>
-  </main>
-
-  <!-- RIGHT PANEL -->
-  <aside class="right-panel">
-    <h4>Now Playing</h4>
-    <div style="display:flex;flex-direction:column;gap:10px">
-      <div style="display:flex;gap:10px;align-items:center">
-        <div style="width:56px;height:56px;border-radius:8px;overflow:hidden;background:#0b0f12">
-          <img id="coverImg" src="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg" style="width:100%;height:100%;object-fit:cover">
-        </div>
-        <div>
-          <div id="trackTitle" style="font-weight:700">Not Playing</div>
-          <div id="trackArtist" class="muted">Paste a link or search to play</div>
-        </div>
-      </div>
-
-      <div style="margin-top:8px">
-        <div style="font-weight:700">Your Playlists</div>
-        <div id="playlistArea" style="margin-top:8px"></div>
-      </div>
-    </div>
-
-    <iframe id="ytPlayer" style="display:none" allow="autoplay"></iframe>
-  </aside>
+  <div id="waveContainer"></div>
 </div>
 
-<!-- BOTTOM PLAYER -->
-<div class="player-bar">
-  <div class="player-left">
-    <div class="player-cover"><img id="miniCover" src="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg" alt=""></div>
-    <div class="player-meta">
-      <div id="bottomTrackTitle" class="title">Not Playing</div>
-      <div id="bottomTrackArtist" class="muted small">—</div>
-    </div>
-  </div>
-
-<div class="player-controls">
-  <button class="btn" id="prevBtn">⏮</button>
-  <button class="btn" id="rewBtn" title="Rewind 10s">⏪</button>
-  <button class="btn play" id="playBtn">▶</button>
-  <button class="btn" id="fwdBtn" title="Forward 10s">⏩</button>
-  <button class="btn" id="nextBtn">⏭</button>
-  <!-- NEW playlist button -->
-  <button class="btn" id="playlistBtn" title="Add to Playlist">📂</button>
-
-  <div class="progress" style="margin-left:18px"><i id="progressFill"></i></div>
+<div id="songGrid">
+  <!-- dynamically filled by music.js -->
 </div>
 
-
-  <div style="width:220px;display:flex;align-items:center;justify-content:flex-end;gap:12px">
-    <div style="font-size:13px;color:var(--muted)">JARVIS</div>
-  </div>
+<div id="playlistArea">
+  <!-- playlists rendered by music.js -->
 </div>
+
+<div id="sidebarPlaylists" style="padding:10px;"></div>
 
 <script src="music.js"></script>
 <script>
-// Hamburger toggle for mobile
-const hamburger = document.getElementById("hamburger");
-const navLinks = document.getElementById("navLinks");
-const sidebar = document.getElementById("sidebar");
-hamburger?.addEventListener("click", () => {
-  navLinks.classList.toggle("active");
-  hamburger.classList.toggle("toggle");
-  if (sidebar) sidebar.classList.toggle("open");
+// hook playlist button
+const playlistBtn = document.getElementById("playlistBtn");
+playlistBtn?.addEventListener("click", () => {
+  const area = document.getElementById("playlistArea");
+  if (area){
+    area.scrollIntoView({behavior:"smooth", block:"center"});
+    area.classList.add("highlight");
+    setTimeout(()=>area.classList.remove("highlight"),1000);
+  }
+});
+
+// hook prev/next
+document.getElementById("prevBtn")?.addEventListener("click",()=>{ if(window.prev) prev(); });
+document.getElementById("nextBtn")?.addEventListener("click",()=>{ if(window.next) next(); });
+
+// optional: simple rewind/forward
+document.getElementById("rewBtn")?.addEventListener("click",()=>{
+  const player = document.getElementById("ytPlayer");
+  if(player) player.contentWindow.postMessage('{"event":"command","func":"seekBy","args":[-10]}','*');
+});
+document.getElementById("fwdBtn")?.addEventListener("click",()=>{
+  const player = document.getElementById("ytPlayer");
+  if(player) player.contentWindow.postMessage('{"event":"command","func":"seekBy","args":[10]}','*');
 });
 </script>
+
 </body>
 </html>
