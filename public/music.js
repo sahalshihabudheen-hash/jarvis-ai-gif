@@ -17,6 +17,13 @@ let waveBars = [];
 let currentQueue = [];
 let currentIndex = -1;
 
+const PIPED_INSTANCES = [
+  "https://piped.video",
+  "https://pipedapi.kavin.rocks",
+  "https://piped.projectsegfau.lt",
+  "https://piped.mha.fi"
+];
+
 function extractVideoId(url) {
   if (!url) return null;
   try {
@@ -30,25 +37,45 @@ function extractVideoId(url) {
   return null;
 }
 
-async function searchYouTube(query) {
+function timeout(ms) {
+  return new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), ms));
+}
+
+async function fetchJSON(url) {
+  const controller = new AbortController();
   try {
-    const r = await fetch(`https://piped.video/api/v1/search?q=${encodeURIComponent(query)}&filter=videos`);
-    if (!r.ok) return null;
-    const data = await r.json();
-    if (!Array.isArray(data) || data.length === 0) return null;
-    const v = data[0];
-    const id = v.id || extractVideoId(v.url || "");
-    if (!id) return null;
-    return {
-      id,
-      title: v.title || `Video: ${id}`,
-      author: v.uploaderName || v.uploader || "YouTube",
-      thumbnail: v.thumbnail || `https://i.ytimg.com/vi/${id}/mqdefault.jpg`,
-      url: `https://www.youtube.com/watch?v=${id}`
-    };
+    const res = await Promise.race([
+      fetch(url, { mode: "cors", signal: controller.signal }),
+      timeout(5000)
+    ]);
+    if (!res || !res.ok) return null;
+    return await res.json();
   } catch {
     return null;
+  } finally {
+    controller.abort();
   }
+}
+
+async function searchYouTube(query) {
+  if (!query || !query.trim()) return null;
+  const q = encodeURIComponent(query.trim());
+  for (const base of PIPED_INSTANCES) {
+    const data = await fetchJSON(`${base}/api/v1/search?q=${q}&filter=videos`);
+    if (Array.isArray(data) && data.length > 0) {
+      const v = data[0];
+      const id = v.id || (v.url ? extractVideoId(v.url) : null);
+      if (!id) continue;
+      return {
+        id,
+        title: v.title || `Video: ${id}`,
+        author: v.uploaderName || v.uploader || "YouTube",
+        thumbnail: v.thumbnail || `https://i.ytimg.com/vi/${id}/mqdefault.jpg`,
+        url: `https://www.youtube.com/watch?v=${id}`
+      };
+    }
+  }
+  return null;
 }
 
 function setVideoById(vid) {
@@ -485,7 +512,7 @@ function bindCoreUI() {
   const input = document.getElementById(INPUT_ID);
   const loadBtn = document.getElementById(LOAD_BTN_ID);
   if (loadBtn && input) {
-    loadBtn.addEventListener("click", async () => {
+    const handleLoad = async () => {
       const raw = input.value;
       if (!raw || !raw.trim()) {
         alert("Enter a YouTube URL/ID or a search query.");
@@ -506,12 +533,18 @@ function bindCoreUI() {
         if (artistEl) artistEl.textContent = result.author;
         if (miniCover && result.thumbnail) miniCover.src = result.thumbnail;
       } else {
-        alert("No results found.");
+        alert("No results found or search unavailable. Try another query.");
       }
+    };
+    loadBtn.addEventListener("click", handleLoad);
+    input.addEventListener("keydown", e => {
+      if (e.key === "Enter") handleLoad();
     });
   }
+
   const playBtn = document.getElementById(PLAY_BTN_ID);
   if (playBtn) playBtn.addEventListener("click", togglePlay);
+
   const createBtn = document.getElementById("createPlaylistBtn");
   if (createBtn) {
     createBtn.addEventListener("click", () => {
@@ -524,6 +557,7 @@ function bindCoreUI() {
       renderPlaylists();
     });
   }
+
   const nextBtn = document.getElementById("nextBtn");
   if (nextBtn) nextBtn.addEventListener("click", next);
   const prevBtn = document.getElementById("prevBtn");
