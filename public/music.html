@@ -159,6 +159,7 @@
     background:linear-gradient(135deg,var(--accent-2),var(--accent));
     color:#071018;font-weight:900;box-shadow:0 16px 42px rgba(65,105,225,.35);z-index:85
   }
+
   @media (max-width:1024px){.page{grid-template-columns:220px 1fr}.right-panel{display:none}}
   @media (max-width:900px){.page{grid-template-columns:1fr;padding:100px 16px 140px}.sidebar{display:none}.song-cover{height:160px}}
   @media (max-width:560px){
@@ -193,20 +194,42 @@
 
   <main class="main">
     <div class="hero">
-      <div class="title">Discover</div>
+      <div class="title">Featured</div>
       <div class="searchbar">
-        <input id="ytInput" placeholder="Paste YouTube URL or ID"/>
+        <input id="ytInput" placeholder="Paste URL/ID or type a song"/>
         <button id="loadBtn">Load</button>
       </div>
     </div>
 
     <section class="song-grid" id="featuredGrid">
-      <div class="song-card" data-song-id="dQw4w9WgXcQ" data-title="Never Gonna Give You Up" data-artist="Rick Astley" data-url="https://www.youtube.com/watch?v=dQw4w9WgXcQ" data-cover="https://i.ytimg.com/vi/dQw4w9WgXcQ/mqdefault.jpg">
-        <img class="song-cover" src="https://i.ytimg.com/vi/dQw4w9WgXcQ/mqdefault.jpg" alt="">
-        <div class="song-meta">
-          <div class="title">Never Gonna Give You Up</div>
-          <div class="artist">Rick Astley</div>
-        </div>
+      <div class="song-card" data-song-id="JGwWNGJdvx8" data-title="Shape of You" data-artist="Ed Sheeran" data-url="https://www.youtube.com/watch?v=JGwWNGJdvx8" data-cover="https://i.ytimg.com/vi/JGwWNGJdvx8/mqdefault.jpg">
+        <img class="song-cover" src="https://i.ytimg.com/vi/JGwWNGJdvx8/mqdefault.jpg" alt="">
+        <div class="song-meta"><div class="title">Shape of You</div><div class="artist">Ed Sheeran</div></div>
+        <button class="add-to-pl-btn" type="button">+</button>
+      </div>
+      <div class="song-card" data-song-id="fHI8X4OXluQ" data-title="Blinding Lights" data-artist="The Weeknd" data-url="https://www.youtube.com/watch?v=fHI8X4OXluQ" data-cover="https://i.ytimg.com/vi/fHI8X4OXluQ/mqdefault.jpg">
+        <img class="song-cover" src="https://i.ytimg.com/vi/fHI8X4OXluQ/mqdefault.jpg" alt="">
+        <div class="song-meta"><div class="title">Blinding Lights</div><div class="artist">The Weeknd</div></div>
+        <button class="add-to-pl-btn" type="button">+</button>
+      </div>
+      <div class="song-card" data-song-id="TUVcZfQe-Kw" data-title="Levitating" data-artist="Dua Lipa" data-url="https://www.youtube.com/watch?v=TUVcZfQe-Kw" data-cover="https://i.ytimg.com/vi/TUVcZfQe-Kw/mqdefault.jpg">
+        <img class="song-cover" src="https://i.ytimg.com/vi/TUVcZfQe-Kw/mqdefault.jpg" alt="">
+        <div class="song-meta"><div class="title">Levitating</div><div class="artist">Dua Lipa</div></div>
+        <button class="add-to-pl-btn" type="button">+</button>
+      </div>
+      <div class="song-card" data-song-id="DyDfgMOUjCI" data-title="bad guy" data-artist="Billie Eilish" data-url="https://www.youtube.com/watch?v=DyDfgMOUjCI" data-cover="https://i.ytimg.com/vi/DyDfgMOUjCI/mqdefault.jpg">
+        <img class="song-cover" src="https://i.ytimg.com/vi/DyDfgMOUjCI/mqdefault.jpg" alt="">
+        <div class="song-meta"><div class="title">bad guy</div><div class="artist">Billie Eilish</div></div>
+        <button class="add-to-pl-btn" type="button">+</button>
+      </div>
+      <div class="song-card" data-song-id="7wtfhZwyrcc" data-title="Believer" data-artist="Imagine Dragons" data-url="https://www.youtube.com/watch?v=7wtfhZwyrcc" data-cover="https://i.ytimg.com/vi/7wtfhZwyrcc/mqdefault.jpg">
+        <img class="song-cover" src="https://i.ytimg.com/vi/7wtfhZwyrcc/mqdefault.jpg" alt="">
+        <div class="song-meta"><div class="title">Believer</div><div class="artist">Imagine Dragons</div></div>
+        <button class="add-to-pl-btn" type="button">+</button>
+      </div>
+      <div class="song-card" data-song-id="RBumgq5yVrA" data-title="Let Her Go" data-artist="Passenger" data-url="https://www.youtube.com/watch?v=RBumgq5yVrA" data-cover="https://i.ytimg.com/vi/RBumgq5yVrA/mqdefault.jpg">
+        <img class="song-cover" src="https://i.ytimg.com/vi/RBumgq5yVrA/mqdefault.jpg" alt="">
+        <div class="song-meta"><div class="title">Let Her Go</div><div class="artist">Passenger</div></div>
         <button class="add-to-pl-btn" type="button">+</button>
       </div>
     </section>
