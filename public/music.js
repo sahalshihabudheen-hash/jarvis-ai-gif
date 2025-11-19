@@ -1,9 +1,10 @@
-/* music.js — final consolidated version
+/* music.js — final consolidated version (updated)
    - Play featured song cards
    - Playlist create/add/remove + persistence (jarvis_playlists)
    - Queue support (next / prev)
    - Wave & progress simulation
    - Non-destructive, defensive
+   - Fully functional "+ Add to Playlist" buttons
 */
 
 const INPUT_ID = "ytInput";
@@ -164,6 +165,21 @@ function savePlaylistsToStorage(list) {
 }
 function createEmptyPlaylist(name) { return { id: `pl_${Date.now()}`, name: name || "New Playlist", songs: [] }; }
 
+/* add song to playlist by id */
+function addSongToPlaylist(playlistId, songObj) {
+  const all = loadPlaylistsFromStorage();
+  const pl = all.find(x => x.id === playlistId);
+  if (!pl) return alert("Playlist not found.");
+  if (pl.songs.some(s => s.videoId === songObj.videoId)) {
+    return alert("Song already in playlist.");
+  }
+  pl.songs.push(songObj);
+  savePlaylistsToStorage(all);
+  renderPlaylists();
+  renderSidebarPlaylists();
+  alert(`Added "${songObj.title}" to "${pl.name}"`);
+}
+
 /* render playlists in right panel and sidebar */
 function renderPlaylists() {
   const area = document.getElementById("playlistArea");
@@ -319,22 +335,6 @@ function renderPlaylists() {
   }
 }
 
-/* add song to playlist by id */
-function addSongToPlaylist(playlistId, songObj) {
-  const all = loadPlaylistsFromStorage();
-  const pl = all.find(x => x.id === playlistId);
-  if (!pl) return alert("Playlist not found.");
-  if (pl.songs.some(s => s.videoId === songObj.videoId)) {
-    return alert("Song already in playlist.");
-  }
-  pl.songs.push(songObj);
-  savePlaylistsToStorage(all);
-  renderPlaylists();
-  renderSidebarPlaylists();
-  alert(`Added "${songObj.title}" to "${pl.name}"`);
-}
-function renderSidebarPlaylists() { renderPlaylists(); }
-
 /* wire song grid (play + add) */
 function wireSongGrid() {
   const grid = document.getElementById("songGrid");
@@ -415,7 +415,8 @@ function openPlaylistChooserForCard(card, anchorBtn) {
           artist: card.getAttribute("data-artist") || card.dataset.artist || (card.querySelector(".artist")?.textContent || ""),
           cover: card.getAttribute("data-cover") || card.dataset.cover || (card.querySelector("img")?.src || "")
         };
-        addSongToPlaylist(pl.id, songObj); const chooser = document.getElementById("playlistChooserPopover"); if (chooser) chooser.remove();
+        addSongToPlaylist(pl.id, songObj); 
+        const chooser = document.getElementById("playlistChooserPopover"); if (chooser) chooser.remove();
       };
       const cnt = document.createElement("div"); cnt.textContent = `${pl.songs.length}`; cnt.style.color = "var(--muted)";
       r.appendChild(left); r.appendChild(cnt); pop.appendChild(r);
