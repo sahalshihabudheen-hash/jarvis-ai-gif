@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>JARVIS Music â€” Spotify Style</title>
+<title>JARVIS Music – Spotify Style</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -108,7 +108,6 @@
 </head>
 <body>
 
-<!-- NAVBAR -->
 <nav>
   <div class="nav-left">
     <div class="hamburger" id="hamburger">
@@ -144,9 +143,9 @@
   <!-- LEFT SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <h3>Browse</h3>
-    <div class="nav-item">ðŸ  <strong>Home</strong></div>
-    <div class="nav-item">ðŸ” <strong>Search</strong></div>
-    <div class="nav-item">ðŸ“š <strong>Your Library</strong></div>
+    <div class="nav-item">🏠  <strong>Home</strong></div>
+    <div class="nav-item">🔎 <strong>Search</strong></div>
+    <div class="nav-item">📚 <strong>Your Library</strong></div>
 
     <div style="height:14px"></div>
     <div style="font-size:13px;color:var(--muted);font-weight:700">Playlists</div>
@@ -165,7 +164,7 @@
     <div class="hero">
       <div>
         <div class="title">Featured</div>
-        <div class="muted small">Popular & trending â€” click a song to play</div>
+        <div class="muted small">Popular & trending – click a song to play</div>
       </div>
 
       <div class="searchbar">
@@ -176,7 +175,7 @@
 
     <!-- SONG GRID -->
     <div id="songGrid" class="song-grid" aria-live="polite">
-      <!-- Famous songs included â€” each card has data-id (YouTube id) and metadata -->
+      <!-- Famous songs included – each card has data-id (YouTube id) and metadata -->
       <div class="song-card" data-id="fHI8X4OXluQ" data-title="Blinding Lights" data-artist="The Weeknd" data-cover="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg">
         <img class="song-cover" src="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg" alt="">
         <div class="song-meta"><div class="title">Blinding Lights</div><div class="artist muted">The Weeknd</div></div>
@@ -200,8 +199,6 @@
         <div class="song-meta"><div class="title">Heat Waves</div><div class="artist muted">Glass Animals</div></div>
         <button class="add-to-pl-btn">+</button>
       </div>
-
-
 
      <div class="song-card" data-id="TEpZyoLhK9M" data-title="Unholy" data-artist="Sam Smith" data-cover="https://i.ytimg.com/vi/TEpZyoLhK9M/hqdefault.jpg">
         <img class="song-cover" src="https://i.ytimg.com/vi/TEpZyoLhK9M/hqdefault.jpg" alt="">
@@ -227,6 +224,8 @@
         </div>
       </div>
 
+      <button id="addToPlaylistBtn" style="padding:10px;border-radius:10px;border:none;background:var(--accent);color:#071018;font-weight:700;cursor:pointer;width:100%;margin-top:8px">➕ Add to Playlist</button>
+
       <div style="margin-top:8px">
         <div style="font-weight:700">Your Playlists</div>
         <div id="playlistArea" style="margin-top:8px"></div>
@@ -244,17 +243,17 @@
     <div class="player-cover"><img id="miniCover" src="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg" alt=""></div>
     <div class="player-meta">
       <div id="trackTitle" class="title">Not Playing</div>
-      <div id="trackArtist" class="muted small">â€”</div>
+      <div id="trackArtist" class="muted small">–</div>
     </div>
   </div>
 
   <div style="display:flex;flex-direction:column;align-items:center;flex:1">
     <div class="player-controls">
-      <button class="btn" id="prevBtn">â®</button>
-      <button class="btn" id="rewBtn" title="Rewind 10s">âŸ²</button>
-      <button class="btn play" id="playBtn</button>
-      <button class="btn" id="fwdBtn" title="Forward 10s">âŸ³</button>
-      <button class="btn" id="nextBtn">â­</button>
+      <button class="btn" id="prevBtn">⏮</button>
+      <button class="btn" id="rewBtn" title="Rewind 10s">⏪</button>
+      <button class="btn play" id="playBtn"></button>
+      <button class="btn" id="fwdBtn" title="Forward 10s">⏩</button>
+      <button class="btn" id="nextBtn">⏭</button>
       <div class="progress" style="margin-left:18px"><i id="progressFill"></i></div>
     </div>
 
