@@ -1,98 +1,442 @@
-const PLAYLISTS_KEY = 'jarvis_playlists';
+const INPUT_ID = "ytInput";
+const LOAD_BTN_ID = "loadBtn";
+const PLAYER_IFRAME_ID = "ytPlayer";
+const COVER_IMG_ID = "coverImg";
+const TITLE_ID = "trackTitle";
+const ARTIST_ID = "trackArtist";
+const PLAY_BTN_ID = "playBtn";
+const PROGRESS_FILL_ID = "progressFill";
+const WAVE_CONTAINER_ID = "waveContainer";
 
-function readPlaylists() {
+const STORAGE_KEY = "jarvis_playlists";
+const NUM_BARS = 20;
+
+let currentVideoId = null;
+let isPlaying = false;
+let progressInterval = null;
+let waveBars = [];
+let currentQueue = [];
+let currentIndex = -1;
+
+function extractVideoId(url) {
+  if (!url) return null;
   try {
-    const raw = localStorage.getItem(PLAYLISTS_KEY);
-    return raw ? JSON.parse(raw) : [];
+    url = url.trim();
+    if (/^[A-Za-z0-9_-]{10,}$/.test(url)) return url;
+    if (url.includes("youtu.be/")) return url.split("youtu.be/")[1].split(/[?&]/)[0];
+    if (url.includes("v=")) return url.split("v=")[1].split("&")[0];
+    const m = url.match(/\/embed\/([A-Za-z0-9_\-]+)/);
+    if (m) return m[1];
+  } catch (e) {}
+  return null;
+}
+
+function setVideoById(vid) {
+  if (!vid) return;
+  const player = document.getElementById(PLAYER_IFRAME_ID);
+  const cover = document.getElementById(COVER_IMG_ID);
+  const titleEl = document.getElementById(TITLE_ID);
+  const artistEl = document.getElementById(ARTIST_ID);
+  const miniCover = document.getElementById("miniCover");
+
+  if (player) player.src = `https://www.youtube.com/embed/${vid}?autoplay=1&controls=1&rel=0&modestbranding=1`;
+  currentVideoId = vid;
+  isPlaying = true;
+  if (cover) cover.src = `https://i.ytimg.com/vi/${vid}/hqdefault.jpg`;
+  if (miniCover) miniCover.src = `https://i.ytimg.com/vi/${vid}/mqdefault.jpg`;
+
+  if (titleEl || artistEl) {
+    fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${vid}&format=json`)
+      .then(r => (r.ok ? r.json() : null))
+      .then(data => {
+        if (titleEl) titleEl.textContent = data?.title || `Video: ${vid}`;
+        if (artistEl) artistEl.textContent = data?.author_name || "YouTube";
+        highlightCurrentPlayingInGrid(vid);
+      })
+      .catch(() => {
+        if (titleEl) titleEl.textContent = `Video: ${vid}`;
+        if (artistEl) artistEl.textContent = "YouTube";
+        highlightCurrentPlayingInGrid(vid);
+      });
+  }
+
+  const idx = currentQueue.indexOf(vid);
+  if (idx !== -1) currentIndex = idx;
+  else {
+    currentQueue = [vid];
+    currentIndex = 0;
+  }
+
+  updatePlayButton();
+  setProgress(0);
+  startProgressSimulation();
+  startWaveAnimation();
+}
+
+function togglePlay() {
+  const player = document.getElementById(PLAYER_IFRAME_ID);
+  if (!currentVideoId) return;
+  if (isPlaying) {
+    if (player) player.src = "";
+    isPlaying = false;
+    updatePlayButton();
+    stopProgressSimulation();
+    stopWaveAnimation();
+  } else {
+    if (player) player.src = `https://www.youtube.com/embed/${currentVideoId}?autoplay=1&controls=1&rel=0&modestbranding=1`;
+    isPlaying = true;
+    updatePlayButton();
+    startProgressSimulation();
+    startWaveAnimation();
+  }
+}
+function updatePlayButton() {
+  const el = document.getElementById(PLAY_BTN_ID);
+  if (!el) return;
+  el.textContent = isPlaying ? "⏸" : "▶";
+}
+
+function setProgress(p) {
+  const fill = document.getElementById(PROGRESS_FILL_ID);
+  if (!fill) return;
+  fill.style.width = `${Math.max(0, Math.min(100, p))}%`;
+}
+function startProgressSimulation() {
+  clearInterval(progressInterval);
+  let val = 0;
+  progressInterval = setInterval(() => {
+    if (!isPlaying) return;
+    val += 0.7;
+    if (val > 100) val = 0;
+    setProgress(val);
+  }, 500);
+}
+function stopProgressSimulation() {
+  clearInterval(progressInterval);
+}
+
+function initWaveBars() {
+  const container = document.getElementById(WAVE_CONTAINER_ID);
+  if (!container) return;
+  container.innerHTML = "";
+  waveBars = [];
+  for (let i = 0; i < NUM_BARS; i++) {
+    const bar = document.createElement("div");
+    bar.className = "wave-bar";
+    bar.style.setProperty("--scale", Math.random().toString());
+    container.appendChild(bar);
+    waveBars.push(bar);
+  }
+}
+function startWaveAnimation() {
+  waveBars.forEach(b => (b.style.animationPlayState = "running"));
+}
+function stopWaveAnimation() {
+  waveBars.forEach(b => (b.style.animationPlayState = "paused"));
+}
+
+function next() {
+  if (!currentQueue || currentQueue.length === 0) {
+    alert("Queue is empty.");
+    return;
+  }
+  currentIndex = (currentIndex + 1) % currentQueue.length;
+  setVideoById(currentQueue[currentIndex]);
+}
+function prev() {
+  if (!currentQueue || currentQueue.length === 0) {
+    alert("Queue is empty.");
+    return;
+  }
+  currentIndex = (currentIndex - 1 + currentQueue.length) % currentQueue.length;
+  setVideoById(currentQueue[currentIndex]);
+}
+
+function loadPlaylistsFromStorage() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
   } catch (e) {
     return [];
   }
 }
-
-function writePlaylists(playlists) {
-  localStorage.setItem(PLAYLISTS_KEY, JSON.stringify(playlists));
+function savePlaylistsToStorage(list) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(list || []));
+  } catch (e) {}
+}
+function createEmptyPlaylist(name) {
+  return { id: `pl_${Date.now()}`, name: name || "New Playlist", songs: [] };
 }
 
-function ensurePlaylist(playlists, id, name) {
-  if (Array.isArray(playlists)) {
-    let p = playlists.find(x => x.id === id || x.name === id);
-    if (!p) {
-      p = { id, name: name || id, songs: [] };
-      playlists.push(p);
+function renderPlaylists() {
+  const area = document.getElementById("playlistArea");
+  const sidebarList = document.getElementById("sidebarPlaylists");
+  const playlists = loadPlaylistsFromStorage();
+
+  if (area) {
+    area.innerHTML = "";
+    if (playlists.length === 0) {
+      const note = document.createElement("div");
+      note.style.color = "var(--muted)";
+      note.style.fontSize = "14px";
+      note.textContent = "No playlists yet — create one with the + Create Playlist button.";
+      area.appendChild(note);
+    } else {
+      playlists.forEach(pl => {
+        const plWrap = document.createElement("div");
+        plWrap.style.background = "var(--glass)";
+        plWrap.style.padding = "10px";
+        plWrap.style.borderRadius = "10px";
+        plWrap.style.marginBottom = "10px";
+        plWrap.style.display = "flex";
+        plWrap.style.flexDirection = "column";
+        const header = document.createElement("div");
+        header.style.display = "flex";
+        header.style.alignItems = "center";
+        header.style.justifyContent = "space-between";
+        const title = document.createElement("div");
+        title.textContent = pl.name;
+        title.style.fontWeight = "600";
+        const actions = document.createElement("div");
+        const removeBtn = document.createElement("button");
+        removeBtn.textContent = "Delete";
+        removeBtn.addEventListener("click", () => {
+          const updated = loadPlaylistsFromStorage().filter(x => x.id !== pl.id);
+          savePlaylistsToStorage(updated);
+          renderPlaylists();
+        });
+        actions.appendChild(removeBtn);
+        header.appendChild(title);
+        header.appendChild(actions);
+        plWrap.appendChild(header);
+
+        const songsList = document.createElement("div");
+        (pl.songs || []).forEach(song => {
+          const row = document.createElement("div");
+          row.style.display = "flex";
+          row.style.alignItems = "center";
+          row.style.gap = "8px";
+          const img = document.createElement("img");
+          img.src = song.cover || (song.id ? `https://i.ytimg.com/vi/${song.id}/mqdefault.jpg` : "");
+          img.width = 40;
+          img.height = 40;
+          img.style.borderRadius = "6px";
+          const t = document.createElement("div");
+          t.textContent = `${song.title || "Untitled"} — ${song.artist || ""}`;
+          const playBtn = document.createElement("button");
+          playBtn.textContent = "Play";
+          playBtn.addEventListener("click", () => {
+            if (song.id) setVideoById(song.id);
+            else if (song.url) {
+              const vid = extractVideoId(song.url);
+              if (vid) setVideoById(vid);
+            }
+          });
+          const delBtn = document.createElement("button");
+          delBtn.textContent = "Remove";
+          delBtn.addEventListener("click", () => {
+            const updated = loadPlaylistsFromStorage();
+            const p = updated.find(x => x.id === pl.id);
+            if (p) {
+              p.songs = (p.songs || []).filter(s => !(s.id && s.id === song.id) && !(s.url && s.url === song.url));
+              savePlaylistsToStorage(updated);
+              renderPlaylists();
+            }
+          });
+          row.appendChild(img);
+          row.appendChild(t);
+          row.appendChild(playBtn);
+          row.appendChild(delBtn);
+          songsList.appendChild(row);
+        });
+        plWrap.appendChild(songsList);
+        area.appendChild(plWrap);
+      });
     }
-    return p;
-  } else {
-    if (!playlists[id]) playlists[id] = { id, name: name || id, songs: [] };
-    return playlists[id];
+  }
+
+  if (sidebarList) {
+    sidebarList.innerHTML = "";
+    playlists.forEach(pl => {
+      const li = document.createElement("div");
+      li.textContent = pl.name;
+      li.style.cursor = "pointer";
+      li.addEventListener("click", () => {
+        const areaEl = document.getElementById("playlistArea");
+        if (areaEl) {
+          areaEl.scrollIntoView({ behavior: "smooth" });
+        }
+      });
+      sidebarList.appendChild(li);
+    });
   }
 }
 
-function findPlaylist(playlists, id) {
-  if (Array.isArray(playlists)) {
-    return playlists.find(x => x.id === id || x.name === id) || null;
+function readOrCreateDefaultPlaylists() {
+  let playlists = loadPlaylistsFromStorage();
+  if (playlists.length === 0) {
+    playlists = [createEmptyPlaylist("Favorites")];
+    savePlaylistsToStorage(playlists);
   }
-  return playlists[id] || null;
+  return playlists;
 }
 
 function extractSongFromCard(card) {
-  return {
-    id: card.dataset.songId || card.querySelector('[data-song-id]')?.getAttribute('data-song-id') || '',
-    title: card.querySelector('.song-title')?.textContent?.trim() || '',
-    artist: card.querySelector('.song-artist')?.textContent?.trim() || '',
-    duration: card.querySelector('.song-duration')?.textContent?.trim() || '',
-    source: card.dataset.source || '',
-    url: card.dataset.url || card.querySelector('[data-url]')?.getAttribute('data-url') || ''
-  };
+  const id =
+    card.dataset.songId ||
+    card.querySelector("[data-song-id]")?.getAttribute("data-song-id") ||
+    extractVideoId(card.dataset.url || card.querySelector("[data-url]")?.getAttribute("data-url") || "") ||
+    "";
+  const title =
+    card.dataset.title ||
+    card.querySelector(".song-title")?.textContent?.trim() ||
+    "";
+  const artist =
+    card.dataset.artist ||
+    card.querySelector(".song-artist")?.textContent?.trim() ||
+    "";
+  const url =
+    card.dataset.url ||
+    card.querySelector("[data-url]")?.getAttribute("data-url") ||
+    (id ? `https://www.youtube.com/watch?v=${id}` : "");
+  const cover =
+    card.dataset.cover ||
+    card.querySelector("img")?.src ||
+    (id ? `https://i.ytimg.com/vi/${id}/mqdefault.jpg` : "");
+  const source = card.dataset.source || "youtube";
+  return { id, title, artist, url, cover, source };
 }
 
 function addSongToPlaylist(playlistId, songOrCard) {
-  const playlists = readPlaylists();
-  let playlist = findPlaylist(playlists, playlistId);
-  if (!playlist) playlist = ensurePlaylist(playlists, playlistId);
-
+  const playlists = readOrCreateDefaultPlaylists();
+  const playlist = playlists.find(p => p.id === playlistId || p.name === playlistId);
   const song = songOrCard instanceof Element ? extractSongFromCard(songOrCard) : songOrCard;
-  if (!song || !song.title) return;
+  if (!playlist || !song || (!song.id && !song.url)) return;
 
   const exists = (playlist.songs || []).some(s => (s.id && s.id === song.id) || (s.url && s.url === song.url));
   if (exists) return;
 
   if (!playlist.songs) playlist.songs = [];
   playlist.songs.push(song);
+  savePlaylistsToStorage(playlists);
+  window.dispatchEvent(new CustomEvent("playlist:updated", { detail: { playlistId, song } }));
+}
 
-  writePlaylists(playlists);
-
-  window.dispatchEvent(new CustomEvent('playlist:updated', { detail: { playlistId, song } }));
+function ensureChooser() {
+  let chooser = document.getElementById("playlistChooser");
+  if (!chooser) {
+    chooser = document.createElement("div");
+    chooser.id = "playlistChooser";
+    chooser.style.position = "absolute";
+    chooser.style.background = "var(--glass, rgba(0,0,0,0.7))";
+    chooser.style.backdropFilter = "blur(6px)";
+    chooser.style.borderRadius = "10px";
+    chooser.style.padding = "8px";
+    chooser.style.zIndex = "1000";
+    chooser.style.display = "none";
+    chooser.style.minWidth = "180px";
+    document.body.appendChild(chooser);
+  }
+  return chooser;
 }
 
 function openPlaylistChooserForCard(card) {
-  const song = extractSongFromCard(card);
-  const playlists = readPlaylists();
+  const playlists = readOrCreateDefaultPlaylists();
+  const chooser = ensureChooser();
+  chooser.innerHTML = "";
 
-  const menu = document.getElementById('playlist-chooser');
-  menu.innerHTML = '';
-
-  const list = Array.isArray(playlists)
-    ? playlists.map(p => ({ id: p.id || p.name, name: p.name || p.id }))
-    : Object.keys(playlists).map(id => ({ id, name: playlists[id].name || id }));
-
+  const list = playlists.map(p => ({ id: p.id, name: p.name }));
   list.forEach(p => {
-    const item = document.createElement('button');
-    item.type = 'button';
-    item.textContent = p.name;
-    item.dataset.playlistId = p.id;
-    item.addEventListener('click', () => {
-      addSongToPlaylist(p.id, song);
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.textContent = p.name;
+    btn.style.display = "block";
+    btn.style.width = "100%";
+    btn.style.textAlign = "left";
+    btn.style.margin = "4px 0";
+    btn.addEventListener("click", () => {
+      addSongToPlaylist(p.id, card);
+      chooser.style.display = "none";
+      renderPlaylists();
     });
-    menu.appendChild(item);
+    chooser.appendChild(btn);
   });
 
-  menu.style.display = 'block';
+  const rect = card.getBoundingClientRect();
+  const top = window.scrollY + rect.top + 10;
+  const left = window.scrollX + rect.left + rect.width + 10;
+  chooser.style.top = `${top}px`;
+  chooser.style.left = `${left}px`;
+  chooser.style.display = "block";
 }
 
-document.addEventListener('click', (e) => {
-  const btn = e.target.closest('[data-add-to-playlist]');
+document.addEventListener("click", e => {
+  const btn = e.target.closest("[data-add-to-playlist]");
   if (!btn) return;
-  const card = btn.closest('.song-card');
+  const card = btn.closest(".song-card");
   if (!card) return;
   openPlaylistChooserForCard(card);
+});
+
+window.addEventListener("playlist:updated", () => {
+  renderPlaylists();
+});
+
+function highlightCurrentPlayingInGrid(vid) {
+  const cards = document.querySelectorAll(".song-card");
+  cards.forEach(c => {
+    const sid =
+      c.dataset.songId ||
+      c.querySelector("[data-song-id]")?.getAttribute("data-song-id") ||
+      extractVideoId(c.dataset.url || c.querySelector("[data-url]")?.getAttribute("data-url") || "");
+    if (sid && sid === vid) {
+      c.classList.add("playing");
+    } else {
+      c.classList.remove("playing");
+    }
+  });
+}
+
+function bindCoreUI() {
+  const input = document.getElementById(INPUT_ID);
+  const loadBtn = document.getElementById(LOAD_BTN_ID);
+  if (loadBtn && input) {
+    loadBtn.addEventListener("click", () => {
+      const vid = extractVideoId(input.value);
+      if (!vid) {
+        alert("Enter a valid YouTube URL or ID.");
+        return;
+      }
+      setVideoById(vid);
+    });
+  }
+  const playBtn = document.getElementById(PLAY_BTN_ID);
+  if (playBtn) playBtn.addEventListener("click", togglePlay);
+
+  const createBtn = document.getElementById("createPlaylistBtn");
+  if (createBtn) {
+    createBtn.addEventListener("click", () => {
+      const name = prompt("Playlist name");
+      if (!name) return;
+      const playlists = loadPlaylistsFromStorage();
+      const p = createEmptyPlaylist(name);
+      playlists.push(p);
+      savePlaylistsToStorage(playlists);
+      renderPlaylists();
+    });
+  }
+
+  const nextBtn = document.getElementById("nextBtn");
+  if (nextBtn) nextBtn.addEventListener("click", next);
+  const prevBtn = document.getElementById("prevBtn");
+  if (prevBtn) prevBtn.addEventListener("click", prev);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  bindCoreUI();
+  initWaveBars();
+  renderPlaylists();
 });
