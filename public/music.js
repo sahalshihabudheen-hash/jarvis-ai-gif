@@ -1,5 +1,5 @@
-// JARVIS Music Player - Vanilla JS
-// Features: Playlists, Search, YouTube, Auto-next
+// JARVIS Music Player - YouTube Edition
+// Features: YouTube embeds, Playlists, Auto-next
 
 const STORAGE_KEY = "jarvis_playlists";
 const NUM_BARS = 20;
@@ -11,30 +11,87 @@ let currentTrackIndex = 0;
 let currentSong = null;
 let isPlaying = false;
 let waveBars = [];
-let audioPlayer = null;
+let player = null;
+let playerReady = false;
 
-// Song Library with MP3 file paths
+// Song Library with YouTube Video IDs
 const songLibrary = [
-  { id: "fHI8X4OXluQ", title: "Blinding Lights", artist: "The Weeknd", url: "blinding-lights.mp3" },
-  { id: "34Na4j8AVgA", title: "Starboy", artist: "The Weeknd", url: "starboy.mp3" },
-  { id: "XXYlFuWEuKI", title: "Save Your Tears", artist: "The Weeknd", url: "save-your-tears.mp3" },
-  { id: "mRD0-GxqHVo", title: "Heat Waves", artist: "Glass Animals", url: "heat-waves.mp3" },
-  { id: "TEpZyoLhK9M", title: "Unholy", artist: "Sam Smith", url: "unholy.mp3" },
-  { id: "kJQP7kiw9Fk", title: "As It Was", artist: "Harry Styles", url: "as-it-was.mp3" },
-  { id: "60ItHLz5WEA", title: "Faded", artist: "Alan Walker", url: "faded.mp3" },
-  { id: "RgKAFK5djSk", title: "Wasted Summers", artist: "juju", url: "wasted-summers.mp3" },
-  { id: "FM7MFYoylVs", title: "Shape of You", artist: "Ed Sheeran", url: "shape-of-you.mp3" },
-  { id: "CevxZvSJLk8", title: "Rockstar", artist: "Post Malone", url: "rockstar.mp3" }
+  { videoId: "fHI8X4OXluQ", title: "Blinding Lights", artist: "The Weeknd" },
+  { videoId: "34Na4j8AVgA", title: "Starboy", artist: "The Weeknd" },
+  { videoId: "XXYlFuWEuKI", title: "Save Your Tears", artist: "The Weeknd" },
+  { videoId: "mRD0-GxqHVo", title: "Heat Waves", artist: "Glass Animals" },
+  { videoId: "kJQP7kiw9Fk", title: "As It Was", artist: "Harry Styles" },
+  { videoId: "60ItHLz5WEA", title: "Faded", artist: "Alan Walker" },
+  { videoId: "RgKAFK5djSk", title: "Wasted Summers", artist: "juju" },
+  { videoId: "FM7MFYoylVs", title: "Shape of You", artist: "Ed Sheeran" },
+  { videoId: "CevxZvSJLk8", title: "Rockstar", artist: "Post Malone" },
+  { videoId: "JGwWNGJdvx8", title: "Shape of You", artist: "Ed Sheeran" }
 ];
+
+// ====== YOUTUBE API INTEGRATION ======
+function onYouTubeIframeAPIReady() {
+  console.log("🎬 YouTube API Ready");
+  player = new YT.Player('ytPlayer', {
+    height: '1',
+    width: '1',
+    videoId: songLibrary[0].videoId,
+    playerVars: {
+      autoplay: 0,
+      controls: 0,
+      enablejsapi: 1,
+      origin: window.location.origin
+    },
+    events: {
+      onReady: onPlayerReady,
+      onStateChange: onPlayerStateChange,
+      onError: onPlayerError
+    }
+  });
+}
+
+function onPlayerReady(event) {
+  console.log("✅ YouTube Player Ready");
+  playerReady = true;
+}
+
+function onPlayerStateChange(event) {
+  const states = {
+    '-1': 'unstarted',
+    '0': 'ended',
+    '1': 'playing',
+    '2': 'paused',
+    '3': 'buffering',
+    '5': 'cued'
+  };
+  
+  console.log(`🎵 Player state: ${states[event.data]}`);
+  
+  if (event.data === YT.PlayerState.ENDED) {
+    console.log("🔄 Song ended, playing next...");
+    playNext();
+  } else if (event.data === YT.PlayerState.PLAYING) {
+    isPlaying = true;
+    updatePlayButton();
+    startWaveAnimation();
+  } else if (event.data === YT.PlayerState.PAUSED) {
+    isPlaying = false;
+    updatePlayButton();
+    stopWaveAnimation();
+  }
+}
+
+function onPlayerError(event) {
+  console.error("❌ YouTube Player Error:", event.data);
+  showToast("Playback error. Trying next song...", true);
+  setTimeout(() => playNext(), 1500);
+}
 
 // ====== INITIALIZATION ======
 document.addEventListener("DOMContentLoaded", () => {
-  audioPlayer = document.getElementById("audioPlayer");
   loadPlaylists();
   renderSongGrid();
   initWaveBars();
   setupEventListeners();
-  setupAudioPlayerEvents();
   setupHamburger();
 });
 
@@ -75,7 +132,7 @@ function selectPlaylist(name) {
   
   if (playlists[name].length > 0) {
     const track = playlists[name][0];
-    playSong(track.id, track.title, track.artist, track.url);
+    playSong(track.videoId, track.title, track.artist);
   }
   
   document.getElementById("currentPlaylistName").textContent = name;
@@ -92,7 +149,7 @@ function renderPlaylistSongs() {
     item.className = "playlist-song-item";
     
     item.innerHTML = `
-      <img src="${getThumbnail(song.id)}" alt="${song.title}" />
+      <img src="${getThumbnail(song.videoId)}" alt="${song.title}" />
       <div class="playlist-song-info">
         <div class="title">${song.title}</div>
         <div class="artist">${song.artist}</div>
@@ -103,7 +160,7 @@ function renderPlaylistSongs() {
     item.addEventListener("click", (e) => {
       if (!e.target.classList.contains("remove-song-btn")) {
         currentTrackIndex = index;
-        playSong(song.id, song.title, song.artist, song.url);
+        playSong(song.videoId, song.title, song.artist);
       }
     });
     
@@ -142,6 +199,7 @@ function confirmCreatePlaylist() {
   playlists[name] = [];
   savePlaylists();
   closePopup("createPlaylistPopup");
+  showToast(`Playlist "${name}" created!`);
 }
 
 function showAddToPlaylistPopup() {
@@ -167,21 +225,16 @@ function showAddToPlaylistPopup() {
 function addCurrentSongToPlaylist(playlistName) {
   if (!currentSong) return;
   
-  const exists = playlists[playlistName].some(s => s.id === currentSong.id);
+  const exists = playlists[playlistName].some(s => s.videoId === currentSong.videoId);
   if (exists) {
     alert("Song already in playlist");
     return;
   }
   
-  // Get URL for current song
-  const song = songLibrary.find(s => s.id === currentSong.id);
-  const url = song ? song.url : null;
-  
   playlists[playlistName].push({
-    id: currentSong.id,
+    videoId: currentSong.videoId,
     title: currentSong.title,
-    artist: currentSong.artist,
-    url: url
+    artist: currentSong.artist
   });
   
   savePlaylists();
@@ -190,31 +243,25 @@ function addCurrentSongToPlaylist(playlistName) {
   showToast(`Added to "${playlistName}"`);
 }
 
-function addSongToPlaylist(videoId, title, artist, url = null) {
+function addSongToPlaylist(videoId, title, artist) {
   const plNames = Object.keys(playlists);
   if (plNames.length === 0) return alert("No playlists! Create one first.");
   
   const container = document.getElementById("playlistOptions");
   container.innerHTML = "";
   
-  // Get URL if not provided
-  if (!url) {
-    const song = songLibrary.find(s => s.id === videoId);
-    url = song ? song.url : null;
-  }
-  
   plNames.forEach(name => {
     const option = document.createElement("div");
     option.className = "playlist-option";
     option.textContent = `${name} (${playlists[name].length} songs)`;
     option.addEventListener("click", () => {
-      const exists = playlists[name].some(s => s.id === videoId);
+      const exists = playlists[name].some(s => s.videoId === videoId);
       if (exists) {
         alert("Song already in playlist");
         return;
       }
       
-      playlists[name].push({ id: videoId, title, artist, url });
+      playlists[name].push({ videoId, title, artist });
       savePlaylists();
       if (currentPlaylist === name) renderPlaylistSongs();
       closePopup("addToPlaylistPopup");
@@ -238,12 +285,9 @@ function renderSongGrid() {
   songLibrary.forEach(song => {
     const card = document.createElement("div");
     card.className = "song-card";
-    card.dataset.id = song.id;
-    card.dataset.title = song.title;
-    card.dataset.artist = song.artist;
     
     card.innerHTML = `
-      <img class="song-cover" src="${getThumbnail(song.id)}" alt="${song.title}">
+      <img class="song-cover" src="${getThumbnail(song.videoId)}" alt="${song.title}">
       <div class="song-meta">
         <div class="title">${song.title}</div>
         <div class="artist muted">${song.artist}</div>
@@ -253,14 +297,14 @@ function renderSongGrid() {
     
     card.addEventListener("click", (e) => {
       if (!e.target.classList.contains("add-to-pl-btn")) {
-        playSong(song.id, song.title, song.artist, song.url);
+        playSong(song.videoId, song.title, song.artist);
       }
     });
     
     const addBtn = card.querySelector(".add-to-pl-btn");
     addBtn.addEventListener("click", (e) => {
       e.stopPropagation();
-      addSongToPlaylist(song.id, song.title, song.artist, song.url);
+      addSongToPlaylist(song.videoId, song.title, song.artist);
     });
     
     grid.appendChild(card);
@@ -294,95 +338,26 @@ function showToast(message, isError = false) {
   }, 3000);
 }
 
-// ====== AUDIO FILE PATH RESOLUTION ======
-function getAudioPaths(filename) {
-  // Try multiple paths for static site hosting
-  return [
-    filename,                    // Same folder as HTML
-    `music/${filename}`,         // /music folder
-    `songs/${filename}`,         // /songs folder
-    `/music/${filename}`,        // Absolute /music
-    `/songs/${filename}`,        // Absolute /songs
-    `./music/${filename}`,       // Relative ./music
-    `./songs/${filename}`        // Relative ./songs
-  ];
-}
-
-async function tryLoadAudio(url) {
-  return new Promise((resolve, reject) => {
-    const testAudio = new Audio();
-    testAudio.addEventListener('canplaythrough', () => resolve(url), { once: true });
-    testAudio.addEventListener('error', () => reject(), { once: true });
-    testAudio.src = url;
-  });
-}
-
-async function findWorkingAudioPath(filename) {
-  // If it's a full URL, use it directly
-  if (filename.startsWith('http://') || filename.startsWith('https://')) {
-    return filename;
-  }
-  
-  const paths = getAudioPaths(filename);
-  
-  for (const path of paths) {
-    try {
-      const workingUrl = await tryLoadAudio(path);
-      return workingUrl;
-    } catch (e) {
-      continue;
-    }
-  }
-  
-  return null;
-}
-
 // ====== PLAYER CONTROLS ======
-async function playSong(videoId, title, artist, url = null) {
-  currentSong = { id: videoId, title, artist };
+function playSong(videoId, title, artist) {
+  if (!playerReady) {
+    showToast("Player not ready yet. Wait a moment...", true);
+    return;
+  }
   
-  // Update UI first
+  console.log(`🎵 Playing: ${title} by ${artist}`);
+  console.log(`🔗 Video ID: ${videoId}`);
+  
+  currentSong = { videoId, title, artist };
   updateNowPlaying(videoId, title, artist);
   
-  // Find song URL
-  let audioUrl = url;
-  if (!audioUrl) {
-    const song = songLibrary.find(s => s.id === videoId);
-    audioUrl = song ? song.url : null;
-  }
-  
-  if (!audioUrl) {
-    showToast("No audio file specified", true);
-    return;
-  }
-  
-  // Try to find working audio path
-  const workingPath = await findWorkingAudioPath(audioUrl);
-  
-  if (!workingPath) {
-    showToast("Audio failed to load. Check file path or URL", true);
-    isPlaying = false;
-    updatePlayButton();
-    stopWaveAnimation();
-    return;
-  }
-  
-  // Load and play audio
-  audioPlayer.src = workingPath;
-  audioPlayer.load();
-  
   try {
-    await audioPlayer.play();
-    isPlaying = true;
-    updatePlayButton();
-    startWaveAnimation();
-    console.log(`Playing: ${title} by ${artist}`);
-  } catch (e) {
-    showToast("Failed to play audio", true);
-    isPlaying = false;
-    updatePlayButton();
-    stopWaveAnimation();
-    console.error("Play error:", e);
+    player.loadVideoById(videoId);
+    player.playVideo();
+    showToast(`Playing: ${title}`);
+  } catch (error) {
+    console.error("❌ Play error:", error);
+    showToast("Failed to play video", true);
   }
 }
 
@@ -401,17 +376,26 @@ function updateNowPlaying(videoId, title, artist) {
 }
 
 function togglePlay() {
-  if (!currentSong) return alert("No song selected");
+  if (!playerReady) {
+    showToast("Player not ready", true);
+    return;
+  }
   
-  isPlaying = !isPlaying;
-  updatePlayButton();
+  if (!currentSong) {
+    alert("No song selected");
+    return;
+  }
   
-  if (isPlaying) {
-    audioPlayer.play().catch(e => console.log("Audio play error:", e));
-    startWaveAnimation();
-  } else {
-    audioPlayer.pause();
-    stopWaveAnimation();
+  try {
+    const state = player.getPlayerState();
+    
+    if (state === YT.PlayerState.PLAYING) {
+      player.pauseVideo();
+    } else {
+      player.playVideo();
+    }
+  } catch (error) {
+    console.error("Toggle play error:", error);
   }
 }
 
@@ -423,75 +407,34 @@ function playNext() {
   if (!currentPlaylist || !playlists[currentPlaylist] || playlists[currentPlaylist].length === 0) {
     // Try playing next song from library if no playlist
     if (!currentSong) return;
-    const currentIndex = songLibrary.findIndex(s => s.id === currentSong.id);
+    const currentIndex = songLibrary.findIndex(s => s.videoId === currentSong.videoId);
     if (currentIndex >= 0 && currentIndex < songLibrary.length - 1) {
       const nextSong = songLibrary[currentIndex + 1];
-      playSong(nextSong.id, nextSong.title, nextSong.artist, nextSong.url);
+      playSong(nextSong.videoId, nextSong.title, nextSong.artist);
     }
     return;
   }
   
   currentTrackIndex = (currentTrackIndex + 1) % playlists[currentPlaylist].length;
   const track = playlists[currentPlaylist][currentTrackIndex];
-  playSong(track.id, track.title, track.artist, track.url);
+  playSong(track.videoId, track.title, track.artist);
 }
 
 function playPrev() {
   if (!currentPlaylist || !playlists[currentPlaylist] || playlists[currentPlaylist].length === 0) {
     // Try playing previous song from library if no playlist
     if (!currentSong) return;
-    const currentIndex = songLibrary.findIndex(s => s.id === currentSong.id);
+    const currentIndex = songLibrary.findIndex(s => s.videoId === currentSong.videoId);
     if (currentIndex > 0) {
       const prevSong = songLibrary[currentIndex - 1];
-      playSong(prevSong.id, prevSong.title, prevSong.artist, prevSong.url);
+      playSong(prevSong.videoId, prevSong.title, prevSong.artist);
     }
     return;
   }
   
   currentTrackIndex = (currentTrackIndex - 1 + playlists[currentPlaylist].length) % playlists[currentPlaylist].length;
   const track = playlists[currentPlaylist][currentTrackIndex];
-  playSong(track.id, track.title, track.artist, track.url);
-}
-
-function seekForward() {
-  if (audioPlayer.src) {
-    audioPlayer.currentTime = Math.min(audioPlayer.duration, audioPlayer.currentTime + 10);
-  }
-}
-
-function seekBackward() {
-  if (audioPlayer.src) {
-    audioPlayer.currentTime = Math.max(0, audioPlayer.currentTime - 10);
-  }
-}
-
-// ====== AUDIO PLAYER EVENTS ======
-function setupAudioPlayerEvents() {
-  if (!audioPlayer) return;
-  
-  audioPlayer.addEventListener("ended", () => {
-    console.log("Song ended, playing next...");
-    playNext();
-  });
-  
-  audioPlayer.addEventListener("timeupdate", () => {
-    if (audioPlayer.duration) {
-      const percent = (audioPlayer.currentTime / audioPlayer.duration) * 100;
-      document.getElementById("progressFill").style.width = `${percent}%`;
-    }
-  });
-  
-  audioPlayer.addEventListener("play", () => {
-    isPlaying = true;
-    updatePlayButton();
-    startWaveAnimation();
-  });
-  
-  audioPlayer.addEventListener("pause", () => {
-    isPlaying = false;
-    updatePlayButton();
-    stopWaveAnimation();
-  });
+  playSong(track.videoId, track.title, track.artist);
 }
 
 // ====== SEARCH ======
@@ -502,7 +445,6 @@ function searchAndPlay() {
   // Check if it's a YouTube URL
   const videoId = extractVideoId(input);
   if (videoId) {
-    // Extract title from URL or use generic
     playSong(videoId, "YouTube Video", "YouTube");
     return;
   }
@@ -515,9 +457,9 @@ function searchAndPlay() {
   );
   
   if (found) {
-    playSong(found.id, found.title, found.artist);
+    playSong(found.videoId, found.title, found.artist);
   } else {
-    alert(`No song found for "${input}". Try adding the full YouTube link or choose from the grid.`);
+    alert(`No song found for "${input}". Try pasting the full YouTube link or choose from the grid.`);
   }
 }
 
@@ -548,7 +490,6 @@ function extractVideoId(url) {
 }
 
 function getThumbnail(videoId) {
-  // Try maxresdefault first, fallback to hqdefault
   return `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
 }
 
@@ -591,21 +532,11 @@ function setupEventListeners() {
   document.getElementById("playBtn").addEventListener("click", togglePlay);
   document.getElementById("nextBtn").addEventListener("click", playNext);
   document.getElementById("prevBtn").addEventListener("click", playPrev);
-  document.getElementById("fwdBtn").addEventListener("click", seekForward);
-  document.getElementById("rewBtn").addEventListener("click", seekBackward);
   
   // Search
   document.getElementById("loadBtn").addEventListener("click", searchAndPlay);
   document.getElementById("ytInput").addEventListener("keydown", (e) => {
     if (e.key === "Enter") searchAndPlay();
-  });
-  
-  // Progress bar click
-  document.getElementById("progressBar").addEventListener("click", (e) => {
-    if (!audioPlayer.duration) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const percent = (e.clientX - rect.left) / rect.width;
-    audioPlayer.currentTime = audioPlayer.duration * percent;
   });
   
   // Close popups on overlay click
@@ -647,3 +578,4 @@ function setupHamburger() {
 window.playSong = playSong;
 window.createPlaylist = createPlaylist;
 window.searchAndPlay = searchAndPlay;
+window.player = player;
