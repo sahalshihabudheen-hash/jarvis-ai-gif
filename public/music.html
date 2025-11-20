@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -17,9 +17,9 @@
     --text: #e9f2ef;
   }
 
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
   html, body {
-    margin: 0;
-    padding: 0;
     height: 100%;
     width: 100%;
     font-family: 'Inter', 'Segoe UI', sans-serif;
@@ -133,7 +133,7 @@
     border-radius: 12px;
     padding: 16px;
     box-shadow: var(--card-shadow);
-    height: calc(100vh - 140px);
+    height: calc(100vh - 240px);
     position: sticky;
     top: 80px;
     overflow-y: auto;
@@ -189,6 +189,12 @@
     border-color: rgba(29,185,84,0.5);
   }
 
+  .pl-btn.active {
+    background: rgba(29,185,84,0.2);
+    color: #1db954;
+    border-color: rgba(29,185,84,0.6);
+  }
+
   #createPlaylistBtn {
     margin-top: 12px;
     padding: 10px;
@@ -225,7 +231,8 @@
     font-weight: 800;
     background: linear-gradient(135deg, #1db954, #1ed760);
     -webkit-background-clip: text;
-    color: transparent;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 
   .searchbar {
@@ -340,7 +347,7 @@
     border-radius: 12px;
     padding: 16px;
     box-shadow: var(--card-shadow);
-    height: calc(100vh - 140px);
+    height: calc(100vh - 240px);
     position: sticky;
     top: 80px;
     overflow-y: auto;
@@ -351,6 +358,67 @@
     margin: 0 0 10px 0;
     color: #1db954;
     font-size: 14px;
+  }
+
+  .playlist-songs {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .playlist-song-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(29,185,84,0.1);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .playlist-song-item:hover {
+    background: rgba(29,185,84,0.1);
+    border-color: rgba(29,185,84,0.3);
+  }
+
+  .playlist-song-item img {
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    object-fit: cover;
+  }
+
+  .playlist-song-info {
+    flex: 1;
+  }
+
+  .playlist-song-info .title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .playlist-song-info .artist {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .remove-song-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    border: none;
+    background: rgba(255,50,50,0.3);
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .remove-song-btn:hover {
+    background: rgba(255,50,50,0.6);
   }
 
   .player-bar {
@@ -423,6 +491,7 @@
     place-items: center;
     cursor: pointer;
     transition: all 0.2s ease;
+    font-size: 16px;
   }
 
   .btn:hover {
@@ -445,6 +514,10 @@
     box-shadow: 0 8px 20px rgba(29,185,84,0.4);
   }
 
+  .btn.add {
+    font-size: 20px;
+  }
+
   .progress {
     width: 420px;
     height: 8px;
@@ -461,6 +534,7 @@
     width: 0%;
     background: linear-gradient(90deg, #1db954, #1ed760);
     border-radius: 8px;
+    transition: width 0.1s linear;
   }
 
   .wave-container {
@@ -487,18 +561,144 @@
     100% { height: 8px; }
   }
 
+  .popup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .popup-overlay.show {
+    display: flex;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .popup {
+    background: linear-gradient(135deg, rgba(29,185,84,0.1), rgba(29,185,84,0.05));
+    backdrop-filter: blur(20px);
+    border: 2px solid rgba(29,185,84,0.5);
+    border-radius: 16px;
+    padding: 24px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 0 40px rgba(29,185,84,0.3);
+    animation: popupIn 0.3s ease;
+  }
+
+  @keyframes popupIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .popup h3 {
+    margin: 0 0 16px 0;
+    color: #1db954;
+    font-size: 18px;
+  }
+
+  .popup input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(29,185,84,0.3);
+    background: rgba(255,255,255,0.05);
+    color: var(--text);
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+
+  .popup input:focus {
+    outline: none;
+    border-color: rgba(29,185,84,0.6);
+    background: rgba(29,185,84,0.08);
+  }
+
+  .popup-buttons {
+    display: flex;
+    gap: 12px;
+  }
+
+  .popup-buttons button {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .popup-buttons .create-btn {
+    background: linear-gradient(135deg, #1db954, #1ed760);
+    color: #041017;
+  }
+
+  .popup-buttons .create-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(29,185,84,0.4);
+  }
+
+  .popup-buttons .cancel-btn {
+    background: rgba(255,255,255,0.05);
+    color: var(--text);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .popup-buttons .cancel-btn:hover {
+    background: rgba(255,255,255,0.1);
+  }
+
+  .playlist-select-popup .playlist-option {
+    padding: 12px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(29,185,84,0.2);
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 8px;
+  }
+
+  .playlist-option:hover {
+    background: rgba(29,185,84,0.1);
+    border-color: rgba(29,185,84,0.4);
+  }
+
   .muted { color: var(--muted); }
   .small { font-size: 13px; }
 
   @media (max-width: 1100px) {
     .page { grid-template-columns: 200px 1fr; }
     .right-panel { display: none; }
-    .progress { display: none; }
+    .progress { width: 300px; }
   }
 
   @media (max-width: 720px) {
     nav { justify-content: flex-start; }
-    .nav-links { display: none; }
+    .nav-links { 
+      display: none; 
+      position: fixed;
+      top: 65px;
+      left: 0;
+      right: 0;
+      flex-direction: column;
+      background: rgba(20, 25, 40, 0.95);
+      backdrop-filter: blur(20px);
+      padding: 20px;
+      gap: 10px;
+    }
+    .nav-links.nav-active {
+      display: flex;
+    }
     .hamburger { display: flex; }
     .sidebar {
       position: fixed;
@@ -508,36 +708,28 @@
       z-index: 50;
       transition: transform 0.28s;
       border-radius: 0;
+      width: 260px;
     }
     .sidebar.open { transform: translateX(260px); }
-    .page { grid-template-columns: 1fr; padding: 120px 12px 140px; }
-    .player-bar { padding: 8px 12px; flex-wrap: wrap; }
+    .page { grid-template-columns: 1fr; padding: 90px 12px 140px; }
+    .player-bar { padding: 8px 12px; flex-wrap: wrap; height: auto; }
     .searchbar { width: 100%; }
     .hero { flex-direction: column; align-items: flex-start; }
+    .progress { width: 100%; margin-left: 0; margin-top: 10px; }
+    .player-controls { flex-wrap: wrap; justify-content: center; }
   }
 
   @media (max-width: 480px) {
     .hero .title { font-size: 18px; }
-    .searchbar { width: 100%; }
-    .progress { width: 100%; }
+    .btn { width: 38px; height: 38px; font-size: 14px; }
+    .btn.play { width: 48px; height: 48px; font-size: 16px; }
+    .song-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
   }
 
-  ::-webkit-scrollbar {
-    width: 8px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: rgba(29,185,84,0.05);
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: rgba(29,185,84,0.3);
-    border-radius: 4px;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: rgba(29,185,84,0.5);
-  }
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: rgba(29,185,84,0.05); }
+  ::-webkit-scrollbar-thumb { background: rgba(29,185,84,0.3); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(29,185,84,0.5); }
 </style>
 </head>
 <body>
@@ -577,7 +769,7 @@
 
     <button id="createPlaylistBtn">+ Create Playlist</button>
     <div style="height: 12px;"></div>
-    <div style="font-size: 13px; color: var(--muted);">💡 Click a card to play. Use + to add to playlists.</div>
+    <div style="font-size: 11px; color: var(--muted);">💡 Click card to play. + to add to playlists.</div>
   </aside>
 
   <main class="main">
@@ -593,43 +785,7 @@
       </div>
     </div>
 
-    <div id="songGrid" class="song-grid" aria-live="polite">
-      <div class="song-card" data-id="fHI8X4OXluQ" data-title="Blinding Lights" data-artist="The Weeknd" data-cover="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg">
-        <img class="song-cover" src="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg" alt="Blinding Lights">
-        <div class="song-meta"><div class="title">Blinding Lights</div><div class="artist muted">The Weeknd</div></div>
-        <button class="add-to-pl-btn" title="Add to playlist">+</button>
-      </div>
-
-      <div class="song-card" data-id="34Na4j8AVgA" data-title="Starboy" data-artist="The Weeknd" data-cover="https://i.ytimg.com/vi/34Na4j8AVgA/hqdefault.jpg">
-        <img class="song-cover" src="https://i.ytimg.com/vi/34Na4j8AVgA/hqdefault.jpg" alt="Starboy">
-        <div class="song-meta"><div class="title">Starboy</div><div class="artist muted">The Weeknd</div></div>
-        <button class="add-to-pl-btn">+</button>
-      </div>
-
-      <div class="song-card" data-id="XXYlFuWEuKI" data-title="Save Your Tears" data-artist="The Weeknd" data-cover="https://i.ytimg.com/vi/XXYlFuWEuKI/hqdefault.jpg">
-        <img class="song-cover" src="https://i.ytimg.com/vi/XXYlFuWEuKI/hqdefault.jpg" alt="Save Your Tears">
-        <div class="song-meta"><div class="title">Save Your Tears</div><div class="artist muted">The Weeknd</div></div>
-        <button class="add-to-pl-btn">+</button>
-      </div>
-
-      <div class="song-card" data-id="mRD0-GxqHVo" data-title="Heat Waves" data-artist="Glass Animals" data-cover="https://i.ytimg.com/vi/mRD0-GxqHVo/hqdefault.jpg">
-        <img class="song-cover" src="https://i.ytimg.com/vi/mRD0-GxqHVo/hqdefault.jpg" alt="Heat Waves">
-        <div class="song-meta"><div class="title">Heat Waves</div><div class="artist muted">Glass Animals</div></div>
-        <button class="add-to-pl-btn">+</button>
-      </div>
-
-      <div class="song-card" data-id="TEpZyoLhK9M" data-title="Unholy" data-artist="Sam Smith" data-cover="https://i.ytimg.com/vi/TEpZyoLhK9M/hqdefault.jpg">
-        <img class="song-cover" src="https://i.ytimg.com/vi/TEpZyoLhK9M/hqdefault.jpg" alt="Unholy">
-        <div class="song-meta"><div class="title">Unholy</div><div class="artist muted">Sam Smith</div></div>
-        <button class="add-to-pl-btn">+</button>
-      </div>
-
-      <div class="song-card" data-id="kJQP7kiw9Fk" data-title="As It Was" data-artist="Harry Styles" data-cover="https://i.ytimg.com/vi/kJQP7kiw9Fk/hqdefault.jpg">
-        <img class="song-cover" src="https://i.ytimg.com/vi/kJQP7kiw9Fk/hqdefault.jpg" alt="As It Was">
-        <div class="song-meta"><div class="title">As It Was</div><div class="artist muted">Harry Styles</div></div>
-        <button class="add-to-pl-btn">+</button>
-      </div>
-    </div>
+    <div id="songGrid" class="song-grid" aria-live="polite"></div>
   </main>
 
   <aside class="right-panel">
@@ -641,17 +797,18 @@
         </div>
         <div>
           <div id="trackTitle" style="font-weight: 700; font-size: 14px;">Not Playing</div>
-          <div id="trackArtist" class="muted small">Paste a link or search to play</div>
+          <div id="trackArtist" class="muted small">Select a song to play</div>
         </div>
       </div>
 
-      <div style="margin-top: 8px;">
-        <div style="font-weight: 700; color: #1db954; font-size: 13px;">Your Playlists</div>
-        <div id="playlistArea" style="margin-top: 8px;"></div>
+      <div style="margin-top: 16px;">
+        <div style="font-weight: 700; color: #1db954; font-size: 13px; margin-bottom: 8px;">Current Playlist</div>
+        <div id="currentPlaylistName" class="muted small">No playlist selected</div>
+        <div class="playlist-songs" id="playlistSongs"></div>
       </div>
     </div>
 
-    <iframe id="ytPlayer" style="display: none;" allow="autoplay"></iframe>
+    <audio id="audioPlayer" style="display: none;"></audio>
   </aside>
 </div>
 
@@ -659,8 +816,8 @@
   <div class="player-left">
     <div class="player-cover"><img id="miniCover" src="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg" alt=""></div>
     <div class="player-meta">
-      <div id="trackTitle" class="title">Not Playing</div>
-      <div id="trackArtist" class="muted small">—</div>
+      <div class="title" id="playerTitle">Not Playing</div>
+      <div class="artist muted" id="playerArtist">—</div>
     </div>
   </div>
 
@@ -671,8 +828,10 @@
       <button class="btn play" id="playBtn">▶</button>
       <button class="btn" id="fwdBtn" title="Forward 10s">⏩</button>
       <button class="btn" id="nextBtn" title="Next">⏭</button>
-      <div class="progress" style="margin-left: 18px;"><i id="progressFill"></i></div>
+      <button class="btn add" id="addToPlaylistBtn" title="Add to Playlist">➕</button>
     </div>
+
+    <div class="progress" id="progressBar"><i id="progressFill"></i></div>
 
     <div class="wave-container" id="waveContainer" aria-hidden="true"></div>
   </div>
@@ -682,27 +841,30 @@
   </div>
 </div>
 
+<!-- Create Playlist Popup -->
+<div class="popup-overlay" id="createPlaylistPopup">
+  <div class="popup">
+    <h3>Create Playlist</h3>
+    <input type="text" id="playlistNameInput" placeholder="Enter playlist name..." />
+    <div class="popup-buttons">
+      <button class="create-btn" id="confirmCreatePlaylist">Create</button>
+      <button class="cancel-btn" id="cancelCreatePlaylist">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add to Playlist Popup -->
+<div class="popup-overlay playlist-select-popup" id="addToPlaylistPopup">
+  <div class="popup">
+    <h3>Add to Playlist</h3>
+    <div id="playlistOptions"></div>
+    <div class="popup-buttons" style="margin-top: 16px;">
+      <button class="cancel-btn" id="cancelAddToPlaylist">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <script src="music.js"></script>
-
-<script>
-  const hamburger = document.getElementById("hamburger");
-  const navLinks = document.getElementById("nav-links");
-  const sidebar = document.getElementById("sidebar");
-
-  hamburger?.addEventListener("click", () => {
-    navLinks.classList.toggle("nav-active");
-    hamburger.classList.toggle("toggle");
-    sidebar.classList.toggle("open");
-  });
-
-  window.addEventListener('resize', () => {
-    if (window.innerWidth > 720) {
-      navLinks.classList.remove("nav-active");
-      hamburger.classList.remove("toggle");
-      sidebar.classList.remove("open");
-    }
-  });
-</script>
 
 </body>
 </html>
