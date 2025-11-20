@@ -518,25 +518,6 @@
     font-size: 20px;
   }
 
-  .progress {
-    width: 420px;
-    height: 8px;
-    background: rgba(255,255,255,0.03);
-    border-radius: 8px;
-    overflow: hidden;
-    margin-left: 20px;
-    cursor: pointer;
-  }
-
-  .progress > i {
-    display: block;
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, #1db954, #1ed760);
-    border-radius: 8px;
-    transition: width 0.1s linear;
-  }
-
   .wave-container {
     display: flex;
     align-items: flex-end;
@@ -673,13 +654,22 @@
     border-color: rgba(29,185,84,0.4);
   }
 
+  #ytPlayer {
+    position: fixed;
+    bottom: -400px;
+    left: 0;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
   .muted { color: var(--muted); }
   .small { font-size: 13px; }
 
   @media (max-width: 1100px) {
     .page { grid-template-columns: 200px 1fr; }
     .right-panel { display: none; }
-    .progress { width: 300px; }
   }
 
   @media (max-width: 720px) {
@@ -715,7 +705,6 @@
     .player-bar { padding: 8px 12px; flex-wrap: wrap; height: auto; }
     .searchbar { width: 100%; }
     .hero { flex-direction: column; align-items: flex-start; }
-    .progress { width: 100%; margin-left: 0; margin-top: 10px; }
     .player-controls { flex-wrap: wrap; justify-content: center; }
   }
 
@@ -780,9 +769,9 @@
 
   <aside class="sidebar" id="sidebar">
     <h3>Browse</h3>
-    <div class="nav-item">ðŸ  Home</div>
-    <div class="nav-item">ðŸ” Search</div>
-    <div class="nav-item">ðŸ“š Library</div>
+    <div class="nav-item">🏠 Home</div>
+    <div class="nav-item">🔍 Search</div>
+    <div class="nav-item">📚 Library</div>
 
     <div style="height: 14px;"></div>
     <div style="font-size: 13px; color: var(--muted); font-weight: 700;">Playlists</div>
@@ -791,14 +780,14 @@
 
     <button id="createPlaylistBtn">+ Create Playlist</button>
     <div style="height: 12px;"></div>
-    <div style="font-size: 11px; color: var(--muted);">ðŸ’¡ Click card to play. + to add to playlists.</div>
+    <div style="font-size: 11px; color: var(--muted);">💡 Click card to play. + to add to playlists.</div>
   </aside>
 
   <main class="main">
     <div class="hero">
       <div>
         <div class="title">Featured Tracks</div>
-        <div class="muted small">Popular songs â€” click to play, + to add to playlist</div>
+        <div class="muted small">Popular songs — click to play, + to add to playlist</div>
       </div>
 
       <div class="searchbar">
@@ -829,8 +818,6 @@
         <div class="playlist-songs" id="playlistSongs"></div>
       </div>
     </div>
-
-    <audio id="audioPlayer" style="display: none;"></audio>
   </aside>
 </div>
 
@@ -839,21 +826,17 @@
     <div class="player-cover"><img id="miniCover" src="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg" alt=""></div>
     <div class="player-meta">
       <div class="title" id="playerTitle">Not Playing</div>
-      <div class="artist muted" id="playerArtist">â€”</div>
+      <div class="artist muted" id="playerArtist">—</div>
     </div>
   </div>
 
   <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
     <div class="player-controls">
-      <button class="btn" id="prevBtn" title="Previous">â®</button>
-      <button class="btn" id="rewBtn" title="Rewind 10s">âª</button>
-      <button class="btn play" id="playBtn">â–¶</button>
-      <button class="btn" id="fwdBtn" title="Forward 10s">â©</button>
-      <button class="btn" id="nextBtn" title="Next">â­</button>
-      <button class="btn add" id="addToPlaylistBtn" title="Add to Playlist">âž•</button>
+      <button class="btn" id="prevBtn" title="Previous">⮜</button>
+      <button class="btn play" id="playBtn">▶</button>
+      <button class="btn" id="nextBtn" title="Next">⮞</button>
+      <button class="btn add" id="addToPlaylistBtn" title="Add to Playlist">➕</button>
     </div>
-
-    <div class="progress" id="progressBar"><i id="progressFill"></i></div>
 
     <div class="wave-container" id="waveContainer" aria-hidden="true"></div>
   </div>
@@ -886,6 +869,10 @@
   </div>
 </div>
 
+<!-- Hidden YouTube Player -->
+<div id="ytPlayer"></div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
 <script src="music.js"></script>
 
 </body>
