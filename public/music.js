@@ -10,9 +10,13 @@ const WAVE_CONTAINER_ID = "waveContainer";
 const NUM_BARS = 20;
 
 let currentVideoId = null;
+let currentTitle = null;
+let currentArtist = null;
+let currentCover = null;
 let isPlaying = false;
 let progressInterval = null;
 let waveBars = [];
+let playlists = JSON.parse(localStorage.getItem("playlists")) || {};
 
 // Helper to extract YouTube video ID
 function extractVideoId(url) {
@@ -36,13 +40,16 @@ function setVideoById(vid) {
   isPlaying = true;
 
   cover.src = `https://i.ytimg.com/vi/${vid}/hqdefault.jpg`;
+  currentCover = `https://i.ytimg.com/vi/${vid}/hqdefault.jpg`;
 
   fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${vid}&format=json`)
     .then(r => r.ok ? r.json() : null)
     .then(data => {
       titleEl.textContent = data?.title || "YouTube Video";
       artistEl.textContent = data?.author_name || "YouTube";
-    }).catch(_ => { titleEl.textContent = `Video: ${vid}`; artistEl.textContent = "YouTube"; });
+      currentTitle = data?.title || "YouTube Video";
+      currentArtist = data?.author_name || "YouTube";
+    }).catch(_ => { titleEl.textContent = `Video: ${vid}`; artistEl.textContent = "YouTube"; currentTitle = `Video: ${vid}`; currentArtist = "YouTube"; });
 
   updatePlayButton();
   setProgress(0);
@@ -122,6 +129,74 @@ async function loadMusic() {
   } catch (err) { console.error(err); alert("Search failed. Try again."); }
 }
 
+// Playlist management
+function savePlaylists() {
+  localStorage.setItem("playlists", JSON.stringify(playlists));
+}
+
+function renderPlaylists() {
+  const area = document.getElementById("playlistArea");
+  area.innerHTML = "";
+  for (const [name, songs] of Object.entries(playlists)) {
+    const btn = document.createElement("button");
+    btn.className = "pl-btn";
+    btn.innerHTML = `<span>${name} (${songs.length})</span><span style="cursor:pointer;color:var(--accent)">✕</span>`;
+    btn.addEventListener("click", (e) => {
+      if (e.target.textContent === "✕") {
+        delete playlists[name];
+        savePlaylists();
+        renderPlaylists();
+        renderSidebarPlaylists();
+      }
+    });
+    area.appendChild(btn);
+  }
+}
+
+function renderSidebarPlaylists() {
+  const container = document.getElementById("sidebarPlaylists");
+  container.innerHTML = "";
+  for (const name of Object.keys(playlists)) {
+    const btn = document.createElement("button");
+    btn.className = "pl-btn";
+    btn.textContent = name;
+    btn.addEventListener("click", () => alert(`Playlist: ${name}`));
+    container.appendChild(btn);
+  }
+}
+
+function addToPlaylistFromCard(title, artist, videoId, cover) {
+  const playlistNames = Object.keys(playlists);
+  if (playlistNames.length === 0) {
+    alert("No playlists. Create one first.");
+    return;
+  }
+  const chosen = prompt(`Add to:\n${playlistNames.join("\n")}`);
+  if (chosen && playlists[chosen]) {
+    playlists[chosen].push({ title, artist, videoId, cover });
+    savePlaylists();
+    alert(`Added to ${chosen}`);
+  }
+}
+
+function addCurrentToPlaylist() {
+  if (!currentVideoId) {
+    alert("No song currently playing.");
+    return;
+  }
+  const playlistNames = Object.keys(playlists);
+  if (playlistNames.length === 0) {
+    alert("No playlists. Create one first.");
+    return;
+  }
+  const chosen = prompt(`Add to:\n${playlistNames.join("\n")}`);
+  if (chosen && playlists[chosen]) {
+    playlists[chosen].push({ title: currentTitle, artist: currentArtist, videoId: currentVideoId, cover: currentCover });
+    savePlaylists();
+    alert(`Added to ${chosen}`);
+  }
+}
+
 // DOM ready
 document.addEventListener("DOMContentLoaded", () => {
   initWaveBars();
@@ -132,7 +207,23 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("rewBtn").addEventListener("click", () => alert("Rewind not precise in iframe"));
   document.getElementById("fwdBtn").addEventListener("click", () => alert("Forward not precise in iframe"));
   document.getElementById(INPUT_ID).addEventListener("keydown", e => { if(e.key==="Enter") loadMusic(); });
-});
 
-// Expose for HTML
-window.loadMusic = loadMusic;
+  document.getElementById("createPlaylistBtn").addEventListener("click", () => {
+    const name = prompt("New playlist name:");
+    if (name && name.trim()) {
+      if (playlists[name.trim()]) return alert("Playlist exists");
+      playlists[name.trim()] = [];
+      savePlaylists();
+      renderPlaylists();
+      renderSidebarPlaylists();
+    }
+  });
+
+  document.getElementById("addToPlaylistBtn").addEventListener("click", addCurrentToPlaylist);
+
+  document.querySelectorAll(".add-to-pl-btn").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const card = btn.closest(".song-card");
+      const title = card.dataset.title;
+      const artist = card.dataset.artist;
