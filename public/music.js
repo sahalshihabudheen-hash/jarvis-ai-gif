@@ -13,18 +13,18 @@ let isPlaying = false;
 let waveBars = [];
 let audioPlayer = null;
 
-// Song Library
+// Song Library with MP3 file paths
 const songLibrary = [
-  { id: "fHI8X4OXluQ", title: "Blinding Lights", artist: "The Weeknd" },
-  { id: "34Na4j8AVgA", title: "Starboy", artist: "The Weeknd" },
-  { id: "XXYlFuWEuKI", title: "Save Your Tears", artist: "The Weeknd" },
-  { id: "mRD0-GxqHVo", title: "Heat Waves", artist: "Glass Animals" },
-  { id: "TEpZyoLhK9M", title: "Unholy", artist: "Sam Smith" },
-  { id: "kJQP7kiw9Fk", title: "As It Was", artist: "Harry Styles" },
-  { id: "60ItHLz5WEA", title: "Faded", artist: "Alan Walker" },
-  { id: "RgKAFK5djSk", title: "Wasted Summers", artist: "juju" },
-  { id: "FM7MFYoylVs", title: "Shape of You", artist: "Ed Sheeran" },
-  { id: "CevxZvSJLk8", title: "Rockstar", artist: "Post Malone" }
+  { id: "fHI8X4OXluQ", title: "Blinding Lights", artist: "The Weeknd", url: "blinding-lights.mp3" },
+  { id: "34Na4j8AVgA", title: "Starboy", artist: "The Weeknd", url: "starboy.mp3" },
+  { id: "XXYlFuWEuKI", title: "Save Your Tears", artist: "The Weeknd", url: "save-your-tears.mp3" },
+  { id: "mRD0-GxqHVo", title: "Heat Waves", artist: "Glass Animals", url: "heat-waves.mp3" },
+  { id: "TEpZyoLhK9M", title: "Unholy", artist: "Sam Smith", url: "unholy.mp3" },
+  { id: "kJQP7kiw9Fk", title: "As It Was", artist: "Harry Styles", url: "as-it-was.mp3" },
+  { id: "60ItHLz5WEA", title: "Faded", artist: "Alan Walker", url: "faded.mp3" },
+  { id: "RgKAFK5djSk", title: "Wasted Summers", artist: "juju", url: "wasted-summers.mp3" },
+  { id: "FM7MFYoylVs", title: "Shape of You", artist: "Ed Sheeran", url: "shape-of-you.mp3" },
+  { id: "CevxZvSJLk8", title: "Rockstar", artist: "Post Malone", url: "rockstar.mp3" }
 ];
 
 // ====== INITIALIZATION ======
@@ -75,7 +75,7 @@ function selectPlaylist(name) {
   
   if (playlists[name].length > 0) {
     const track = playlists[name][0];
-    playSong(track.id, track.title, track.artist);
+    playSong(track.id, track.title, track.artist, track.url);
   }
   
   document.getElementById("currentPlaylistName").textContent = name;
@@ -103,7 +103,7 @@ function renderPlaylistSongs() {
     item.addEventListener("click", (e) => {
       if (!e.target.classList.contains("remove-song-btn")) {
         currentTrackIndex = index;
-        playSong(song.id, song.title, song.artist);
+        playSong(song.id, song.title, song.artist, song.url);
       }
     });
     
@@ -173,24 +173,35 @@ function addCurrentSongToPlaylist(playlistName) {
     return;
   }
   
+  // Get URL for current song
+  const song = songLibrary.find(s => s.id === currentSong.id);
+  const url = song ? song.url : null;
+  
   playlists[playlistName].push({
     id: currentSong.id,
     title: currentSong.title,
-    artist: currentSong.artist
+    artist: currentSong.artist,
+    url: url
   });
   
   savePlaylists();
   if (currentPlaylist === playlistName) renderPlaylistSongs();
   closePopup("addToPlaylistPopup");
-  alert(`Added to "${playlistName}"`);
+  showToast(`Added to "${playlistName}"`);
 }
 
-function addSongToPlaylist(videoId, title, artist) {
+function addSongToPlaylist(videoId, title, artist, url = null) {
   const plNames = Object.keys(playlists);
   if (plNames.length === 0) return alert("No playlists! Create one first.");
   
   const container = document.getElementById("playlistOptions");
   container.innerHTML = "";
+  
+  // Get URL if not provided
+  if (!url) {
+    const song = songLibrary.find(s => s.id === videoId);
+    url = song ? song.url : null;
+  }
   
   plNames.forEach(name => {
     const option = document.createElement("div");
@@ -203,11 +214,11 @@ function addSongToPlaylist(videoId, title, artist) {
         return;
       }
       
-      playlists[name].push({ id: videoId, title, artist });
+      playlists[name].push({ id: videoId, title, artist, url });
       savePlaylists();
       if (currentPlaylist === name) renderPlaylistSongs();
       closePopup("addToPlaylistPopup");
-      alert(`Added to "${name}"`);
+      showToast(`Added to "${name}"`);
     });
     container.appendChild(option);
   });
@@ -242,42 +253,137 @@ function renderSongGrid() {
     
     card.addEventListener("click", (e) => {
       if (!e.target.classList.contains("add-to-pl-btn")) {
-        playSong(song.id, song.title, song.artist);
+        playSong(song.id, song.title, song.artist, song.url);
       }
     });
     
     const addBtn = card.querySelector(".add-to-pl-btn");
     addBtn.addEventListener("click", (e) => {
       e.stopPropagation();
-      addSongToPlaylist(song.id, song.title, song.artist);
+      addSongToPlaylist(song.id, song.title, song.artist, song.url);
     });
     
     grid.appendChild(card);
   });
 }
 
+// ====== TOAST NOTIFICATION ======
+function showToast(message, isError = false) {
+  const toast = document.createElement('div');
+  toast.style.cssText = `
+    position: fixed;
+    bottom: 120px;
+    right: 20px;
+    padding: 12px 20px;
+    background: ${isError ? 'rgba(220, 38, 38, 0.9)' : 'rgba(29, 185, 84, 0.9)'};
+    color: white;
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+    border: 1px solid ${isError ? 'rgba(220, 38, 38, 0.5)' : 'rgba(29, 185, 84, 0.5)'};
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 10000;
+    font-weight: 600;
+    animation: slideIn 0.3s ease;
+  `;
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  
+  setTimeout(() => {
+    toast.style.animation = 'slideOut 0.3s ease';
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+
+// ====== AUDIO FILE PATH RESOLUTION ======
+function getAudioPaths(filename) {
+  // Try multiple paths for static site hosting
+  return [
+    filename,                    // Same folder as HTML
+    `music/${filename}`,         // /music folder
+    `songs/${filename}`,         // /songs folder
+    `/music/${filename}`,        // Absolute /music
+    `/songs/${filename}`,        // Absolute /songs
+    `./music/${filename}`,       // Relative ./music
+    `./songs/${filename}`        // Relative ./songs
+  ];
+}
+
+async function tryLoadAudio(url) {
+  return new Promise((resolve, reject) => {
+    const testAudio = new Audio();
+    testAudio.addEventListener('canplaythrough', () => resolve(url), { once: true });
+    testAudio.addEventListener('error', () => reject(), { once: true });
+    testAudio.src = url;
+  });
+}
+
+async function findWorkingAudioPath(filename) {
+  // If it's a full URL, use it directly
+  if (filename.startsWith('http://') || filename.startsWith('https://')) {
+    return filename;
+  }
+  
+  const paths = getAudioPaths(filename);
+  
+  for (const path of paths) {
+    try {
+      const workingUrl = await tryLoadAudio(path);
+      return workingUrl;
+    } catch (e) {
+      continue;
+    }
+  }
+  
+  return null;
+}
+
 // ====== PLAYER CONTROLS ======
-function playSong(videoId, title, artist) {
+async function playSong(videoId, title, artist, url = null) {
   currentSong = { id: videoId, title, artist };
   
-  // Try to get MP3 URL from YouTube (fallback to direct play)
-  const mp3Url = `https://www.youtube.com/watch?v=${videoId}`;
-  
-  // For actual playback, we need a backend or use iframe
-  // Using audio with direct links for demo
-  audioPlayer.src = ""; // Reset
-  
-  // Update UI
+  // Update UI first
   updateNowPlaying(videoId, title, artist);
   
-  // Since we can't directly play YouTube audio in audio element,
-  // we simulate playback for UI purposes
-  isPlaying = true;
-  updatePlayButton();
-  startWaveAnimation();
+  // Find song URL
+  let audioUrl = url;
+  if (!audioUrl) {
+    const song = songLibrary.find(s => s.id === videoId);
+    audioUrl = song ? song.url : null;
+  }
   
-  // Show message
-  console.log(`Playing: ${title} by ${artist}`);
+  if (!audioUrl) {
+    showToast("No audio file specified", true);
+    return;
+  }
+  
+  // Try to find working audio path
+  const workingPath = await findWorkingAudioPath(audioUrl);
+  
+  if (!workingPath) {
+    showToast("Audio failed to load. Check file path or URL", true);
+    isPlaying = false;
+    updatePlayButton();
+    stopWaveAnimation();
+    return;
+  }
+  
+  // Load and play audio
+  audioPlayer.src = workingPath;
+  audioPlayer.load();
+  
+  try {
+    await audioPlayer.play();
+    isPlaying = true;
+    updatePlayButton();
+    startWaveAnimation();
+    console.log(`Playing: ${title} by ${artist}`);
+  } catch (e) {
+    showToast("Failed to play audio", true);
+    isPlaying = false;
+    updatePlayButton();
+    stopWaveAnimation();
+    console.error("Play error:", e);
+  }
 }
 
 function updateNowPlaying(videoId, title, artist) {
@@ -315,22 +421,36 @@ function updatePlayButton() {
 
 function playNext() {
   if (!currentPlaylist || !playlists[currentPlaylist] || playlists[currentPlaylist].length === 0) {
-    return alert("No playlist selected or playlist is empty");
+    // Try playing next song from library if no playlist
+    if (!currentSong) return;
+    const currentIndex = songLibrary.findIndex(s => s.id === currentSong.id);
+    if (currentIndex >= 0 && currentIndex < songLibrary.length - 1) {
+      const nextSong = songLibrary[currentIndex + 1];
+      playSong(nextSong.id, nextSong.title, nextSong.artist, nextSong.url);
+    }
+    return;
   }
   
   currentTrackIndex = (currentTrackIndex + 1) % playlists[currentPlaylist].length;
   const track = playlists[currentPlaylist][currentTrackIndex];
-  playSong(track.id, track.title, track.artist);
+  playSong(track.id, track.title, track.artist, track.url);
 }
 
 function playPrev() {
   if (!currentPlaylist || !playlists[currentPlaylist] || playlists[currentPlaylist].length === 0) {
-    return alert("No playlist selected or playlist is empty");
+    // Try playing previous song from library if no playlist
+    if (!currentSong) return;
+    const currentIndex = songLibrary.findIndex(s => s.id === currentSong.id);
+    if (currentIndex > 0) {
+      const prevSong = songLibrary[currentIndex - 1];
+      playSong(prevSong.id, prevSong.title, prevSong.artist, prevSong.url);
+    }
+    return;
   }
   
   currentTrackIndex = (currentTrackIndex - 1 + playlists[currentPlaylist].length) % playlists[currentPlaylist].length;
   const track = playlists[currentPlaylist][currentTrackIndex];
-  playSong(track.id, track.title, track.artist);
+  playSong(track.id, track.title, track.artist, track.url);
 }
 
 function seekForward() {
@@ -377,7 +497,7 @@ function setupAudioPlayerEvents() {
 // ====== SEARCH ======
 function searchAndPlay() {
   const input = document.getElementById("ytInput").value.trim();
-  if (!input) return alert("Enter a song name or YouTube link");
+  if (!input) return showToast("Enter a song name or YouTube link", true);
   
   // Check if it's a YouTube URL
   const videoId = extractVideoId(input);
