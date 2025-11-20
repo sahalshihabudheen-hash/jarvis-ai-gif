@@ -173,7 +173,7 @@ function createEmptyPlaylist(name) {
 
 function renderPlaylists() {
   const area = document.getElementById("playlistArea");
-  const sidebarList = document.getElementById("sidebarPlaylists");
+  const sidebarList = document.getElementById("sidebarPlaylists") || document.querySelector(".playlist-list");
   const playlists = loadPlaylistsFromStorage();
 
   if (area) {
@@ -284,28 +284,44 @@ function readOrCreateDefaultPlaylists() {
   return playlists;
 }
 
+function extractIdFromCover(src) {
+  const m = src ? src.match(/i\.ytimg\.com\/vi\/([A-Za-z0-9_-]+)/) : null;
+  return m ? m[1] : "";
+}
+
 function extractSongFromCard(card) {
+  const coverEl = card.querySelector(".song-cover") || card.querySelector("img");
+  const coverSrc = coverEl?.src || "";
+
   const id =
     card.dataset.songId ||
     card.querySelector("[data-song-id]")?.getAttribute("data-song-id") ||
     extractVideoId(card.dataset.url || card.querySelector("[data-url]")?.getAttribute("data-url") || "") ||
+    extractIdFromCover(coverSrc) ||
     "";
+
   const title =
     card.dataset.title ||
     card.querySelector(".song-title")?.textContent?.trim() ||
+    card.querySelector(".song-meta .title")?.textContent?.trim() ||
     "";
+
   const artist =
     card.dataset.artist ||
     card.querySelector(".song-artist")?.textContent?.trim() ||
+    card.querySelector(".song-meta .artist")?.textContent?.trim() ||
     "";
+
   const url =
     card.dataset.url ||
     card.querySelector("[data-url]")?.getAttribute("data-url") ||
     (id ? `https://www.youtube.com/watch?v=${id}` : "");
+
   const cover =
     card.dataset.cover ||
-    card.querySelector("img")?.src ||
+    coverSrc ||
     (id ? `https://i.ytimg.com/vi/${id}/mqdefault.jpg` : "");
+
   const source = card.dataset.source || "youtube";
   return { id, title, artist, url, cover, source };
 }
@@ -374,7 +390,7 @@ function openPlaylistChooserForCard(card) {
 }
 
 document.addEventListener("click", e => {
-  const btn = e.target.closest("[data-add-to-playlist]");
+  const btn = e.target.closest("[data-add-to-playlist], .add-to-pl-btn");
   if (!btn) return;
   const card = btn.closest(".song-card");
   if (!card) return;
@@ -388,10 +404,13 @@ window.addEventListener("playlist:updated", () => {
 function highlightCurrentPlayingInGrid(vid) {
   const cards = document.querySelectorAll(".song-card");
   cards.forEach(c => {
+    const coverEl = c.querySelector(".song-cover") || c.querySelector("img");
+    const coverSrc = coverEl?.src || "";
     const sid =
       c.dataset.songId ||
       c.querySelector("[data-song-id]")?.getAttribute("data-song-id") ||
-      extractVideoId(c.dataset.url || c.querySelector("[data-url]")?.getAttribute("data-url") || "");
+      extractVideoId(c.dataset.url || c.querySelector("[data-url]")?.getAttribute("data-url") || "") ||
+      extractIdFromCover(coverSrc);
     if (sid && sid === vid) {
       c.classList.add("playing");
     } else {
