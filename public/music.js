@@ -1,5 +1,5 @@
-// JARVIS Music Player - YouTube Edition with Working Search
-// Features: YouTube embeds, Playlists, Auto-next, Real YouTube Search
+// JARVIS Music Player - FIXED VERSION
+// Fixed: Search functionality now properly plays songs
 
 const STORAGE_KEY = "jarvis_playlists";
 const NUM_BARS = 20;
@@ -15,7 +15,7 @@ let player = null;
 let playerReady = false;
 let displayedSongs = [];
 
-// Song Library with YouTube Video IDs
+// Song Library
 const songLibrary = [
   { videoId: "fHI8X4OXluQ", title: "Blinding Lights", artist: "The Weeknd" },
   { videoId: "34Na4j8AVgA", title: "Starboy", artist: "The Weeknd" },
@@ -56,17 +56,6 @@ function onPlayerReady(event) {
 }
 
 function onPlayerStateChange(event) {
-  const states = {
-    '-1': 'unstarted',
-    '0': 'ended',
-    '1': 'playing',
-    '2': 'paused',
-    '3': 'buffering',
-    '5': 'cued'
-  };
-  
-  console.log(`🎵 Player state: ${states[event.data]}`);
-  
   if (event.data === YT.PlayerState.ENDED) {
     console.log("🔄 Song ended, playing next...");
     playNext();
@@ -284,6 +273,11 @@ function renderSongGrid() {
   const grid = document.getElementById("songGrid");
   grid.innerHTML = "";
   
+  if (displayedSongs.length === 0) {
+    grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--muted);">No songs found</div>';
+    return;
+  }
+  
   displayedSongs.forEach(song => {
     const card = document.createElement("div");
     card.className = "song-card";
@@ -347,8 +341,7 @@ function playSong(videoId, title, artist) {
     return;
   }
   
-  console.log(`🎵 Playing: ${title} by ${artist}`);
-  console.log(`🔗 Video ID: ${videoId}`);
+  console.log(`🎵 Playing: ${title} by ${artist} (ID: ${videoId})`);
   
   currentSong = { videoId, title, artist };
   updateNowPlaying(videoId, title, artist);
@@ -366,13 +359,10 @@ function playSong(videoId, title, artist) {
 function updateNowPlaying(videoId, title, artist) {
   const thumbnail = getThumbnail(videoId);
   
-  // Update all title/artist elements
   document.getElementById("trackTitle").textContent = title;
   document.getElementById("trackArtist").textContent = artist;
   document.getElementById("playerTitle").textContent = title;
   document.getElementById("playerArtist").textContent = artist;
-  
-  // Update covers
   document.getElementById("coverImg").src = thumbnail;
   document.getElementById("miniCover").src = thumbnail;
 }
@@ -407,7 +397,6 @@ function updatePlayButton() {
 
 function playNext() {
   if (!currentPlaylist || !playlists[currentPlaylist] || playlists[currentPlaylist].length === 0) {
-    // Try playing next song from displayed songs if no playlist
     if (!currentSong) return;
     const currentIndex = displayedSongs.findIndex(s => s.videoId === currentSong.videoId);
     if (currentIndex >= 0 && currentIndex < displayedSongs.length - 1) {
@@ -424,7 +413,6 @@ function playNext() {
 
 function playPrev() {
   if (!currentPlaylist || !playlists[currentPlaylist] || playlists[currentPlaylist].length === 0) {
-    // Try playing previous song from displayed songs if no playlist
     if (!currentSong) return;
     const currentIndex = displayedSongs.findIndex(s => s.videoId === currentSong.videoId);
     if (currentIndex > 0) {
@@ -439,19 +427,82 @@ function playPrev() {
   playSong(track.videoId, track.title, track.artist);
 }
 
-// ====== YOUTUBE SEARCH (NO API KEY) ======
+// ====== SEARCH FUNCTIONALITY (FIXED!) ======
+async function searchAndPlay() {
+  const input = document.getElementById("ytInput").value.trim();
+  if (!input) return showToast("Enter a song name or YouTube link", true);
+  
+  // Check if it's a YouTube URL
+  const videoId = extractVideoId(input);
+  if (videoId) {
+    const title = input.includes("youtube.com") || input.includes("youtu.be") ? "YouTube Video" : input;
+    playSong(videoId, title, "YouTube");
+    displayedSongs = [{ videoId, title, artist: "YouTube" }];
+    renderSongGrid();
+    return;
+  }
+  
+  // Search in song library
+  const query = input.toLowerCase();
+  const libraryResults = songLibrary.filter(song => 
+    song.title.toLowerCase().includes(query) || 
+    song.artist.toLowerCase().includes(query)
+  );
+  
+  if (libraryResults.length > 0) {
+    displayedSongs = libraryResults;
+    renderSongGrid();
+    playSong(libraryResults[0].videoId, libraryResults[0].title, libraryResults[0].artist);
+    showToast(`Found ${libraryResults.length} song(s) in library`);
+    return;
+  }
+  
+  // Try YouTube search
+  const loadBtn = document.getElementById("loadBtn");
+  const originalText = loadBtn.textContent;
+  loadBtn.innerHTML = '<span class="loading-spinner"></span> Searching...';
+  loadBtn.disabled = true;
+  
+  try {
+    const results = await searchYouTube(input);
+    
+    if (results.length === 0) {
+      showToast("No results found", true);
+      displayedSongs = [];
+      renderSongGrid();
+      return;
+    }
+    
+    // Update displayed songs with search results
+    displayedSongs = results;
+    renderSongGrid();
+    
+    // Play first result automatically
+    playSong(results[0].videoId, results[0].title, results[0].artist);
+    showToast(`Found ${results.length} results`);
+    
+  } catch (error) {
+    console.error("Search failed:", error);
+    showToast("Search failed. Try a YouTube link instead.", true);
+    displayedSongs = [];
+    renderSongGrid();
+  } finally {
+    loadBtn.textContent = originalText;
+    loadBtn.disabled = false;
+  }
+}
+
 async function searchYouTube(query) {
   try {
     console.log(`🔍 Searching YouTube for: ${query}`);
     
-    // Use CORS proxy to fetch YouTube search results
-    const encodedQuery = encodeURIComponent(query);
+    const encodedQuery = encodeURIComponent(query + " official audio");
     const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://www.youtube.com/results?search_query=${encodedQuery}`)}`;
     
     const response = await fetch(proxyUrl);
     const html = await response.text();
     
-    // Extract video IDs using regex
+    // Extract video data
     const videoIdRegex = /"videoId":"([a-zA-Z0-9_-]{11})"/g;
     const titleRegex = /"title":{"runs":\[{"text":"([^"]+)"/g;
     
@@ -459,21 +510,18 @@ async function searchYouTube(query) {
     const titles = [];
     
     let match;
-    while ((match = videoIdRegex.exec(html)) !== null) {
-      if (videoIds.length < 10) {
-        videoIds.push(match[1]);
-      }
+    while ((match = videoIdRegex.exec(html)) !== null && videoIds.length < 10) {
+      videoIds.push(match[1]);
     }
     
-    while ((match = titleRegex.exec(html)) !== null) {
-      if (titles.length < 10) {
-        titles.push(match[1]);
-      }
+    while ((match = titleRegex.exec(html)) !== null && titles.length < 10) {
+      titles.push(match[1]);
     }
     
-    // Create results array
     const results = [];
-    for (let i = 0; i < Math.min(videoIds.length, 10); i++) {
+    const maxResults = Math.min(videoIds.length, titles.length, 10);
+    
+    for (let i = 0; i < maxResults; i++) {
       results.push({
         videoId: videoIds[i],
         title: titles[i] || "Unknown Title",
@@ -486,65 +534,7 @@ async function searchYouTube(query) {
     
   } catch (error) {
     console.error("❌ Search error:", error);
-    throw error;
-  }
-}
-
-async function searchAndPlay() {
-  const input = document.getElementById("ytInput").value.trim();
-  if (!input) return showToast("Enter a song name or YouTube link", true);
-  
-  // Check if it's a YouTube URL
-  const videoId = extractVideoId(input);
-  if (videoId) {
-    playSong(videoId, "YouTube Video", "YouTube");
-    return;
-  }
-  
-  // First, search in song library
-  const query = input.toLowerCase();
-  const libraryFound = songLibrary.find(song => 
-    song.title.toLowerCase().includes(query) || 
-    song.artist.toLowerCase().includes(query)
-  );
-  
-  if (libraryFound) {
-    playSong(libraryFound.videoId, libraryFound.title, libraryFound.artist);
-    return;
-  }
-  
-  // If not found in library, search YouTube
-  const loadBtn = document.getElementById("loadBtn");
-  const originalText = loadBtn.textContent;
-  loadBtn.innerHTML = '<span class="loading-spinner"></span> Searching...';
-  loadBtn.disabled = true;
-  
-  try {
-    const results = await searchYouTube(input);
-    
-    if (results.length === 0) {
-      showToast("No results found", true);
-      loadBtn.textContent = originalText;
-      loadBtn.disabled = false;
-      return;
-    }
-    
-    // Update displayed songs with search results
-    displayedSongs = results;
-    renderSongGrid();
-    
-    // Play first result
-    const firstResult = results[0];
-    playSong(firstResult.videoId, firstResult.title, firstResult.artist);
-    
-    showToast(`Found ${results.length} results. Playing first match.`);
-    
-  } catch (error) {
-    console.error("Search failed:", error);
-    showToast("Search failed. Try pasting a YouTube link instead.", true);
-  } finally {
-    loadBtn.textContent = originalText;
-    loadBtn.disabled = false;
+    return [];
   }
 }
 
@@ -604,27 +594,22 @@ function stopWaveAnimation() {
 
 // ====== EVENT LISTENERS ======
 function setupEventListeners() {
-  // Create playlist
   document.getElementById("createPlaylistBtn").addEventListener("click", createPlaylist);
   document.getElementById("confirmCreatePlaylist").addEventListener("click", confirmCreatePlaylist);
   document.getElementById("cancelCreatePlaylist").addEventListener("click", () => closePopup("createPlaylistPopup"));
   
-  // Add to playlist
   document.getElementById("addToPlaylistBtn").addEventListener("click", showAddToPlaylistPopup);
   document.getElementById("cancelAddToPlaylist").addEventListener("click", () => closePopup("addToPlaylistPopup"));
   
-  // Player controls
   document.getElementById("playBtn").addEventListener("click", togglePlay);
   document.getElementById("nextBtn").addEventListener("click", playNext);
   document.getElementById("prevBtn").addEventListener("click", playPrev);
   
-  // Search
   document.getElementById("loadBtn").addEventListener("click", searchAndPlay);
   document.getElementById("ytInput").addEventListener("keydown", (e) => {
     if (e.key === "Enter") searchAndPlay();
   });
   
-  // Close popups on overlay click
   document.querySelectorAll(".popup-overlay").forEach(overlay => {
     overlay.addEventListener("click", (e) => {
       if (e.target === overlay) {
@@ -633,7 +618,6 @@ function setupEventListeners() {
     });
   });
   
-  // Playlist name input enter key
   document.getElementById("playlistNameInput").addEventListener("keydown", (e) => {
     if (e.key === "Enter") confirmCreatePlaylist();
   });
@@ -663,5 +647,3 @@ function setupHamburger() {
 window.playSong = playSong;
 window.createPlaylist = createPlaylist;
 window.searchAndPlay = searchAndPlay;
-window.searchYouTube = searchYouTube;
-window.player = player;
