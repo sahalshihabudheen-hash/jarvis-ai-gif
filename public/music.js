@@ -1,5 +1,5 @@
-// JARVIS Music Player - YouTube Edition
-// Features: YouTube embeds, Playlists, Auto-next
+// JARVIS Music Player - YouTube Edition with Working Search
+// Features: YouTube embeds, Playlists, Auto-next, Real YouTube Search
 
 const STORAGE_KEY = "jarvis_playlists";
 const NUM_BARS = 20;
@@ -13,6 +13,7 @@ let isPlaying = false;
 let waveBars = [];
 let player = null;
 let playerReady = false;
+let displayedSongs = [];
 
 // Song Library with YouTube Video IDs
 const songLibrary = [
@@ -89,6 +90,7 @@ function onPlayerError(event) {
 // ====== INITIALIZATION ======
 document.addEventListener("DOMContentLoaded", () => {
   loadPlaylists();
+  displayedSongs = [...songLibrary];
   renderSongGrid();
   initWaveBars();
   setupEventListeners();
@@ -282,7 +284,7 @@ function renderSongGrid() {
   const grid = document.getElementById("songGrid");
   grid.innerHTML = "";
   
-  songLibrary.forEach(song => {
+  displayedSongs.forEach(song => {
     const card = document.createElement("div");
     card.className = "song-card";
     
@@ -405,11 +407,11 @@ function updatePlayButton() {
 
 function playNext() {
   if (!currentPlaylist || !playlists[currentPlaylist] || playlists[currentPlaylist].length === 0) {
-    // Try playing next song from library if no playlist
+    // Try playing next song from displayed songs if no playlist
     if (!currentSong) return;
-    const currentIndex = songLibrary.findIndex(s => s.videoId === currentSong.videoId);
-    if (currentIndex >= 0 && currentIndex < songLibrary.length - 1) {
-      const nextSong = songLibrary[currentIndex + 1];
+    const currentIndex = displayedSongs.findIndex(s => s.videoId === currentSong.videoId);
+    if (currentIndex >= 0 && currentIndex < displayedSongs.length - 1) {
+      const nextSong = displayedSongs[currentIndex + 1];
       playSong(nextSong.videoId, nextSong.title, nextSong.artist);
     }
     return;
@@ -422,11 +424,11 @@ function playNext() {
 
 function playPrev() {
   if (!currentPlaylist || !playlists[currentPlaylist] || playlists[currentPlaylist].length === 0) {
-    // Try playing previous song from library if no playlist
+    // Try playing previous song from displayed songs if no playlist
     if (!currentSong) return;
-    const currentIndex = songLibrary.findIndex(s => s.videoId === currentSong.videoId);
+    const currentIndex = displayedSongs.findIndex(s => s.videoId === currentSong.videoId);
     if (currentIndex > 0) {
-      const prevSong = songLibrary[currentIndex - 1];
+      const prevSong = displayedSongs[currentIndex - 1];
       playSong(prevSong.videoId, prevSong.title, prevSong.artist);
     }
     return;
@@ -437,8 +439,58 @@ function playPrev() {
   playSong(track.videoId, track.title, track.artist);
 }
 
-// ====== SEARCH ======
-function searchAndPlay() {
+// ====== YOUTUBE SEARCH (NO API KEY) ======
+async function searchYouTube(query) {
+  try {
+    console.log(`🔍 Searching YouTube for: ${query}`);
+    
+    // Use CORS proxy to fetch YouTube search results
+    const encodedQuery = encodeURIComponent(query);
+    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://www.youtube.com/results?search_query=${encodedQuery}`)}`;
+    
+    const response = await fetch(proxyUrl);
+    const html = await response.text();
+    
+    // Extract video IDs using regex
+    const videoIdRegex = /"videoId":"([a-zA-Z0-9_-]{11})"/g;
+    const titleRegex = /"title":{"runs":\[{"text":"([^"]+)"/g;
+    
+    const videoIds = [];
+    const titles = [];
+    
+    let match;
+    while ((match = videoIdRegex.exec(html)) !== null) {
+      if (videoIds.length < 10) {
+        videoIds.push(match[1]);
+      }
+    }
+    
+    while ((match = titleRegex.exec(html)) !== null) {
+      if (titles.length < 10) {
+        titles.push(match[1]);
+      }
+    }
+    
+    // Create results array
+    const results = [];
+    for (let i = 0; i < Math.min(videoIds.length, 10); i++) {
+      results.push({
+        videoId: videoIds[i],
+        title: titles[i] || "Unknown Title",
+        artist: "YouTube"
+      });
+    }
+    
+    console.log(`✅ Found ${results.length} videos`);
+    return results;
+    
+  } catch (error) {
+    console.error("❌ Search error:", error);
+    throw error;
+  }
+}
+
+async function searchAndPlay() {
   const input = document.getElementById("ytInput").value.trim();
   if (!input) return showToast("Enter a song name or YouTube link", true);
   
@@ -449,17 +501,50 @@ function searchAndPlay() {
     return;
   }
   
-  // Search in song library
+  // First, search in song library
   const query = input.toLowerCase();
-  const found = songLibrary.find(song => 
+  const libraryFound = songLibrary.find(song => 
     song.title.toLowerCase().includes(query) || 
     song.artist.toLowerCase().includes(query)
   );
   
-  if (found) {
-    playSong(found.videoId, found.title, found.artist);
-  } else {
-    alert(`No song found for "${input}". Try pasting the full YouTube link or choose from the grid.`);
+  if (libraryFound) {
+    playSong(libraryFound.videoId, libraryFound.title, libraryFound.artist);
+    return;
+  }
+  
+  // If not found in library, search YouTube
+  const loadBtn = document.getElementById("loadBtn");
+  const originalText = loadBtn.textContent;
+  loadBtn.innerHTML = '<span class="loading-spinner"></span> Searching...';
+  loadBtn.disabled = true;
+  
+  try {
+    const results = await searchYouTube(input);
+    
+    if (results.length === 0) {
+      showToast("No results found", true);
+      loadBtn.textContent = originalText;
+      loadBtn.disabled = false;
+      return;
+    }
+    
+    // Update displayed songs with search results
+    displayedSongs = results;
+    renderSongGrid();
+    
+    // Play first result
+    const firstResult = results[0];
+    playSong(firstResult.videoId, firstResult.title, firstResult.artist);
+    
+    showToast(`Found ${results.length} results. Playing first match.`);
+    
+  } catch (error) {
+    console.error("Search failed:", error);
+    showToast("Search failed. Try pasting a YouTube link instead.", true);
+  } finally {
+    loadBtn.textContent = originalText;
+    loadBtn.disabled = false;
   }
 }
 
@@ -578,4 +663,5 @@ function setupHamburger() {
 window.playSong = playSong;
 window.createPlaylist = createPlaylist;
 window.searchAndPlay = searchAndPlay;
+window.searchYouTube = searchYouTube;
 window.player = player;
