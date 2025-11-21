@@ -92,7 +92,12 @@
   nav a:hover::before { opacity: 1; transform: scale(1); }
   nav a:hover { color: #fff; text-shadow: 0 0 8px #1db954; transform: translateY(-2px); }
 
+  nav a.chat { color: #00eaff; }
+  nav a.discord { color: #a377ff; }
+  nav a.image { color: #39ff14; }
   nav a.music { color: #1db954; }
+  nav a.video { color: #ff6b00; }
+  nav a.home { color: #ff3bff; }
 
   .hamburger {
     display: none;
@@ -139,6 +144,22 @@
     margin: 0 0 12px 0;
     color: #1db954;
     font-size: 14px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .nav-item:hover {
+    background: rgba(29,185,84,0.1);
+    color: #1db954;
   }
 
   .playlist-list {
@@ -249,69 +270,105 @@
   .song-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 16px;
+    gap: 20px;
     margin-top: 6px;
   }
 
   .song-card {
-    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-    border-radius: 12px;
-    padding: 10px;
+    background: linear-gradient(135deg, rgba(29,185,84,0.08) 0%, rgba(30,215,96,0.04) 100%);
+    border-radius: 16px;
+    padding: 12px;
     cursor: pointer;
     position: relative;
     overflow: hidden;
-    transition: all 0.18s;
-    border: 1px solid rgba(29,185,84,0.1);
+    transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+    border: 1.5px solid rgba(29,185,84,0.25);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  }
+
+  .song-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 30% 30%, rgba(29,185,84,0.1), transparent);
+    pointer-events: none;
   }
 
   .song-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 18px 40px rgba(29,185,84,0.2);
-    border-color: rgba(29,185,84,0.3);
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 24px 48px rgba(29,185,84,0.3), 0 0 20px rgba(29,185,84,0.2);
+    border-color: rgba(29,185,84,0.6);
+    background: linear-gradient(135deg, rgba(29,185,84,0.15) 0%, rgba(30,215,96,0.08) 100%);
   }
 
   .song-cover {
     width: 100%;
     height: 140px;
     object-fit: cover;
-    border-radius: 8px;
+    border-radius: 12px;
     display: block;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 16px rgba(29,185,84,0.15);
+  }
+
+  .song-card:hover .song-cover {
+    box-shadow: 0 12px 24px rgba(29,185,84,0.25);
   }
 
   .song-meta {
-    margin-top: 8px;
+    margin-top: 10px;
+    position: relative;
+    z-index: 1;
   }
 
   .song-meta .title {
     font-weight: 700;
     font-size: 14px;
     color: var(--text);
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   .song-meta .artist {
-    font-size: 13px;
+    font-size: 12px;
     color: var(--muted);
-    margin-top: 4px;
+    margin-top: 6px;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   .add-to-pl-btn {
     position: absolute;
     top: 8px;
     right: 8px;
-    width: 34px;
-    height: 34px;
-    border-radius: 8px;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
     border: none;
-    background: rgba(29,185,84,0.7);
+    background: linear-gradient(135deg, rgba(29,185,84,0.8), rgba(30,215,96,0.7));
     color: #fff;
     font-weight: 700;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(29,185,84,0.2);
+    backdrop-filter: blur(8px);
+    z-index: 2;
   }
 
   .add-to-pl-btn:hover {
-    background: rgba(29,185,84,0.95);
-    transform: scale(1.1);
+    background: linear-gradient(135deg, rgba(29,185,84,0.95), rgba(30,215,96,0.9));
+    transform: scale(1.15) rotate(5deg);
+    box-shadow: 0 8px 20px rgba(29,185,84,0.4);
   }
 
   .right-panel {
@@ -338,15 +395,15 @@
     right: 0;
     bottom: 0;
     height: 96px;
-    background: linear-gradient(180deg, rgba(20,25,40,0.8), rgba(10,15,25,0.95));
-    backdrop-filter: blur(10px);
-    border-top: 1px solid rgba(29,185,84,0.2);
+    background: linear-gradient(180deg, rgba(20,25,40,0.85), rgba(10,15,25,0.97));
+    backdrop-filter: blur(15px);
+    border-top: 2px solid rgba(29,185,84,0.3);
     display: flex;
     align-items: center;
     gap: 20px;
     padding: 10px 24px;
     z-index: 90;
-    box-shadow: 0 -4px 20px rgba(29,185,84,0.15);
+    box-shadow: 0 -8px 32px rgba(29,185,84,0.2), inset 0 1px 0 rgba(255,255,255,0.05);
   }
 
   .player-left {
@@ -395,44 +452,61 @@
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(29,185,84,0.2);
-    color: #fff;
+    background: linear-gradient(135deg, rgba(29,185,84,0.1), rgba(30,215,96,0.05));
+    border: 1.5px solid rgba(29,185,84,0.3);
+    color: #1db954;
     display: grid;
     place-items: center;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.25s ease;
+    font-weight: 600;
     font-size: 16px;
+    box-shadow: 0 4px 12px rgba(29,185,84,0.1);
   }
 
   .btn:hover {
-    background: rgba(29,185,84,0.2);
-    border-color: rgba(29,185,84,0.5);
+    background: linear-gradient(135deg, rgba(29,185,84,0.2), rgba(30,215,96,0.15));
+    border-color: rgba(29,185,84,0.6);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(29,185,84,0.25);
+    color: #1ed760;
   }
 
   .btn.play {
     width: 56px;
     height: 56px;
-    background: linear-gradient(135deg, #1db954, #1ed760);
+    background: linear-gradient(135deg, #1db954 0%, #1ed760 100%);
     color: #041017;
     font-weight: 800;
     font-size: 18px;
     border: none;
+    box-shadow: 0 8px 24px rgba(29,185,84,0.35);
   }
 
   .btn.play:hover {
-    transform: scale(1.05);
-    box-shadow: 0 8px 20px rgba(29,185,84,0.4);
+    transform: scale(1.08) translateY(-3px);
+    box-shadow: 0 12px 32px rgba(29,185,84,0.5);
+  }
+
+  .btn.play:active {
+    transform: scale(0.96);
   }
 
   .progress {
     width: 420px;
-    height: 8px;
-    background: rgba(255,255,255,0.03);
+    height: 6px;
+    background: linear-gradient(90deg, rgba(29,185,84,0.1), rgba(29,185,84,0.05));
     border-radius: 8px;
     overflow: hidden;
     margin-left: 20px;
     cursor: pointer;
+    transition: height 0.2s ease;
+    border: 1px solid rgba(29,185,84,0.15);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+  }
+
+  .progress:hover {
+    height: 8px;
   }
 
   .progress > i {
@@ -441,119 +515,34 @@
     width: 0%;
     background: linear-gradient(90deg, #1db954, #1ed760);
     border-radius: 8px;
+    box-shadow: 0 0 8px rgba(29,185,84,0.5);
+    transition: width 0.1s linear;
   }
 
   .wave-container {
     display: flex;
     align-items: flex-end;
-    gap: 4px;
-    height: 30px;
+    gap: 3px;
+    height: 32px;
     margin-top: 8px;
+    justify-content: center;
   }
 
   .wave-bar {
-    width: 4px;
-    background: linear-gradient(180deg, #1db954, #1ed760);
-    border-radius: 2px;
-    height: 8px;
-    animation: wave 0.6s infinite;
+    width: 3px;
+    background: linear-gradient(180deg, #1db954 0%, #1ed760 50%, #1db954 100%);
+    border-radius: 3px;
+    height: 6px;
+    animation: wave 0.6s infinite ease-in-out;
     animation-play-state: paused;
     --scale: 1;
+    box-shadow: 0 0 6px rgba(29,185,84,0.4);
   }
 
   @keyframes wave {
-    0% { height: 8px; }
-    50% { height: calc(8px + 18px * var(--scale)); }
-    100% { height: 8px; }
-  }
-
-  .modal {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(4px);
-    align-items: center;
-    justify-content: center;
-    z-index: 200;
-  }
-
-  .modal.active {
-    display: flex;
-  }
-
-  .modal-content {
-    background: linear-gradient(180deg, rgba(20,25,40,0.9), rgba(10,15,25,0.95));
-    backdrop-filter: blur(20px);
-    border-radius: 16px;
-    border: 1px solid rgba(29,185,84,0.3);
-    padding: 32px;
-    max-width: 400px;
-    width: 90%;
-    box-shadow: 0 20px 60px rgba(29,185,84,0.2);
-  }
-
-  .modal h2 {
-    margin: 0 0 16px 0;
-    font-size: 24px;
-    font-weight: 800;
-    background: linear-gradient(135deg, #1db954, #1ed760);
-    -webkit-background-clip: text;
-    color: transparent;
-  }
-
-  .modal input {
-    width: 100%;
-    padding: 12px 16px;
-    border-radius: 12px;
-    border: 1px solid rgba(29,185,84,0.2);
-    background: rgba(255,255,255,0.03);
-    color: #fff;
-    margin-bottom: 20px;
-    font-size: 14px;
-    transition: all 0.2s ease;
-  }
-
-  .modal input:focus {
-    outline: none;
-    border-color: rgba(29,185,84,0.5);
-    background: rgba(29,185,84,0.05);
-  }
-
-  .modal-buttons {
-    display: flex;
-    gap: 12px;
-  }
-
-  .modal-buttons button {
-    flex: 1;
-    padding: 12px;
-    border-radius: 10px;
-    border: none;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-
-  .modal-buttons .submit {
-    background: linear-gradient(135deg, #1db954, #1ed760);
-    color: #041017;
-  }
-
-  .modal-buttons .submit:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(29,185,84,0.4);
-  }
-
-  .modal-buttons .cancel {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(29,185,84,0.2);
-    color: #fff;
-  }
-
-  .modal-buttons .cancel:hover {
-    background: rgba(29,185,84,0.1);
-    border-color: rgba(29,185,84,0.5);
+    0% { height: 6px; opacity: 0.5; }
+    50% { height: calc(6px + 20px * var(--scale)); opacity: 1; }
+    100% { height: 6px; opacity: 0.5; }
   }
 
   .muted { color: var(--muted); }
@@ -634,7 +623,13 @@
 <div class="page">
 
   <aside class="sidebar" id="sidebar">
-    <h3>Playlists</h3>
+    <h3>Browse</h3>
+    <div class="nav-item">🏠 Home</div>
+    <div class="nav-item">🔍 Search</div>
+    <div class="nav-item">📚 Library</div>
+
+    <div style="height: 14px;"></div>
+    <div style="font-size: 13px; color: var(--muted); font-weight: 700;">Playlists</div>
 
     <div class="playlist-list" id="sidebarPlaylists"></div>
 
@@ -657,38 +652,38 @@
     </div>
 
     <div id="songGrid" class="song-grid" aria-live="polite">
-      <div class="song-card" data-id="fHI8X4OXluQ" data-title="Blinding Lights" data-artist="The Weeknd">
-        <img class="song-cover" src="https://i.ytimg.com/vi/fHI8X4OXluQ/maxresdefault.jpg" alt="Blinding Lights">
+      <div class="song-card" data-id="fHI8X4OXluQ" data-title="Blinding Lights" data-artist="The Weeknd" data-cover="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg">
+        <img class="song-cover" src="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg" alt="Blinding Lights">
         <div class="song-meta"><div class="title">Blinding Lights</div><div class="artist muted">The Weeknd</div></div>
         <button class="add-to-pl-btn" title="Add to playlist">+</button>
       </div>
 
-      <div class="song-card" data-id="34Na4j8AVgA" data-title="Starboy" data-artist="The Weeknd">
-        <img class="song-cover" src="https://i.ytimg.com/vi/34Na4j8AVgA/maxresdefault.jpg" alt="Starboy">
+      <div class="song-card" data-id="34Na4j8AVgA" data-title="Starboy" data-artist="The Weeknd" data-cover="https://i.ytimg.com/vi/34Na4j8AVgA/hqdefault.jpg">
+        <img class="song-cover" src="https://i.ytimg.com/vi/34Na4j8AVgA/hqdefault.jpg" alt="Starboy">
         <div class="song-meta"><div class="title">Starboy</div><div class="artist muted">The Weeknd</div></div>
         <button class="add-to-pl-btn">+</button>
       </div>
 
-      <div class="song-card" data-id="XXYlFuWEuKI" data-title="Save Your Tears" data-artist="The Weeknd">
-        <img class="song-cover" src="https://i.ytimg.com/vi/XXYlFuWEuKI/maxresdefault.jpg" alt="Save Your Tears">
+      <div class="song-card" data-id="XXYlFuWEuKI" data-title="Save Your Tears" data-artist="The Weeknd" data-cover="https://i.ytimg.com/vi/XXYlFuWEuKI/hqdefault.jpg">
+        <img class="song-cover" src="https://i.ytimg.com/vi/XXYlFuWEuKI/hqdefault.jpg" alt="Save Your Tears">
         <div class="song-meta"><div class="title">Save Your Tears</div><div class="artist muted">The Weeknd</div></div>
         <button class="add-to-pl-btn">+</button>
       </div>
 
-      <div class="song-card" data-id="mRD0-GxqHVo" data-title="Heat Waves" data-artist="Glass Animals">
-        <img class="song-cover" src="https://i.ytimg.com/vi/mRD0-GxqHVo/maxresdefault.jpg" alt="Heat Waves">
+      <div class="song-card" data-id="mRD0-GxqHVo" data-title="Heat Waves" data-artist="Glass Animals" data-cover="https://i.ytimg.com/vi/mRD0-GxqHVo/hqdefault.jpg">
+        <img class="song-cover" src="https://i.ytimg.com/vi/mRD0-GxqHVo/hqdefault.jpg" alt="Heat Waves">
         <div class="song-meta"><div class="title">Heat Waves</div><div class="artist muted">Glass Animals</div></div>
         <button class="add-to-pl-btn">+</button>
       </div>
 
-      <div class="song-card" data-id="TEpZyoLhK9M" data-title="Unholy" data-artist="Sam Smith">
-        <img class="song-cover" src="https://i.ytimg.com/vi/TEpZyoLhK9M/maxresdefault.jpg" alt="Unholy">
+      <div class="song-card" data-id="TEpZyoLhK9M" data-title="Unholy" data-artist="Sam Smith" data-cover="https://i.ytimg.com/vi/TEpZyoLhK9M/hqdefault.jpg">
+        <img class="song-cover" src="https://i.ytimg.com/vi/TEpZyoLhK9M/hqdefault.jpg" alt="Unholy">
         <div class="song-meta"><div class="title">Unholy</div><div class="artist muted">Sam Smith</div></div>
         <button class="add-to-pl-btn">+</button>
       </div>
 
-      <div class="song-card" data-id="kJQP7kiw9Fk" data-title="As It Was" data-artist="Harry Styles">
-        <img class="song-cover" src="https://i.ytimg.com/vi/kJQP7kiw9Fk/maxresdefault.jpg" alt="As It Was">
+      <div class="song-card" data-id="kJQP7kiw9Fk" data-title="As It Was" data-artist="Harry Styles" data-cover="https://i.ytimg.com/vi/kJQP7kiw9Fk/hqdefault.jpg">
+        <img class="song-cover" src="https://i.ytimg.com/vi/kJQP7kiw9Fk/hqdefault.jpg" alt="As It Was">
         <div class="song-meta"><div class="title">As It Was</div><div class="artist muted">Harry Styles</div></div>
         <button class="add-to-pl-btn">+</button>
       </div>
@@ -700,7 +695,7 @@
     <div style="display: flex; flex-direction: column; gap: 10px;">
       <div style="display: flex; gap: 10px; align-items: center;">
         <div style="width: 56px; height: 56px; border-radius: 8px; overflow: hidden; background: #0b0f12; border: 1px solid rgba(29,185,84,0.2);">
-          <img id="coverImg" src="https://i.ytimg.com/vi/fHI8X4OXluQ/maxresdefault.jpg" style="width: 100%; height: 100%; object-fit: cover;">
+          <img id="coverImg" src="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg" style="width: 100%; height: 100%; object-fit: cover;">
         </div>
         <div>
           <div id="trackTitle" style="font-weight: 700; font-size: 14px;">Not Playing</div>
@@ -720,11 +715,9 @@
 
 <div class="player-bar">
   <div class="player-left">
-    <div class="player-cover"><img id="miniCover" src="https://i.ytimg.com/vi/fHI8X4OXluQ/maxresdefault.jpg" alt=""></div>
+    <div class="player-cover"><img id="miniCover" src="https://i.ytimg.com/vi/fHI8X4OXluQ/hqdefault.jpg" alt=""></div>
     <div class="player-meta">
-      <div class="title" style="display: flex; gap: 2px; align-items: center;">
-        <span id="trackTitle" style="margin: 0;">Not Playing</span>
-      </div>
+      <div id="trackTitle" class="title">Not Playing</div>
       <div id="trackArtist" class="muted small">—</div>
     </div>
   </div>
@@ -736,7 +729,6 @@
       <button class="btn play" id="playBtn">▶</button>
       <button class="btn" id="fwdBtn" title="Forward 10s">⏩</button>
       <button class="btn" id="nextBtn" title="Next">⏭</button>
-      <button class="btn" id="addToPlaylistBtn" title="Add to Playlist">+</button>
       <div class="progress" style="margin-left: 18px;"><i id="progressFill"></i></div>
     </div>
 
@@ -745,17 +737,6 @@
 
   <div style="width: 220px; display: flex; align-items: center; justify-content: flex-end; gap: 12px; color: var(--muted); font-size: 13px;">
     JARVIS Music
-  </div>
-</div>
-
-<div id="playlistModal" class="modal">
-  <div class="modal-content">
-    <h2>Create Playlist</h2>
-    <input id="playlistNameInput" type="text" placeholder="Enter playlist name" />
-    <div class="modal-buttons">
-      <button class="submit" id="submitPlaylistBtn">Create</button>
-      <button class="cancel" id="closePlaylistBtn">Cancel</button>
-    </div>
   </div>
 </div>
 
