@@ -97,7 +97,7 @@ function extractVideoId(url) {
   return m ? m[1] : null;
 }
 
-// Set video by ID
+// Set video by ID - FIXED VERSION
 function setVideoById(vid, customTitle = null, customArtist = null) {
   const player = document.getElementById("ytPlayer");
   const cover = document.getElementById("coverImg");
@@ -107,7 +107,11 @@ function setVideoById(vid, customTitle = null, customArtist = null) {
   const playerTrackTitle = document.getElementById("playerTrackTitle");
   const playerTrackArtist = document.getElementById("playerTrackArtist");
 
-  if (!vid) return;
+  if (!vid) {
+    alert("Invalid video ID");
+    return;
+  }
+  
   currentVideoId = vid;
   player.src = `https://www.youtube.com/embed/${vid}?autoplay=1&controls=0&rel=0&modestbranding=1`;
   isPlaying = true;
@@ -122,6 +126,7 @@ function setVideoById(vid, customTitle = null, customArtist = null) {
     playerTrackTitle.textContent = customTitle;
     playerTrackArtist.textContent = customArtist;
   } else {
+    // Fetch metadata from YouTube
     fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${vid}&format=json`)
       .then(r => r.ok ? r.json() : null)
       .then(data => {
@@ -149,7 +154,10 @@ function setVideoById(vid, customTitle = null, customArtist = null) {
 // Toggle play/pause
 function togglePlay() {
   const iframe = document.getElementById("ytPlayer");
-  if (!currentVideoId) return;
+  if (!currentVideoId) {
+    alert("No track loaded. Search for a song first!");
+    return;
+  }
   
   if (isPlaying) {
     iframe.src = "";
@@ -222,7 +230,10 @@ function stopWaveAnimation() {
 
 // Play next track
 function playNext() {
-  if (!currentPlaylist || playlists[currentPlaylist].length === 0) return;
+  if (!currentPlaylist || playlists[currentPlaylist].length === 0) {
+    alert("No playlist selected or playlist is empty");
+    return;
+  }
   currentTrackIndex = (currentTrackIndex + 1) % playlists[currentPlaylist].length;
   const track = playlists[currentPlaylist][currentTrackIndex];
   setVideoById(track.id, track.title, track.artist);
@@ -230,54 +241,88 @@ function playNext() {
 
 // Play previous track
 function playPrev() {
-  if (!currentPlaylist || playlists[currentPlaylist].length === 0) return;
+  if (!currentPlaylist || playlists[currentPlaylist].length === 0) {
+    alert("No playlist selected or playlist is empty");
+    return;
+  }
   currentTrackIndex = (currentTrackIndex - 1 + playlists[currentPlaylist].length) % playlists[currentPlaylist].length;
   const track = playlists[currentPlaylist][currentTrackIndex];
   setVideoById(track.id, track.title, track.artist);
 }
 
-// Search YouTube
+// FIXED: Search YouTube - Improved version
 async function searchYouTube(query) {
   try {
     const response = await fetch(`https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`);
     const html = await response.text();
 
-    // Prefer standard watch URLs to avoid ads/shorts where possible
-    const match = html.match(/watch\?v=([a-zA-Z0-9_-]{11})/);
-    return match ? match[1] : null;
+    // Try multiple patterns to extract video ID
+    // Pattern 1: Look for videoId in JSON data
+    const videoIdMatches = html.match(/"videoId":"([a-zA-Z0-9_-]{11})"/g);
+    if (videoIdMatches && videoIdMatches.length > 0) {
+      const firstMatch = videoIdMatches[0].match(/"videoId":"([a-zA-Z0-9_-]{11})"/);
+      if (firstMatch) return firstMatch[1];
+    }
+
+    // Pattern 2: Look for watch URLs
+    const watchMatch = html.match(/watch\?v=([a-zA-Z0-9_-]{11})/);
+    if (watchMatch) return watchMatch[1];
+
+    // Pattern 3: Look for video renderer
+    const rendererMatch = html.match(/videoRenderer.*?"videoId":"([a-zA-Z0-9_-]{11})"/);
+    if (rendererMatch) return rendererMatch[1];
+
+    return null;
   } catch (err) {
     console.error("Search error:", err);
     return null;
   }
 }
 
-// Load music
+// FIXED: Load music - Better error handling
 async function loadMusic() {
   const raw = document.getElementById("ytInput").value.trim();
-  if (!raw) return alert("Enter a song name or YouTube link");
-
-  const isUrl = /(youtube\.com|youtu\.be)/i.test(raw);
-  if (isUrl) {
-    const vid = extractVideoId(raw);
-    if (!vid) return alert("Could not extract video ID");
-    setVideoById(vid);
+  if (!raw) {
+    alert("Please enter a song name or YouTube link");
     return;
   }
 
+  const isUrl = /(youtube\.com|youtu\.be)/i.test(raw);
+  
+  if (isUrl) {
+    const vid = extractVideoId(raw);
+    if (!vid) {
+      alert("Could not extract video ID from URL");
+      return;
+    }
+    setVideoById(vid);
+    document.getElementById("ytInput").value = "";
+    return;
+  }
+
+  // Search for song
   const btn = document.getElementById("loadBtn");
   const origText = btn.textContent;
   btn.textContent = "Searching...";
   btn.disabled = true;
 
-  const vid = await searchYouTube(raw);
-  btn.textContent = origText;
-  btn.disabled = false;
+  try {
+    const vid = await searchYouTube(raw);
+    btn.textContent = origText;
+    btn.disabled = false;
 
-  if (vid) {
-    setVideoById(vid);
-    document.getElementById("ytInput").value = "";
-  } else {
-    alert("Song not found. Try another search!");
+    if (vid) {
+      setVideoById(vid);
+      document.getElementById("ytInput").value = "";
+      alert("Track found and playing!");
+    } else {
+      alert("Song not found. Try another search or paste a YouTube link!");
+    }
+  } catch (error) {
+    btn.textContent = origText;
+    btn.disabled = false;
+    alert("Search failed. Please try again or paste a YouTube link.");
+    console.error("Load music error:", error);
   }
 }
 
@@ -306,26 +351,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Player bar add to playlist button
   document.getElementById("playerAddToPlaylistBtn")?.addEventListener("click", () => {
-    if (!currentVideoId) return alert("No track playing");
+    if (!currentVideoId) {
+      alert("No track playing");
+      return;
+    }
     const title = document.getElementById("trackTitle").textContent;
     const artist = document.getElementById("trackArtist").textContent;
-    if (title === "Not Playing") return alert("No track playing");
+    if (title === "Not Playing") {
+      alert("No track playing");
+      return;
+    }
     addToPlaylist(currentVideoId, title, artist);
   });
 
   // Song card clicks
   const songCards = document.querySelectorAll(".song-card");
   songCards.forEach(card => {
-    const content = card.querySelector(".song-title, .song-cover");
-    if (content) {
-      card.addEventListener("click", (e) => {
-        if (e.target.classList.contains("add-btn")) return;
-        const vid = card.dataset.id;
-        const title = card.dataset.title;
-        const artist = card.dataset.artist;
-        setVideoById(vid, title, artist);
-      });
-    }
+    card.addEventListener("click", (e) => {
+      if (e.target.classList.contains("add-btn")) return;
+      const vid = card.dataset.id;
+      const title = card.dataset.title;
+      const artist = card.dataset.artist;
+      setVideoById(vid, title, artist);
+    });
 
     const addBtn = card.querySelector(".add-btn");
     addBtn?.addEventListener("click", (e) => {
