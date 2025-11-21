@@ -24,7 +24,31 @@
     height: 100%;
     object-fit: cover;
     z-index: -1;
-    filter: brightness(60%);
+    filter: brightness(50%);
+  }
+
+  /* Hologram scan lines */
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0, 255, 255, 0.03) 0px,
+      transparent 2px,
+      transparent 4px
+    );
+    pointer-events: none;
+    z-index: 1;
+    animation: scanlines 8s linear infinite;
+  }
+
+  @keyframes scanlines {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(20px); }
   }
 
   nav {
@@ -87,14 +111,13 @@
   nav a.video { color: #ff6b00; }
   nav a.home { color: #ff3bff; }
 
-  /* Hamburger */
   .hamburger {
     display: none;
     flex-direction: column;
     cursor: pointer;
     gap: 5px;
     position: absolute;
-    left: 24px; /* LEFT SIDE NOW */
+    left: 24px;
   }
 
   .hamburger div {
@@ -126,124 +149,309 @@
     justify-content: flex-end;
     padding: 20px;
     box-sizing: border-box;
+    z-index: 2;
   }
 
   .title {
-    font-size: 38px;
+    font-size: 48px;
     text-align: center;
-    margin-bottom: 5px;
-    background: linear-gradient(90deg, #00ffaa, #00eaff, #a86bff);
+    margin-bottom: 8px;
+    background: linear-gradient(90deg, #00ffaa, #00eaff, #a86bff, #ff3bff);
     -webkit-background-clip: text;
-    color: transparent;
-    text-shadow: 0 0 10px #00ffaa, 0 0 20px #00eaff;
-    animation: glowText 2s infinite alternate;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 12px rgba(0, 255, 170, 0.6)) drop-shadow(0 0 25px rgba(0, 234, 255, 0.4));
+    animation: glowText 3s infinite alternate, hueRotate 8s linear infinite;
+    letter-spacing: 8px;
+    font-weight: 700;
+  }
+
+  @keyframes glowText {
+    0% { filter: drop-shadow(0 0 8px rgba(0, 255, 170, 0.5)) drop-shadow(0 0 18px rgba(0, 234, 255, 0.3)); }
+    50% { filter: drop-shadow(0 0 20px rgba(0, 255, 170, 0.8)) drop-shadow(0 0 35px rgba(0, 234, 255, 0.6)); }
+    100% { filter: drop-shadow(0 0 8px rgba(0, 255, 170, 0.5)) drop-shadow(0 0 18px rgba(0, 234, 255, 0.3)); }
+  }
+
+  @keyframes hueRotate {
+    0% { filter: hue-rotate(0deg); }
+    100% { filter: hue-rotate(360deg); }
   }
 
   .sub {
     text-align: center;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     font-size: 16px;
     color: #fff;
-    min-height: 20px;
+    min-height: 24px;
+    padding: 8px 20px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 255, 255, 0.2);
+    box-shadow: 0 0 15px rgba(0, 255, 170, 0.3);
   }
 
-  .sub span { font-weight: bold; color: #ffdd66; text-shadow: 0 0 8px #ffdd66; }
-
-  @keyframes glowText {
-    0% { text-shadow: 0 0 5px #00ffaa, 0 0 15px #00eaff; }
-    50% { text-shadow: 0 0 15px #00ffaa, 0 0 25px #00eaff; }
-    100% { text-shadow: 0 0 5px #00ffaa, 0 0 15px #00eaff; }
+  .sub span { 
+    font-weight: bold; 
+    background: linear-gradient(90deg, #ffdd66, #ff8c00, #ff3bff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 8px rgba(255, 221, 102, 0.6));
   }
 
   .chat-box {
     flex: 1;
     width: 100%;
+    max-width: 900px;
+    margin: 0 auto 20px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    padding: 10px;
-    background: rgba(0,0,0,0.6);
-    border-radius: 12px;
-    margin-bottom: 10px;
-    box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+    gap: 16px;
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(0, 20, 40, 0.7), rgba(20, 0, 40, 0.6));
+    border-radius: 20px;
+    box-shadow: 
+      0 0 30px rgba(0, 255, 255, 0.2),
+      inset 0 0 30px rgba(0, 255, 170, 0.05);
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    backdrop-filter: blur(15px);
+  }
+
+  .chat-box::-webkit-scrollbar { width: 8px; }
+  .chat-box::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.3); border-radius: 10px; }
+  .chat-box::-webkit-scrollbar-thumb { 
+    background: linear-gradient(180deg, #00ffaa, #00eaff); 
+    border-radius: 10px; 
+    box-shadow: 0 0 10px rgba(0, 255, 170, 0.5);
   }
 
   .message {
-    max-width: 90%;
-    padding: 10px 14px;
-    border-radius: 12px;
+    max-width: 75%;
+    padding: 14px 18px;
+    border-radius: 20px;
     word-wrap: break-word;
-    display: inline-block;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
     opacity: 0;
-    transform: translateY(20px);
-    animation: fadeIn 0.3s forwards;
+    transform: translateY(20px) scale(0.95);
+    animation: messageSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    position: relative;
+  }
+
+  @keyframes messageSlideIn {
+    to { opacity: 1; transform: translateY(0) scale(1); }
   }
 
   .message.user {
     align-self: flex-end;
-    background: rgba(0, 234, 255, 0.8);
+    background: linear-gradient(135deg, rgba(0, 234, 255, 0.9), rgba(168, 107, 255, 0.8));
     color: #000;
-    box-shadow: 0 0 8px #00eaff;
+    font-weight: 500;
+    box-shadow: 
+      0 4px 15px rgba(0, 234, 255, 0.4),
+      0 0 20px rgba(0, 234, 255, 0.3),
+      inset 0 0 20px rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    animation: messageSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, userGlow 2s infinite alternate;
+  }
+
+  @keyframes userGlow {
+    0% { box-shadow: 0 4px 15px rgba(0, 234, 255, 0.4), 0 0 20px rgba(0, 234, 255, 0.3); }
+    100% { box-shadow: 0 4px 20px rgba(0, 234, 255, 0.6), 0 0 30px rgba(0, 234, 255, 0.5); }
   }
 
   .message.ai {
     align-self: flex-start;
-    background: rgba(0, 255, 170, 0.2);
-    color: #fff;
-    box-shadow: 0 0 8px #00ffaa;
+    background: linear-gradient(135deg, rgba(0, 255, 170, 0.25), rgba(0, 234, 255, 0.2));
+    color: #e0ffff;
+    backdrop-filter: blur(10px);
+    box-shadow: 
+      0 4px 15px rgba(0, 255, 170, 0.3),
+      0 0 20px rgba(0, 255, 170, 0.2),
+      inset 0 0 20px rgba(0, 255, 170, 0.1);
+    border: 1px solid rgba(0, 255, 170, 0.4);
+    animation: messageSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, aiGlow 2s infinite alternate;
   }
 
-  .message img { display: block; margin-top: 8px; max-width: 100%; border-radius: 12px; }
+  @keyframes aiGlow {
+    0% { box-shadow: 0 4px 15px rgba(0, 255, 170, 0.3), 0 0 20px rgba(0, 255, 170, 0.2); }
+    100% { box-shadow: 0 4px 20px rgba(0, 255, 170, 0.5), 0 0 30px rgba(0, 255, 170, 0.4); }
+  }
 
-  .input-area { display: flex; gap: 10px; }
+  .ai-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #00ffaa, #00eaff);
+    box-shadow: 
+      0 0 15px rgba(0, 255, 170, 0.6),
+      inset 0 0 10px rgba(255, 255, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #000;
+    font-size: 18px;
+    flex-shrink: 0;
+    animation: avatarPulse 2s infinite alternate;
+    position: relative;
+  }
+
+  .ai-avatar::before {
+    content: "";
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #00ffaa, #00eaff);
+    opacity: 0.3;
+    filter: blur(8px);
+    animation: avatarRing 2s infinite alternate;
+  }
+
+  @keyframes avatarPulse {
+    0% { transform: scale(1); box-shadow: 0 0 15px rgba(0, 255, 170, 0.6); }
+    100% { transform: scale(1.05); box-shadow: 0 0 25px rgba(0, 255, 170, 0.9); }
+  }
+
+  @keyframes avatarRing {
+    0% { transform: scale(1); opacity: 0.3; }
+    100% { transform: scale(1.2); opacity: 0.6; }
+  }
+
+  .message-content {
+    flex: 1;
+    line-height: 1.5;
+  }
+
+  .message img { 
+    display: block; 
+    margin-top: 8px; 
+    max-width: 100%; 
+    border-radius: 12px;
+    border: 2px solid rgba(0, 255, 255, 0.3);
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
+  }
+
+  .typing-indicator {
+    display: flex;
+    gap: 6px;
+    padding: 14px 18px;
+    align-self: flex-start;
+    background: linear-gradient(135deg, rgba(0, 255, 170, 0.25), rgba(0, 234, 255, 0.2));
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 15px rgba(0, 255, 170, 0.3);
+    border: 1px solid rgba(0, 255, 170, 0.4);
+    max-width: 100px;
+  }
+
+  .typing-indicator .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #00ffaa, #00eaff);
+    animation: typingBounce 1.4s infinite;
+    box-shadow: 0 0 10px rgba(0, 255, 170, 0.6);
+  }
+
+  .typing-indicator .dot:nth-child(1) { animation-delay: 0s; }
+  .typing-indicator .dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-indicator .dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes typingBounce {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-12px); }
+  }
+
+  .input-area { 
+    display: flex; 
+    gap: 12px;
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+  }
 
   #userInput {
     flex: 1;
-    padding: 12px;
-    border-radius: 12px;
-    border: none;
+    padding: 16px 20px;
+    border-radius: 30px;
+    border: 2px solid rgba(0, 255, 255, 0.4);
     outline: none;
     font-size: 16px;
-    background: rgba(0, 0, 0, 0.8);
+    background: linear-gradient(135deg, rgba(0, 20, 40, 0.8), rgba(20, 0, 40, 0.7));
     color: #00eaff;
-    box-shadow: 0 0 5px #00eaff, 0 0 10px #00eaff;
-    transition: 0.3s;
-    animation: pulse 2s infinite alternate;
+    backdrop-filter: blur(15px);
+    box-shadow: 
+      0 0 20px rgba(0, 234, 255, 0.3),
+      inset 0 0 15px rgba(0, 255, 170, 0.1);
+    transition: all 0.3s ease;
+    animation: inputFloat 3s ease-in-out infinite;
+  }
+
+  @keyframes inputFloat {
+    0%, 100% { transform: translateY(0); box-shadow: 0 0 20px rgba(0, 234, 255, 0.3); }
+    50% { transform: translateY(-3px); box-shadow: 0 4px 30px rgba(0, 234, 255, 0.5); }
   }
 
   #userInput:focus {
-    box-shadow: 0 0 15px #00ffaa, 0 0 30px #00eaff;
+    box-shadow: 
+      0 0 30px rgba(0, 255, 170, 0.6),
+      0 0 50px rgba(0, 234, 255, 0.4),
+      inset 0 0 20px rgba(0, 255, 170, 0.2);
     color: #00ffaa;
-    background: rgba(0, 0, 0, 0.9);
+    border-color: rgba(0, 255, 170, 0.6);
+    transform: translateY(-2px);
+  }
+
+  #userInput::placeholder {
+    color: rgba(0, 234, 255, 0.5);
   }
 
   .input-area button {
-    padding: 10px 16px;
-    border-radius: 12px;
+    padding: 16px 28px;
+    border-radius: 30px;
     border: none;
-    background: #00ffaa;
+    background: linear-gradient(135deg, #00ffaa, #00eaff);
     color: #000;
     font-weight: bold;
+    font-size: 16px;
     cursor: pointer;
-    transition: 0.2s;
-    box-shadow: 0 0 10px #00ffaa;
+    transition: all 0.3s ease;
+    box-shadow: 
+      0 4px 20px rgba(0, 255, 170, 0.5),
+      inset 0 0 15px rgba(255, 255, 255, 0.2);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .input-area button::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #00eaff, #a86bff);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .input-area button:hover::before {
+    opacity: 1;
   }
 
   .input-area button:hover {
-    background: #00eaff;
-    box-shadow: 0 0 15px #00eaff;
+    transform: translateY(-3px);
+    box-shadow: 
+      0 6px 30px rgba(0, 255, 170, 0.7),
+      0 0 40px rgba(0, 234, 255, 0.5);
   }
 
-  @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
-
-  @keyframes pulse {
-    0% { box-shadow: 0 0 5px #00eaff, 0 0 10px #00eaff; }
-    50% { box-shadow: 0 0 12px #00eaff, 0 0 20px #00eaff; }
-    100% { box-shadow: 0 0 5px #00eaff, 0 0 10px #00eaff; }
+  .input-area button span {
+    position: relative;
+    z-index: 1;
   }
 
-  /* Mobile menu */
   @media screen and (max-width: 768px) {
     nav { justify-content: flex-start; padding-left: 24px; }
     .hamburger { display: flex; }
@@ -262,6 +470,13 @@
       z-index: 9;
     }
     .nav-links.nav-active { display: flex; }
+    
+    .title { font-size: 36px; letter-spacing: 4px; }
+    .chat-box { padding: 15px; }
+    .message { max-width: 85%; padding: 12px 16px; }
+    .ai-avatar { width: 36px; height: 36px; font-size: 16px; }
+    #userInput { padding: 14px 18px; font-size: 15px; }
+    .input-area button { padding: 14px 24px; font-size: 15px; }
   }
 </style>
 </head>
@@ -295,7 +510,7 @@
 
   <div class="input-area">
     <input id="userInput" type="text" placeholder="Type your message..." autocomplete="off">
-    <button id="sendBtn">Send</button>
+    <button id="sendBtn"><span>Send</span></button>
   </div>
 </div>
 
