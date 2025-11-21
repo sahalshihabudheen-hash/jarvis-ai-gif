@@ -239,14 +239,12 @@ function playPrev() {
 // Search YouTube
 async function searchYouTube(query) {
   try {
-    const response = await fetch(`https://www.youtube.com/results?search_query=${encodeURIComponent(query + " official audio")}`);
+    const response = await fetch(`https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`);
     const html = await response.text();
-    const matches = html.match(/"videoId":"([a-zA-Z0-9_-]{11})"/g);
-    if (matches && matches.length > 0) {
-      const videoId = matches[0].match(/"videoId":"([a-zA-Z0-9_-]{11})"/)[1];
-      return videoId;
-    }
-    return null;
+
+    // Prefer standard watch URLs to avoid ads/shorts where possible
+    const match = html.match(/watch\?v=([a-zA-Z0-9_-]{11})/);
+    return match ? match[1] : null;
   } catch (err) {
     console.error("Search error:", err);
     return null;
