@@ -6,17 +6,18 @@
   <title>Music Player — Spotify Style</title>
   <style>
     :root{
-      --bg:#0b0f12;
-      --card:#0f1416;
-      --accent:#1db954;
-      --muted: #9aa6a1;
-      --glass: rgba(255,255,255,0.03);
+      --bg:#0a0e27;
+      --card:#0f1629;
+      --accent:#00d9ff;
+      --accent-glow: #0066ff;
+      --muted: #8fa4ff;
+      --glass: rgba(0, 217, 255, 0.05);
     }
-    html,body{height:100%;margin:0;font-family:"Segoe UI", Roboto, Arial, sans-serif;background:var(--bg);color:#e9f2ef}
+    html,body{height:100%;margin:0;font-family:"Segoe UI", Roboto, Arial, sans-serif;background:linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0f1629 100%);color:#e0e6ff}
 
     /* Background video */
-    #bg-video{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;filter:brightness(40%) saturate(110%)}
-    .overlay{position:fixed;inset:0;background:linear-gradient(180deg, rgba(3,6,7,0.55), rgba(3,6,7,0.75));z-index:-1}
+    #bg-video{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;filter:brightness(30%) saturate(120%) hue-rotate(200deg)}
+    .overlay{position:fixed;inset:0;background:linear-gradient(180deg, rgba(10,14,39,0.75), rgba(15,22,41,0.85));z-index:-1}
 
     /* ===== Navbar ===== */
     nav {
@@ -27,12 +28,13 @@
       height: 65px;
       background: rgba(20,25,40,0.35);
       backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(0, 217, 255, 0.3);
+      box-shadow: 0 4px 20px rgba(0, 200, 255, 0.15);
       display: flex;
       justify-content: center;
       align-items: center;
       padding: 0 20px;
       z-index: 10;
-      box-shadow: 0 0 10px rgba(0,255,255,0.1);
       gap: 35px;
     }
 
@@ -64,12 +66,12 @@
       position: absolute;
       inset: 0;
       border-radius: 12px;
-      background: linear-gradient(120deg, rgba(0,255,255,0.3), rgba(100,0,255,0.25));
+      background: linear-gradient(120deg, rgba(0,217,255,0.2), rgba(0,102,255,0.15));
       opacity: 0;
       transform: scale(0.9);
       transition: all 0.3s ease;
       z-index: -1;
-      box-shadow: 0 0 8px rgba(0,255,255,0.25);
+      box-shadow: 0 0 15px rgba(0,217,255,0.3);
     }
 
     nav ul li a:hover::before {
@@ -81,7 +83,7 @@
     nav ul li a.chat { color: #00eaff; }
     nav ul li a.discord { color: #a377ff; }
     nav ul li a.image { color: #39ff14; }
-    nav ul li a.music { color: #1db954; }
+    nav ul li a.music { color: #00d9ff; box-shadow: 0 0 20px rgba(0, 217, 255, 0.3); background: rgba(0, 217, 255, 0.15); }
     nav ul li a.video { color: #ff6b00; }
     nav ul li a.home { color: #ff3bff; }
 
@@ -104,9 +106,9 @@
 
     /* Layout */
     .wrap{display:grid;grid-template-columns:280px 1fr;gap:28px;padding:100px 48px 48px;align-items:start}
-    .sidebar{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:14px;padding:18px;box-shadow:0 8px 24px rgba(0,0,0,0.6);height:calc(100vh - 160px);overflow:auto}
+    .sidebar{background:linear-gradient(180deg, rgba(0,217,255,0.05), rgba(0,102,255,0.02));border-radius:14px;padding:18px;box-shadow:0 8px 24px rgba(0,217,255,0.15);border:1px solid rgba(0,217,255,0.2);height:calc(100vh - 160px);overflow:auto}
     .logo{display:flex;align-items:center;gap:12px;padding:8px 4px;margin-bottom:18px}
-    .logo .dot{width:44px;height:44px;border-radius:8px;background:linear-gradient(135deg,var(--accent), #6ad1ff);box-shadow:0 6px 18px rgba(27,185,82,0.14)}
+    .logo .dot{width:44px;height:44px;border-radius:8px;background:linear-gradient(135deg,var(--accent), var(--accent-glow));box-shadow:0 6px 18px rgba(0,217,255,0.4)}
     .logo h3{margin:0;font-size:18px;letter-spacing:0.6px}
     .playlists{margin-top:10px}
     .pl-item{padding:10px;border-radius:10px;display:flex;align-items:center;gap:10px;color:var(--muted);cursor:pointer}
@@ -115,22 +117,25 @@
     .main{display:flex;flex-direction:column;gap:18px}
     .searchbar{display:flex;gap:10px;align-items:center}
     .searchbar input{flex:1;padding:12px 14px;border-radius:12px;border:none;background:rgba(255,255,255,0.03);color:#fff;font-size:16px;outline:none;box-shadow:0 6px 20px rgba(0,0,0,0.6)}
-    .searchbar button{padding:10px 16px;border-radius:10px;border:none;background:var(--accent);color:#07100a;font-weight:700;cursor:pointer}
+    .searchbar button{padding:10px 16px;border-radius:10px;border:none;background:var(--accent);color:#0a0e27;font-weight:700;cursor:pointer;box-shadow:0 0 20px rgba(0,217,255,0.4);transition:all 0.3s ease}
+    .searchbar button:hover{box-shadow:0 0 30px rgba(0,217,255,0.6);transform:translateY(-2px)}
 
-    .player-card{display:flex;align-items:center;gap:20px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.015));padding:20px;border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,0.6)}
-    .cover{width:220px;height:220px;border-radius:12px;background:#111;flex:0 0 220px;position:relative;overflow:hidden}
+    .player-card{display:flex;align-items:center;gap:20px;background:linear-gradient(180deg, rgba(0,217,255,0.05), rgba(0,102,255,0.02));padding:20px;border-radius:14px;box-shadow:0 10px 40px rgba(0,217,255,0.2);border:1px solid rgba(0,217,255,0.2)}
+    .cover{width:220px;height:220px;border-radius:12px;background:#111;flex:0 0 220px;position:relative;overflow:hidden;box-shadow:0 8px 30px rgba(0,217,255,0.3)}
     .cover img{width:100%;height:100%;object-fit:cover;display:block}
     .meta{flex:1;display:flex;flex-direction:column;gap:12px}
     .title{font-size:20px;font-weight:700}
     .sub{color:var(--muted);font-size:14px}
     .controls{display:flex;align-items:center;gap:14px;margin-top:8px}
-    .btn{width:48px;height:48px;border-radius:50%;display:inline-grid;place-items:center;background:rgba(255,255,255,0.03);border:none;color:#fff;cursor:pointer}
-    .btn.play{width:64px;height:64px;border-radius:50%;background:var(--accent);color:#07100a;font-weight:700;font-size:18px}
+    .btn{width:48px;height:48px;border-radius:50%;display:inline-grid;place-items:center;background:rgba(0,217,255,0.1);border:1px solid rgba(0,217,255,0.3);color:var(--accent);cursor:pointer;transition:all 0.3s ease}
+    .btn:hover{background:rgba(0,217,255,0.2);box-shadow:0 0 20px rgba(0,217,255,0.4)}
+    .btn.play{width:64px;height:64px;border-radius:50%;background:var(--accent);color:#0a0e27;font-weight:700;font-size:18px;box-shadow:0 0 30px rgba(0,217,255,0.6)}
+    .btn.play:hover{box-shadow:0 0 40px rgba(0,217,255,0.8)}
     .progress-container{display:flex;flex-direction:column;gap:4px;margin-top:12px}
-    .progress{height:8px;background:rgba(255,255,255,0.04);border-radius:8px;overflow:hidden}
-    .progress > i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--accent), #9cffb8)}
+    .progress{height:8px;background:rgba(0,217,255,0.1);border-radius:8px;overflow:hidden;border:1px solid rgba(0,217,255,0.2)}
+    .progress > i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--accent), var(--accent-glow));box-shadow:0 0 10px rgba(0,217,255,0.6)}
     .wave-container{display:flex;align-items:flex-end;gap:2px;height:30px}
-    .wave-bar{width:3px;background:var(--accent);border-radius:2px;height:8px;animation:wave 0.5s infinite;animation-play-state:paused;--scale:1;}
+    .wave-bar{width:3px;background:linear-gradient(180deg, var(--accent), var(--accent-glow));border-radius:2px;height:8px;animation:wave 0.5s infinite;animation-play-state:paused;--scale:1;box-shadow:0 0 8px rgba(0,217,255,0.5)}
     @keyframes wave{0%{height:8px}50%{height:calc(8px + 15px * var(--scale))}100%{height:8px}}
     .hidden-iframe{width:0;height:0;position:absolute;left:-9999px;top:-9999px}
 
