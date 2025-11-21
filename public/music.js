@@ -239,10 +239,14 @@ function playPrev() {
 // Search YouTube
 async function searchYouTube(query) {
   try {
-    const response = await fetch(`https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`);
+    const response = await fetch(`https://www.youtube.com/results?search_query=${encodeURIComponent(query + " official audio")}`);
     const html = await response.text();
-    const match = html.match(/"videoId":"([a-zA-Z0-9_-]{11})"/);
-    return match ? match[1] : null;
+    const matches = html.match(/"videoId":"([a-zA-Z0-9_-]{11})"/g);
+    if (matches && matches.length > 0) {
+      const videoId = matches[0].match(/"videoId":"([a-zA-Z0-9_-]{11})"/)[1];
+      return videoId;
+    }
+    return null;
   } catch (err) {
     console.error("Search error:", err);
     return null;
@@ -300,6 +304,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("ytInput").addEventListener("keydown", e => {
     if (e.key === "Enter") loadMusic();
+  });
+
+  // Player bar add to playlist button
+  document.getElementById("playerAddToPlaylistBtn")?.addEventListener("click", () => {
+    if (!currentVideoId) return alert("No track playing");
+    const title = document.getElementById("trackTitle").textContent;
+    const artist = document.getElementById("trackArtist").textContent;
+    if (title === "Not Playing") return alert("No track playing");
+    addToPlaylist(currentVideoId, title, artist);
   });
 
   // Song card clicks
