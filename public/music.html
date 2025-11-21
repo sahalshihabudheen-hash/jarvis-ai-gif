@@ -185,6 +185,35 @@
       text-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
     }
 
+    /* Search Bar */
+    .search-container {
+      max-width: 600px;
+      margin: 0 auto 2rem auto;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 1rem 1.5rem;
+      background: rgba(20, 30, 60, 0.5);
+      border: 1px solid rgba(0, 217, 255, 0.3);
+      border-radius: 12px;
+      color: #e0e6ff;
+      font-size: 1rem;
+      outline: none;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .search-input::placeholder {
+      color: #6a7fb8;
+    }
+
+    .search-input:focus {
+      border-color: #00d9ff;
+      box-shadow: 0 0 20px rgba(0, 217, 255, 0.4);
+      background: rgba(20, 30, 60, 0.7);
+    }
+
     .songs-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -504,6 +533,12 @@
   <!-- Trending Songs -->
   <section class="trending">
     <h2>Trending Now</h2>
+    
+    <!-- Search Bar -->
+    <div class="search-container">
+      <input type="text" id="search-input" placeholder="Search for songs..." class="search-input">
+    </div>
+    
     <div class="songs-grid">
       
       <div class="song-card">
