@@ -1,14 +1,3 @@
-const INPUT_ID = "ytInput";
-const LOAD_BTN_ID = "loadBtn";
-const PLAYER_IFRAME_ID = "ytPlayer";
-const COVER_IMG_ID = "coverImg";
-const TITLE_ID = "trackTitle";
-const ARTIST_ID = "trackArtist";
-const PLAY_BTN_ID = "playBtn";
-const PROGRESS_FILL_ID = "progressFill";
-const WAVE_CONTAINER_ID = "waveContainer";
-const NUM_BARS = 20;
-
 let currentVideoId = null;
 let currentPlaylist = null;
 let isPlaying = false;
@@ -18,7 +7,9 @@ let playlists = {};
 let currentTrackIndex = 0;
 
 const STORAGE_KEY = "jarvis_playlists";
+const NUM_BARS = 20;
 
+// Load playlists from localStorage
 function loadPlaylists() {
   const stored = localStorage.getItem(STORAGE_KEY);
   playlists = stored ? JSON.parse(stored) : {};
@@ -26,10 +17,12 @@ function loadPlaylists() {
   renderPlaylistArea();
 }
 
+// Save playlists to localStorage
 function savePlaylists() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(playlists));
 }
 
+// Render sidebar playlists
 function renderSidebar() {
   const container = document.getElementById("sidebarPlaylists");
   container.innerHTML = "";
@@ -37,32 +30,26 @@ function renderSidebar() {
     const btn = document.createElement("button");
     btn.className = "pl-btn";
     const count = playlists[name].length;
-    btn.innerHTML = `<span>${name}</span><span style="color: #1db954; font-size: 11px;">${count}</span>`;
+    btn.innerHTML = `<span>${name}</span><span style="color: #1db954;">${count}</span>`;
     btn.addEventListener("click", () => selectPlaylist(name));
     container.appendChild(btn);
   });
 }
 
+// Render playlist area in right panel
 function renderPlaylistArea() {
   const container = document.getElementById("playlistArea");
   container.innerHTML = "";
   Object.keys(playlists).forEach(name => {
     const div = document.createElement("div");
-    div.style.cssText = "padding: 8px; border-radius: 6px; background: rgba(29,185,84,0.08); border: 1px solid rgba(29,185,84,0.2); font-size: 12px; cursor: pointer; transition: all 0.2s;";
+    div.className = "playlist-item";
     div.innerHTML = `<strong>${name}</strong> <span style="color: #1db954;">(${playlists[name].length})</span>`;
     div.addEventListener("click", () => selectPlaylist(name));
-    div.addEventListener("mouseenter", () => {
-      div.style.background = "rgba(29,185,84,0.15)";
-      div.style.borderColor = "rgba(29,185,84,0.4)";
-    });
-    div.addEventListener("mouseleave", () => {
-      div.style.background = "rgba(29,185,84,0.08)";
-      div.style.borderColor = "rgba(29,185,84,0.2)";
-    });
     container.appendChild(div);
   });
 }
 
+// Select and play playlist
 function selectPlaylist(name) {
   currentPlaylist = name;
   currentTrackIndex = 0;
@@ -70,11 +57,11 @@ function selectPlaylist(name) {
     const track = playlists[name][0];
     setVideoById(track.id, track.title, track.artist);
   }
-  alert(`Playing playlist: ${name}`);
 }
 
+// Create new playlist
 function createPlaylist() {
-  const name = prompt("Playlist name:");
+  const name = prompt("Enter playlist name:");
   if (!name || name.trim() === "") return;
   if (playlists[name]) return alert("Playlist already exists");
   playlists[name] = [];
@@ -82,6 +69,7 @@ function createPlaylist() {
   loadPlaylists();
 }
 
+// Add track to playlist
 function addToPlaylist(videoId, title, artist) {
   const plNames = Object.keys(playlists);
   if (plNames.length === 0) return alert("No playlists. Create one first!");
@@ -100,6 +88,7 @@ function addToPlaylist(videoId, title, artist) {
   }
 }
 
+// Extract video ID from YouTube URL
 function extractVideoId(url) {
   if (!url) return null;
   if (url.includes("youtu.be/")) return url.split("youtu.be/")[1].split(/[?&]/)[0];
@@ -108,36 +97,46 @@ function extractVideoId(url) {
   return m ? m[1] : null;
 }
 
+// Set video by ID
 function setVideoById(vid, customTitle = null, customArtist = null) {
-  const player = document.getElementById(PLAYER_IFRAME_ID);
-  const cover = document.getElementById(COVER_IMG_ID);
-  const titleEls = document.querySelectorAll(`#${TITLE_ID}`);
-  const artistEls = document.querySelectorAll(`#${ARTIST_ID}`);
+  const player = document.getElementById("ytPlayer");
+  const cover = document.getElementById("coverImg");
+  const miniCover = document.getElementById("miniCover");
+  const trackTitle = document.getElementById("trackTitle");
+  const trackArtist = document.getElementById("trackArtist");
+  const playerTrackTitle = document.getElementById("playerTrackTitle");
+  const playerTrackArtist = document.getElementById("playerTrackArtist");
 
   if (!vid) return;
   currentVideoId = vid;
-  player.src = `https://www.youtube.com/embed/${vid}?autoplay=1&controls=1&rel=0&modestbranding=1`;
+  player.src = `https://www.youtube.com/embed/${vid}?autoplay=1&controls=0&rel=0&modestbranding=1`;
   isPlaying = true;
 
-  cover.src = `https://i.ytimg.com/vi/${vid}/hqdefault.jpg`;
-  const miniCover = document.getElementById("miniCover");
-  if (miniCover) miniCover.src = `https://i.ytimg.com/vi/${vid}/hqdefault.jpg`;
+  const coverUrl = `https://i.ytimg.com/vi/${vid}/hqdefault.jpg`;
+  cover.src = coverUrl;
+  miniCover.src = coverUrl;
 
   if (customTitle && customArtist) {
-    titleEls.forEach(el => el.textContent = customTitle);
-    artistEls.forEach(el => el.textContent = customArtist);
+    trackTitle.textContent = customTitle;
+    trackArtist.textContent = customArtist;
+    playerTrackTitle.textContent = customTitle;
+    playerTrackArtist.textContent = customArtist;
   } else {
     fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${vid}&format=json`)
       .then(r => r.ok ? r.json() : null)
       .then(data => {
         const title = data?.title || "YouTube Video";
         const artist = data?.author_name || "YouTube";
-        titleEls.forEach(el => el.textContent = title);
-        artistEls.forEach(el => el.textContent = artist);
+        trackTitle.textContent = title;
+        trackArtist.textContent = artist;
+        playerTrackTitle.textContent = title;
+        playerTrackArtist.textContent = artist;
       })
-      .catch(_ => {
-        titleEls.forEach(el => el.textContent = `Video: ${vid}`);
-        artistEls.forEach(el => el.textContent = "YouTube");
+      .catch(() => {
+        trackTitle.textContent = `Video: ${vid}`;
+        trackArtist.textContent = "YouTube";
+        playerTrackTitle.textContent = `Video: ${vid}`;
+        playerTrackArtist.textContent = "YouTube";
       });
   }
 
@@ -147,9 +146,11 @@ function setVideoById(vid, customTitle = null, customArtist = null) {
   startWaveAnimation();
 }
 
+// Toggle play/pause
 function togglePlay() {
-  const iframe = document.getElementById(PLAYER_IFRAME_ID);
+  const iframe = document.getElementById("ytPlayer");
   if (!currentVideoId) return;
+  
   if (isPlaying) {
     iframe.src = "";
     isPlaying = false;
@@ -157,7 +158,7 @@ function togglePlay() {
     stopProgressSimulation();
     stopWaveAnimation();
   } else {
-    iframe.src = `https://www.youtube.com/embed/${currentVideoId}?autoplay=1&controls=1&rel=0&modestbranding=1`;
+    iframe.src = `https://www.youtube.com/embed/${currentVideoId}?autoplay=1&controls=0&rel=0&modestbranding=1`;
     isPlaying = true;
     updatePlayButton();
     startProgressSimulation();
@@ -165,14 +166,17 @@ function togglePlay() {
   }
 }
 
+// Update play button text
 function updatePlayButton() {
-  document.getElementById(PLAY_BTN_ID).textContent = isPlaying ? "⏸" : "▶";
+  document.getElementById("playBtn").textContent = isPlaying ? "⏸" : "▶";
 }
 
+// Set progress bar
 function setProgress(p) {
-  document.getElementById(PROGRESS_FILL_ID).style.width = `${Math.max(0, Math.min(100, p))}%`;
+  document.getElementById("progressFill").style.width = `${Math.max(0, Math.min(100, p))}%`;
 }
 
+// Start progress simulation
 function startProgressSimulation() {
   clearInterval(progressInterval);
   let val = 0;
@@ -187,31 +191,36 @@ function startProgressSimulation() {
   }, 500);
 }
 
+// Stop progress simulation
 function stopProgressSimulation() {
   clearInterval(progressInterval);
 }
 
+// Initialize wave bars
 function initWaveBars() {
-  const container = document.getElementById(WAVE_CONTAINER_ID);
+  const container = document.getElementById("waveContainer");
   container.innerHTML = "";
   waveBars = [];
   for (let i = 0; i < NUM_BARS; i++) {
     const bar = document.createElement("div");
     bar.className = "wave-bar";
-    bar.style.setProperty("--scale", Math.random());
+    bar.style.animationDelay = `${Math.random() * 0.5}s`;
     container.appendChild(bar);
     waveBars.push(bar);
   }
 }
 
+// Start wave animation
 function startWaveAnimation() {
   waveBars.forEach(bar => bar.style.animationPlayState = "running");
 }
 
+// Stop wave animation
 function stopWaveAnimation() {
   waveBars.forEach(bar => bar.style.animationPlayState = "paused");
 }
 
+// Play next track
 function playNext() {
   if (!currentPlaylist || playlists[currentPlaylist].length === 0) return;
   currentTrackIndex = (currentTrackIndex + 1) % playlists[currentPlaylist].length;
@@ -219,6 +228,7 @@ function playNext() {
   setVideoById(track.id, track.title, track.artist);
 }
 
+// Play previous track
 function playPrev() {
   if (!currentPlaylist || playlists[currentPlaylist].length === 0) return;
   currentTrackIndex = (currentTrackIndex - 1 + playlists[currentPlaylist].length) % playlists[currentPlaylist].length;
@@ -226,6 +236,7 @@ function playPrev() {
   setVideoById(track.id, track.title, track.artist);
 }
 
+// Search YouTube
 async function searchYouTube(query) {
   try {
     const response = await fetch(`https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`);
@@ -238,19 +249,20 @@ async function searchYouTube(query) {
   }
 }
 
+// Load music
 async function loadMusic() {
-  const raw = document.getElementById(INPUT_ID).value.trim();
-  if (!raw) return alert("Type a song name or paste a YouTube link.");
+  const raw = document.getElementById("ytInput").value.trim();
+  if (!raw) return alert("Enter a song name or YouTube link");
 
   const isUrl = /(youtube\.com|youtu\.be)/i.test(raw);
   if (isUrl) {
     const vid = extractVideoId(raw);
-    if (!vid) return alert("Could not extract video ID from link.");
+    if (!vid) return alert("Could not extract video ID");
     setVideoById(vid);
     return;
   }
 
-  const btn = document.getElementById(LOAD_BTN_ID);
+  const btn = document.getElementById("loadBtn");
   const origText = btn.textContent;
   btn.textContent = "Searching...";
   btn.disabled = true;
@@ -261,30 +273,50 @@ async function loadMusic() {
 
   if (vid) {
     setVideoById(vid);
-    document.getElementById(INPUT_ID).value = "";
+    document.getElementById("ytInput").value = "";
   } else {
-    alert("Song not found. Try another search or paste a YouTube link!");
+    alert("Song not found. Try another search!");
   }
 }
 
+// Initialize on page load
 document.addEventListener("DOMContentLoaded", () => {
   loadPlaylists();
   initWaveBars();
 
-  document.getElementById(LOAD_BTN_ID).addEventListener("click", loadMusic);
-  document.getElementById(PLAY_BTN_ID).addEventListener("click", togglePlay);
+  document.getElementById("loadBtn").addEventListener("click", loadMusic);
+  document.getElementById("playBtn").addEventListener("click", togglePlay);
   document.getElementById("createPlaylistBtn").addEventListener("click", createPlaylist);
+  document.getElementById("nextBtn").addEventListener("click", playNext);
+  document.getElementById("prevBtn").addEventListener("click", playPrev);
+  
+  document.getElementById("rewBtn").addEventListener("click", () => {
+    alert("Rewind not available with iframe player");
+  });
+  
+  document.getElementById("fwdBtn").addEventListener("click", () => {
+    alert("Forward not available with iframe player");
+  });
 
+  document.getElementById("ytInput").addEventListener("keydown", e => {
+    if (e.key === "Enter") loadMusic();
+  });
+
+  // Song card clicks
   const songCards = document.querySelectorAll(".song-card");
   songCards.forEach(card => {
-    card.addEventListener("click", () => {
-      const vid = card.dataset.id;
-      const title = card.dataset.title;
-      const artist = card.dataset.artist;
-      setVideoById(vid, title, artist);
-    });
+    const content = card.querySelector(".song-title, .song-cover");
+    if (content) {
+      card.addEventListener("click", (e) => {
+        if (e.target.classList.contains("add-btn")) return;
+        const vid = card.dataset.id;
+        const title = card.dataset.title;
+        const artist = card.dataset.artist;
+        setVideoById(vid, title, artist);
+      });
+    }
 
-    const addBtn = card.querySelector(".add-to-pl-btn");
+    const addBtn = card.querySelector(".add-btn");
     addBtn?.addEventListener("click", (e) => {
       e.stopPropagation();
       const vid = card.dataset.id;
@@ -294,21 +326,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  document.getElementById("nextBtn").addEventListener("click", playNext);
-  document.getElementById("prevBtn").addEventListener("click", playPrev);
-  document.getElementById("rewBtn").addEventListener("click", () => alert("Rewind not precise in iframe player"));
-  document.getElementById("fwdBtn").addEventListener("click", () => alert("Forward not precise in iframe player"));
-
-  document.getElementById(INPUT_ID).addEventListener("keydown", e => {
-    if (e.key === "Enter") loadMusic();
-  });
-
-  const progressBar = document.querySelector(".progress");
+  // Progress bar click
+  const progressBar = document.querySelector(".progress-bar");
   progressBar?.addEventListener("click", (e) => {
     const rect = progressBar.getBoundingClientRect();
     const percent = ((e.clientX - rect.left) / rect.width) * 100;
     setProgress(Math.min(100, Math.max(0, percent)));
   });
 });
-
-window.loadMusic = loadMusic;
