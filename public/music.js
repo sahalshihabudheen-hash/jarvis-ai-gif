@@ -103,3 +103,53 @@ navLinks.querySelectorAll("a").forEach(link => {
     hamburger.classList.remove("toggle");
   });
 });
+
+// Search Functionality
+const searchInput = document.getElementById("search-input");
+const songsGrid = document.querySelector(".songs-grid");
+
+searchInput.addEventListener("input", (e) => {
+  const searchTerm = e.target.value.toLowerCase().trim();
+  
+  songCards.forEach(card => {
+    const title = card.querySelector("h3").textContent.toLowerCase();
+    const artist = card.querySelector("p").textContent.toLowerCase();
+    
+    if (title.includes(searchTerm) || artist.includes(searchTerm)) {
+      card.style.display = "block";
+      
+      // Auto-play first matching song
+      if (searchTerm && title.includes(searchTerm)) {
+        const firstMatch = Array.from(songCards).find(c => {
+          const t = c.querySelector("h3").textContent.toLowerCase();
+          return t.includes(searchTerm) && c.style.display !== "none";
+        });
+        
+        if (firstMatch === card) {
+          setTimeout(() => {
+            const albumArt = card.querySelector(".album-art").src;
+            const songTitle = card.querySelector("h3").textContent;
+            const artistName = card.querySelector("p").textContent;
+            
+            document.querySelector(".player-album").src = albumArt;
+            document.querySelector(".player-title").textContent = songTitle;
+            document.querySelector(".player-artist").textContent = artistName;
+            
+            isPlaying = true;
+            playBtn.textContent = "⏸";
+            progress = 0;
+          }, 300);
+        }
+      }
+    } else {
+      card.style.display = "none";
+    }
+  });
+  
+  // Show all songs if search is empty
+  if (!searchTerm) {
+    songCards.forEach(card => {
+      card.style.display = "block";
+    });
+  }
+});
